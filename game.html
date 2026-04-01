@@ -1093,14 +1093,179 @@ var ZONES = [
       storage:{ base:2000, mult:1.55, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
       luckyFind:{ base:6000, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
     }
+  },
+  // === MAP LV2 ZONES (Ring 3 — further out) ===
+  {
+    id:'constantinople', name:'Constantinople', icon:'🕌', bg:'#2e1838', x:18, y:18,
+    cost:150000, caravan:'🐪', startState:'hidden', mapLevel:2,
+    resources:[
+      { id:'silk', name:'Silk', icon:'🧵', yield:55, baseRate:0.35, price:85 },
+      { id:'jewels', name:'Jewels', icon:'💍', yield:45, baseRate:0.12, price:150 }
+    ],
+    upgrades:{
+      production:{ base:3000, mult:1.65, perLvl:0.08, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ base:3500, mult:1.65, perLvl:10, label:'Caravan Speed', icon:'🐪', unit:'%' },
+      cargo:{ base:4000, mult:1.65, perLvl:10, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ base:12000, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ base:50000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'🐪+', unit:'', max:4 },
+      sellValue:{ base:5000, mult:1.60, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ base:4500, mult:1.55, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ base:15000, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+    }
+  },
+  {
+    id:'venetia', name:'Venetia', icon:'⛵', bg:'#142838', x:85, y:15,
+    cost:200000, caravan:'⛵', startState:'hidden', mapLevel:2,
+    resources:[
+      { id:'glass', name:'Glass', icon:'🔮', yield:50, baseRate:0.3, price:95 },
+      { id:'salt', name:'Salt', icon:'🧂', yield:50, baseRate:0.4, price:45 }
+    ],
+    upgrades:{
+      production:{ base:4000, mult:1.65, perLvl:0.07, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ base:4500, mult:1.65, perLvl:10, label:'Caravan Speed', icon:'⛵', unit:'%' },
+      cargo:{ base:5000, mult:1.65, perLvl:10, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ base:15000, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ base:60000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'⛵+', unit:'', max:4 },
+      sellValue:{ base:6000, mult:1.60, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ base:5500, mult:1.55, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ base:18000, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+    }
+  },
+  {
+    id:'carthage', name:'Carthage', icon:'🏺', bg:'#382818', x:50, y:12,
+    cost:250000, caravan:'⛵', startState:'hidden', mapLevel:2,
+    resources:[
+      { id:'dyes', name:'Dyes', icon:'🎨', yield:45, baseRate:0.25, price:110 },
+      { id:'ivory', name:'Ivory', icon:'🦷', yield:55, baseRate:0.18, price:140 }
+    ],
+    upgrades:{
+      production:{ base:5000, mult:1.65, perLvl:0.06, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ base:5500, mult:1.65, perLvl:10, label:'Caravan Speed', icon:'⛵', unit:'%' },
+      cargo:{ base:6000, mult:1.65, perLvl:10, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ base:18000, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ base:75000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'⛵+', unit:'', max:4 },
+      sellValue:{ base:8000, mult:1.65, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ base:7000, mult:1.55, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ base:22000, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+    }
+  },
+  // === MAP LV3 ZONES (Ring 4 — far) ===
+  {
+    id:'samarkand', name:'Samarkand', icon:'🕌', bg:'#302020', x:12, y:80,
+    cost:500000, caravan:'🐪', startState:'hidden', mapLevel:3,
+    resources:[
+      { id:'lapis', name:'Lapis Lazuli', icon:'🔷', yield:40, baseRate:0.15, price:200 },
+      { id:'carpets', name:'Carpets', icon:'🧶', yield:60, baseRate:0.25, price:120 }
+    ],
+    upgrades:{
+      production:{ base:12000, mult:1.70, perLvl:0.05, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ base:14000, mult:1.70, perLvl:10, label:'Caravan Speed', icon:'🐪', unit:'%' },
+      cargo:{ base:15000, mult:1.70, perLvl:10, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ base:40000, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ base:150000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'🐪+', unit:'', max:4 },
+      sellValue:{ base:18000, mult:1.70, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ base:16000, mult:1.60, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ base:50000, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+    }
+  },
+  {
+    id:'mumbai', name:'Mumbai', icon:'🛕', bg:'#382810', x:88, y:78,
+    cost:750000, caravan:'⛵', startState:'hidden', mapLevel:3,
+    resources:[
+      { id:'tea', name:'Tea', icon:'🍵', yield:50, baseRate:0.2, price:160 },
+      { id:'cotton', name:'Cotton', icon:'☁️', yield:50, baseRate:0.3, price:100 }
+    ],
+    upgrades:{
+      production:{ base:15000, mult:1.70, perLvl:0.05, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ base:18000, mult:1.70, perLvl:10, label:'Caravan Speed', icon:'⛵', unit:'%' },
+      cargo:{ base:20000, mult:1.70, perLvl:10, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ base:50000, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ base:200000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'⛵+', unit:'', max:4 },
+      sellValue:{ base:22000, mult:1.70, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ base:20000, mult:1.60, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ base:60000, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+    }
+  },
+  {
+    id:'xian', name:"Xi'an", icon:'🏯', bg:'#2a1e1e', x:50, y:75,
+    cost:1000000, caravan:'🐪', startState:'hidden', mapLevel:3,
+    resources:[
+      { id:'jade', name:'Jade', icon:'💚', yield:45, baseRate:0.12, price:250 },
+      { id:'porcelain', name:'Porcelain', icon:'🏺', yield:55, baseRate:0.2, price:135 }
+    ],
+    upgrades:{
+      production:{ base:20000, mult:1.70, perLvl:0.04, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ base:22000, mult:1.70, perLvl:10, label:'Caravan Speed', icon:'🐪', unit:'%' },
+      cargo:{ base:25000, mult:1.70, perLvl:10, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ base:65000, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ base:280000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'🐪+', unit:'', max:4 },
+      sellValue:{ base:30000, mult:1.70, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ base:25000, mult:1.60, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ base:80000, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+    }
+  },
+  // === MAP LV4 ZONES (Ring 5 — edge of the world) ===
+  {
+    id:'timbuktu', name:'Timbuktu', icon:'🌍', bg:'#3a2e10', x:15, y:90,
+    cost:2500000, caravan:'🐪', startState:'hidden', mapLevel:4,
+    resources:[
+      { id:'goldDust', name:'Gold Dust', icon:'✨', yield:40, baseRate:0.08, price:400 },
+      { id:'exoticWood', name:'Exotic Wood', icon:'🌴', yield:60, baseRate:0.18, price:180 }
+    ],
+    upgrades:{
+      production:{ base:50000, mult:1.75, perLvl:0.03, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ base:55000, mult:1.75, perLvl:10, label:'Caravan Speed', icon:'🐪', unit:'%' },
+      cargo:{ base:60000, mult:1.75, perLvl:10, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ base:150000, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ base:600000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'🐪+', unit:'', max:4 },
+      sellValue:{ base:70000, mult:1.75, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ base:60000, mult:1.65, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ base:180000, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+    }
+  },
+  {
+    id:'vinland', name:'Vinland', icon:'🛡️', bg:'#1a2830', x:85, y:88,
+    cost:4000000, caravan:'⛵', startState:'hidden', mapLevel:4,
+    resources:[
+      { id:'amber', name:'Amber', icon:'🟠', yield:50, baseRate:0.1, price:320 },
+      { id:'furs', name:'Furs', icon:'🦊', yield:50, baseRate:0.15, price:220 }
+    ],
+    upgrades:{
+      production:{ base:70000, mult:1.75, perLvl:0.03, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ base:75000, mult:1.75, perLvl:10, label:'Caravan Speed', icon:'⛵', unit:'%' },
+      cargo:{ base:80000, mult:1.75, perLvl:10, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ base:200000, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ base:800000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'⛵+', unit:'', max:4 },
+      sellValue:{ base:90000, mult:1.75, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ base:80000, mult:1.65, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ base:250000, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+    }
+  },
+  {
+    id:'zhangye', name:'Zhangye', icon:'🐉', bg:'#2a1020', x:50, y:95,
+    cost:6000000, caravan:'🐪', startState:'hidden', mapLevel:4,
+    resources:[
+      { id:'dragonScale', name:'Dragon Scales', icon:'🐉', yield:35, baseRate:0.06, price:600 },
+      { id:'silkRoad', name:'Silk Road Goods', icon:'🎭', yield:65, baseRate:0.15, price:280 }
+    ],
+    upgrades:{
+      production:{ base:100000, mult:1.80, perLvl:0.025, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ base:110000, mult:1.80, perLvl:10, label:'Caravan Speed', icon:'🐪', unit:'%' },
+      cargo:{ base:120000, mult:1.80, perLvl:10, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ base:300000, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ base:1200000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'🐪+', unit:'', max:4 },
+      sellValue:{ base:130000, mult:1.80, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ base:110000, mult:1.70, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ base:400000, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+    }
   }
 ];
 
 var SCOUTING_MAPS = [
   { id:'mapLv1', name:'Map Lv1', icon:'🗺️', discovers:['athenai','roma','alexandria'] },
-  { id:'mapLv2', name:'Map Lv2', icon:'🗺️', discovers:[], locked:true },
-  { id:'mapLv3', name:'Map Lv3', icon:'🗺️', discovers:[], locked:true },
-  { id:'mapLv4', name:'Map Lv4', icon:'🗺️', discovers:[], locked:true },
+  { id:'mapLv2', name:'Map Lv2', icon:'🗺️', discovers:['constantinople','venetia','carthage'] },
+  { id:'mapLv3', name:'Map Lv3', icon:'🗺️', discovers:['samarkand','mumbai','xian'] },
+  { id:'mapLv4', name:'Map Lv4', icon:'🗺️', discovers:['timbuktu','vinland','zhangye'] },
 ];
 
 var CRAFT_RECIPES = [
@@ -1113,9 +1278,9 @@ var CRAFT_RECIPES = [
   { id:'steelBar',   name:'Steel Bar',   icon:'⚔️',  time:20,  sellPrice:50,  cost:{ iron:8, stone:3 } },
   // Maps (not sellable)
   { id:'mapLv1', name:'Map Lv1', icon:'🗺️', time:60, sellPrice:0, cost:{ tools:5, provisions:10, scoutKit:3 }, type:'map' },
-  { id:'mapLv2', name:'Map Lv2', icon:'🗺️', time:120, sellPrice:0, cost:{}, type:'map', locked:true },
-  { id:'mapLv3', name:'Map Lv3', icon:'🗺️', time:240, sellPrice:0, cost:{}, type:'map', locked:true },
-  { id:'mapLv4', name:'Map Lv4', icon:'🗺️', time:480, sellPrice:0, cost:{}, type:'map', locked:true },
+  { id:'mapLv2', name:'Map Lv2', icon:'🗺️', time:120, sellPrice:0, cost:{ tradeContract:5, luxuryGoods:3, scoutKit:10 }, type:'map' },
+  { id:'mapLv3', name:'Map Lv3', icon:'🗺️', time:240, sellPrice:0, cost:{ merchantFleet:2, royalArmor:3, tradeContract:10 }, type:'map' },
+  { id:'mapLv4', name:'Map Lv4', icon:'🗺️', time:480, sellPrice:0, cost:{ merchantFleet:5, royalArmor:5, luxuryGoods:10 }, type:'map' },
   // Advanced (from new zones)
   { id:'olivePress', name:'Olive Press',  icon:'🫒',  time:18,  sellPrice:45,  cost:{ oliveOil:5, planks:3 } },
   { id:'scrolls',    name:'Scrolls',      icon:'📖',  time:25,  sellPrice:65,  cost:{ papyrus:8, tools:2 } },
@@ -1126,6 +1291,14 @@ var CRAFT_RECIPES = [
   { id:'tradeContract', name:'Trade Contract', icon:'📋', time:40, sellPrice:180, cost:{ scrolls:3, tools:5 } },
   { id:'royalArmor', name:'Royal Armor',   icon:'👑', time:50, sellPrice:280, cost:{ warGear:3, steelBar:8, olivePress:2 } },
   { id:'merchantFleet', name:'Merchant Fleet', icon:'🚢', time:60, sellPrice:350, cost:{ tradeContract:2, luxuryGoods:2, planks:20 } },
+  // Tier 4 crafts (from Lv2+ zone resources)
+  { id:'silkRobe', name:'Silk Robe', icon:'👘', time:30, sellPrice:250, cost:{ silk:5, dyes:3 } },
+  { id:'crystalLens', name:'Crystal Lens', icon:'🔭', time:35, sellPrice:280, cost:{ glass:8, jewels:2 } },
+  { id:'ivoryStatue', name:'Ivory Statue', icon:'🗿', time:40, sellPrice:320, cost:{ ivory:5, jade:2, goldDust:1 } },
+  { id:'spicedTea', name:'Spiced Tea', icon:'☕', time:25, sellPrice:220, cost:{ tea:8, spices:5 } },
+  { id:'fineCloth', name:'Fine Cloth', icon:'🧣', time:28, sellPrice:200, cost:{ cotton:10, dyes:3 } },
+  { id:'dragonAmulet', name:'Dragon Amulet', icon:'🐲', time:90, sellPrice:800, cost:{ dragonScale:3, jewels:5, lapis:5 } },
+  { id:'imperialCrown', name:'Imperial Crown', icon:'👑', time:120, sellPrice:1200, cost:{ goldDust:5, jewels:3, silk:10, dragonScale:2 } },
 ];
 
 var MAX_CRAFT_SLOTS = 3;
@@ -1147,6 +1320,12 @@ var PRESTIGE_MILESTONES = [
   { crowns: 250000,  seals: 5,  label: '250K' },
   { crowns: 500000,  seals: 8,  label: '500K' },
   { crowns: 1000000, seals: 12, label: '1M' },
+  { crowns: 2500000, seals: 18, label: '2.5M' },
+  { crowns: 5000000, seals: 25, label: '5M' },
+  { crowns: 10000000, seals: 35, label: '10M' },
+  { crowns: 25000000, seals: 50, label: '25M' },
+  { crowns: 50000000, seals: 70, label: '50M' },
+  { crowns: 100000000, seals: 100, label: '100M' },
 ];
 
 var PRESTIGE_UPGRADES = [
