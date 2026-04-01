@@ -345,6 +345,30 @@
   .bz-income-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--txt-dm); }
   .bz-income-val { font-size: 20px; font-weight: 700; color: var(--gold-lt); margin-top: 2px; }
 
+  /* ===== SCOUTING ===== */
+  .scout-map-card {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r);
+    padding: 14px; margin-bottom: 10px;
+  }
+  .scout-map-card.used { opacity: 0.4; border-color: var(--green); }
+  .scout-map-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .scout-map-name { font-size: 14px; font-weight: 700; color: var(--txt-br); }
+  .scout-map-status { font-size: 11px; }
+  .scout-map-zones { font-size: 11px; color: var(--txt-dm); margin-bottom: 10px; }
+  .scout-map-zones span { color: var(--txt); }
+  .scout-send-btn {
+    display: block; width: 100%; padding: 10px;
+    background: rgba(58,138,122,0.15); border: 1.5px solid var(--teal);
+    border-radius: 8px; font-size: 13px; font-weight: 700; color: var(--teal);
+    cursor: pointer; font-family: inherit; text-align: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .scout-send-btn:active { transform: scale(0.97); }
+  .scout-send-btn:disabled { opacity: 0.3; cursor: default; }
+
   /* ===== CRAFT SCREEN ===== */
   .cr-slot {
     background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r);
@@ -558,10 +582,24 @@
       </div>
       <!-- zones injected by JS -->
     </div>
-    <div class="bz-income">
-      <div class="bz-income-label">Total Income</div>
-      <div class="bz-income-val" id="mapIncome">0.0 🪙/s</div>
+    <div style="display:flex;gap:8px;">
+      <div class="bz-income" style="flex:1;">
+        <div class="bz-income-label">Total Income</div>
+        <div class="bz-income-val" id="mapIncome">0.0 🪙/s</div>
+      </div>
+      <button style="flex-shrink:0;padding:10px 16px;background:var(--bg-card);border:1.5px solid var(--teal);border-radius:var(--r);font-size:13px;font-weight:700;color:var(--teal);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;-webkit-tap-highlight-color:transparent;" onclick="showScreen('scouting')">🧭 Scout</button>
     </div>
+  </div>
+
+  <!-- SCOUTING -->
+  <div class="screen" id="scrScouting">
+    <button class="zd-back" onclick="showScreen('map')">← Back to Map</button>
+    <div style="text-align:center;margin-bottom:14px;">
+      <div style="font-size:36px;">🧭</div>
+      <div style="font-size:18px;font-weight:700;color:var(--txt-br);">Scouting</div>
+      <div style="font-size:11px;color:var(--txt-dm);">Use Maps to discover new trade zones</div>
+    </div>
+    <div id="scoutingContent"></div>
   </div>
 
   <!-- ZONE DETAIL -->
@@ -650,9 +688,10 @@
    GAME DATA
    ============================================================ */
 var ZONES = [
+  // === STARTER ZONES (always visible, buy with Crowns) ===
   {
     id:'forest', name:'Pădure', icon:'🌲', bg:'#1a3a1a', x:30, y:18,
-    cost:0, caravan:'🐴',
+    cost:0, caravan:'🐴', startState:'unlocked',
     resources:[
       { id:'wood', name:'Wood', icon:'🪵', yield:70, baseRate:1.0, price:2 },
       { id:'food', name:'Food', icon:'🍎', yield:30, baseRate:0.4, price:3 }
@@ -667,7 +706,7 @@ var ZONES = [
   },
   {
     id:'farm', name:'Fermă', icon:'🌾', bg:'#3a3418', x:72, y:22,
-    cost:500, caravan:'🐂',
+    cost:500, caravan:'🐂', startState:'discovered',
     resources:[
       { id:'food', name:'Food', icon:'🍎', yield:75, baseRate:1.2, price:3 },
       { id:'wood', name:'Wood', icon:'🪵', yield:25, baseRate:0.3, price:2 }
@@ -681,8 +720,8 @@ var ZONES = [
     }
   },
   {
-    id:'mine', name:'Mină', icon:'⛰️', bg:'#2a2a32', x:50, y:75,
-    cost:2500, caravan:'🐴',
+    id:'mine', name:'Mină', icon:'⛰️', bg:'#2a2a32', x:50, y:55,
+    cost:2500, caravan:'🐴', startState:'discovered',
     resources:[
       { id:'stone', name:'Stone', icon:'🪨', yield:60, baseRate:0.6, price:5 },
       { id:'iron', name:'Iron', icon:'⚙️', yield:40, baseRate:0.3, price:10 }
@@ -694,16 +733,80 @@ var ZONES = [
       harvest:{ base:300, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
       extraCaravan:{ base:1200, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'🐴+', unit:'', max:4 }
     }
+  },
+  // === SCOUTABLE ZONES (Map Lv1 discovers these) ===
+  {
+    id:'athenai', name:'Athenai', icon:'🏛️', bg:'#1e2848', x:82, y:45,
+    cost:8000, caravan:'⛵', startState:'hidden', mapLevel:1,
+    resources:[
+      { id:'oliveOil', name:'Olive Oil', icon:'🫒', yield:65, baseRate:0.6, price:20 },
+      { id:'pottery', name:'Pottery', icon:'🏺', yield:35, baseRate:0.3, price:28 }
+    ],
+    upgrades:{
+      production:{ base:200, mult:1.50, perLvl:0.12, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ base:250, mult:1.50, perLvl:10, label:'Caravan Speed', icon:'⛵', unit:'%' },
+      cargo:{ base:300, mult:1.50, perLvl:8, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ base:800, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ base:3000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'⛵+', unit:'', max:4 }
+    }
+  },
+  {
+    id:'roma', name:'Roma', icon:'🏟️', bg:'#3a2018', x:22, y:72,
+    cost:25000, caravan:'🐴', startState:'hidden', mapLevel:1,
+    resources:[
+      { id:'wine', name:'Wine', icon:'🍷', yield:60, baseRate:0.5, price:30 },
+      { id:'weapons', name:'Weapons', icon:'⚔️', yield:40, baseRate:0.2, price:55 }
+    ],
+    upgrades:{
+      production:{ base:500, mult:1.55, perLvl:0.10, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ base:600, mult:1.55, perLvl:10, label:'Caravan Speed', icon:'🐴', unit:'%' },
+      cargo:{ base:700, mult:1.55, perLvl:10, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ base:2000, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ base:8000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'🐴+', unit:'', max:4 }
+    }
+  },
+  {
+    id:'alexandria', name:'Alexandria', icon:'📜', bg:'#38341a', x:50, y:90,
+    cost:60000, caravan:'⛵', startState:'hidden', mapLevel:1,
+    resources:[
+      { id:'papyrus', name:'Papyrus', icon:'📜', yield:60, baseRate:0.4, price:38 },
+      { id:'spices', name:'Spices', icon:'🌶️', yield:40, baseRate:0.15, price:70 }
+    ],
+    upgrades:{
+      production:{ base:1200, mult:1.60, perLvl:0.08, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ base:1500, mult:1.60, perLvl:10, label:'Caravan Speed', icon:'⛵', unit:'%' },
+      cargo:{ base:1800, mult:1.60, perLvl:10, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ base:5000, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ base:20000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'⛵+', unit:'', max:4 }
+    }
   }
 ];
 
+var SCOUTING_MAPS = [
+  { id:'mapLv1', name:'Map Lv1', icon:'🗺️', discovers:['athenai','roma','alexandria'] },
+  { id:'mapLv2', name:'Map Lv2', icon:'🗺️', discovers:[], locked:true },
+  { id:'mapLv3', name:'Map Lv3', icon:'🗺️', discovers:[], locked:true },
+  { id:'mapLv4', name:'Map Lv4', icon:'🗺️', discovers:[], locked:true },
+];
+
 var CRAFT_RECIPES = [
+  // Basic
   { id:'planks',     name:'Planks',      icon:'🪵',  time:5,   sellPrice:8,   cost:{ wood:5 } },
   { id:'bricks',     name:'Bricks',      icon:'🧱',  time:8,   sellPrice:18,  cost:{ stone:8, wood:2 } },
   { id:'tools',      name:'Tools',       icon:'🔧',  time:15,  sellPrice:35,  cost:{ planks:3, iron:5 } },
   { id:'provisions', name:'Provisions',  icon:'🎒',  time:12,  sellPrice:25,  cost:{ food:10, wood:3 } },
   { id:'scoutKit',   name:'Scout Kit',   icon:'🧭',  time:30,  sellPrice:80,  cost:{ tools:2, provisions:5 } },
   { id:'steelBar',   name:'Steel Bar',   icon:'⚔️',  time:20,  sellPrice:50,  cost:{ iron:8, stone:3 } },
+  // Maps (not sellable)
+  { id:'mapLv1', name:'Map Lv1', icon:'🗺️', time:60, sellPrice:0, cost:{ tools:5, provisions:10, scoutKit:3 }, type:'map' },
+  { id:'mapLv2', name:'Map Lv2', icon:'🗺️', time:120, sellPrice:0, cost:{}, type:'map', locked:true },
+  { id:'mapLv3', name:'Map Lv3', icon:'🗺️', time:240, sellPrice:0, cost:{}, type:'map', locked:true },
+  { id:'mapLv4', name:'Map Lv4', icon:'🗺️', time:480, sellPrice:0, cost:{}, type:'map', locked:true },
+  // Advanced (from new zones)
+  { id:'olivePress', name:'Olive Press',  icon:'🫒',  time:18,  sellPrice:45,  cost:{ oliveOil:5, planks:3 } },
+  { id:'scrolls',    name:'Scrolls',      icon:'📖',  time:25,  sellPrice:65,  cost:{ papyrus:8, tools:2 } },
+  { id:'spicedWine', name:'Spiced Wine',  icon:'🍷',  time:22,  sellPrice:75,  cost:{ wine:5, spices:3 } },
+  { id:'warGear',    name:'War Gear',     icon:'🛡️',  time:35,  sellPrice:120, cost:{ weapons:3, steelBar:5 } },
 ];
 
 var MAX_CRAFT_SLOTS = 3;
@@ -756,7 +859,7 @@ function createFreshState() {
     var stored = {};
     z.resources.forEach(function(r){ stored[r.id] = 0; });
     state.zones[z.id] = {
-      unlocked: z.cost === 0,
+      state: z.startState || 'hidden',
       upgrades: { production:0, speed:0, cargo:0, harvest:0, extraCaravan:0 },
       stored: stored,
       caravans: [{ progress:0, phase:'loading', cargo:{} }]
@@ -784,7 +887,7 @@ function resetForPrestige() {
     var stored = {};
     z.resources.forEach(function(r){ stored[r.id] = 0; });
     G.zones[z.id] = {
-      unlocked: z.cost === 0,
+      state: z.startState || 'hidden',
       upgrades: { production:0, speed:0, cargo:0, harvest:0, extraCaravan:0 },
       stored: stored,
       caravans: [{ progress:0, phase:'loading', cargo:{} }]
@@ -799,8 +902,8 @@ function resetForPrestige() {
 
   // Apply prestige effects
   if (G.ownedPrestige.startCrowns) { G.crowns = 1000; }
-  if (G.ownedPrestige.quickStart) { G.zones.farm.unlocked = true; }
-  if (G.ownedPrestige.grandMerchant) { G.zones.farm.unlocked = true; G.zones.mine.unlocked = true; }
+  if (G.ownedPrestige.quickStart) { G.zones.farm.state = 'unlocked'; }
+  if (G.ownedPrestige.grandMerchant) { G.zones.farm.state = 'unlocked'; G.zones.mine.state = 'unlocked'; }
 }
 
 /* ============================================================
@@ -824,7 +927,7 @@ function saveGame() {
     ZONES.forEach(function(z){
       var zs = G.zones[z.id];
       data.zones[z.id] = {
-        unlocked: zs.unlocked,
+        state: zs.state,
         upgrades: zs.upgrades,
         stored: zs.stored
       };
@@ -858,7 +961,7 @@ function loadGame() {
     ZONES.forEach(function(z){
       if (data.zones && data.zones[z.id]) {
         var saved = data.zones[z.id];
-        state.zones[z.id].unlocked = saved.unlocked;
+        state.zones[z.id].state = saved.state || (saved.unlocked ? 'unlocked' : 'discovered');
         state.zones[z.id].upgrades = saved.upgrades || state.zones[z.id].upgrades;
         // Ensure all upgrade keys exist
         if (!state.zones[z.id].upgrades.extraCaravan) state.zones[z.id].upgrades.extraCaravan = 0;
@@ -946,7 +1049,7 @@ function calcTotalIncome() {
   // Estimated income: production rate × sell price, adjusted for caravan throughput
   var total = 0;
   ZONES.forEach(function(z){
-    if (!G.zones[z.id].unlocked) return;
+    if (!G.zones[z.id].state === 'unlocked') return;
     var prodMult = getZoneProductionRate(z);
     var harvestBonus = 1 + getHarvestChance(z);
     var sellMult = getSellMultiplier();
@@ -990,7 +1093,7 @@ function calcPrestigeSeals() {
 function tick() {
   ZONES.forEach(function(z){
     var zs = G.zones[z.id];
-    if (!zs.unlocked) return;
+    if (zs.state !== 'unlocked') return;
 
     // 1) Zone produces resources → stored locally
     var prodMult = getZoneProductionRate(z);
@@ -1137,11 +1240,84 @@ function tickCraft() {
   });
 }
 
+/* ============================================================
+   SCOUTING LOGIC
+   ============================================================ */
+function useScouting(mapId) {
+  var map = SCOUTING_MAPS.find(function(m){ return m.id === mapId; });
+  if (!map || map.locked) return;
+  if ((G.craftInventory[mapId] || 0) < 1) return;
+
+  // Check if already used
+  var allDiscovered = map.discovers.every(function(zid){
+    return G.zones[zid].state !== 'hidden';
+  });
+  if (allDiscovered) return;
+
+  // Consume map
+  G.craftInventory[mapId]--;
+
+  // Discover zones
+  map.discovers.forEach(function(zid){
+    if (G.zones[zid].state === 'hidden') {
+      G.zones[zid].state = 'discovered';
+    }
+  });
+  showFlash('🧭 New zones discovered!');
+}
+
+function renderScouting() {
+  var h = '';
+  SCOUTING_MAPS.forEach(function(map){
+    if (map.locked) {
+      h += '<div class="scout-map-card" style="opacity:0.25;">';
+      h += '<div class="scout-map-header"><div class="scout-map-name">🗺️ ' + map.name + '</div><div class="scout-map-status" style="color:var(--txt-dm);">🔒 Coming Soon</div></div>';
+      h += '<div class="scout-map-zones">Future zones — not yet available</div>';
+      h += '</div>';
+      return;
+    }
+
+    var qty = G.craftInventory[map.id] || 0;
+    var allDiscovered = map.discovers.every(function(zid){ return G.zones[zid].state !== 'hidden'; });
+    var canUse = qty >= 1 && !allDiscovered;
+
+    h += '<div class="scout-map-card' + (allDiscovered ? ' used' : '') + '">';
+    h += '<div class="scout-map-header">';
+    h += '<div class="scout-map-name">🗺️ ' + map.name + '</div>';
+    if (allDiscovered) {
+      h += '<div class="scout-map-status" style="color:var(--green);">✅ Explored</div>';
+    } else {
+      h += '<div class="scout-map-status" style="color:var(--txt-dm);">Have: ' + qty + '</div>';
+    }
+    h += '</div>';
+
+    // Show zones this map discovers
+    h += '<div class="scout-map-zones">Discovers: ';
+    map.discovers.forEach(function(zid, i){
+      var zone = ZONES.find(function(z){ return z.id === zid; });
+      var st = G.zones[zid].state;
+      var color = st === 'unlocked' ? 'color:var(--green)' : st === 'discovered' ? 'color:var(--gold)' : 'color:var(--txt)';
+      if (i > 0) h += ', ';
+      h += '<span style="' + color + '">' + zone.icon + ' ' + zone.name + '</span>';
+    });
+    h += '</div>';
+
+    if (!allDiscovered) {
+      h += '<button class="scout-send-btn" onclick="useScouting(\'' + map.id + '\')"' + (canUse ? '' : ' disabled') + '>';
+      h += canUse ? '🧭 Send Scouts' : (qty < 1 ? 'Need ' + map.name + ' (craft it first)' : 'Already explored');
+      h += '</button>';
+    }
+    h += '</div>';
+  });
+  document.getElementById('scoutingContent').innerHTML = h;
+}
+
 function getResData() {
   var resData = {};
   ZONES.forEach(function(z){ z.resources.forEach(function(r){ resData[r.id] = r; }); });
-  // Add crafted items as sellable resources
+  // Add crafted items as sellable resources (exclude maps and locked)
   CRAFT_RECIPES.forEach(function(r){
+    if (r.type === 'map' || r.locked || r.sellPrice <= 0) return;
     resData[r.id] = { id:r.id, name:r.name, icon:r.icon, price:r.sellPrice, crafted:true };
   });
   return resData;
@@ -1248,9 +1424,9 @@ function buyUpgrade(zoneId, upKey) {
 function unlockZone(zoneId) {
   var zone = ZONES.find(function(z){ return z.id === zoneId; });
   var cost = getZoneUnlockCost(zone);
-  if (G.crowns >= cost && !G.zones[zoneId].unlocked) {
+  if (G.crowns >= cost && G.zones[zoneId].state === 'discovered') {
     G.crowns -= cost;
-    G.zones[zoneId].unlocked = true;
+    G.zones[zoneId].state = 'unlocked';
   }
 }
 
@@ -1290,6 +1466,9 @@ function showScreen(id) {
 
   if (id === 'zone') {
     document.getElementById('scrZone').classList.add('active');
+  } else if (id === 'scouting') {
+    document.getElementById('scrScouting').classList.add('active');
+    document.querySelectorAll('.nav-item')[0].classList.add('active');
   } else if (id === 'prestShop') {
     document.getElementById('scrPrestShop').classList.add('active');
     // Highlight prestige nav
@@ -1304,21 +1483,25 @@ function showScreen(id) {
 function openZone(zoneId) {
   var zone = ZONES.find(function(z){ return z.id === zoneId; });
   var node = document.getElementById('mapzone-' + zoneId);
+  var zState = G.zones[zoneId].state;
 
-  if (!G.zones[zoneId].unlocked) {
+  // Hidden zones can't be clicked
+  if (zState === 'hidden') return;
+
+  // Discovered: try to pay diplomacy cost
+  if (zState === 'discovered') {
     var cost = getZoneUnlockCost(zone);
     if (G.crowns >= cost) {
       unlockZone(zoneId);
-      showFlash('🔓 ' + zone.name + ' unlocked!');
+      showFlash('🤝 ' + zone.name + ' — Trade Deal!');
       updateMapNodes();
       updateCaravans();
-      return; // don't open detail yet, let player see it unlocked
+      return;
     } else {
-      // shake animation - can't afford
       node.classList.remove('shake');
-      void node.offsetWidth; // force reflow
+      void node.offsetWidth;
       node.classList.add('shake');
-      showFlash('Need ' + formatNum(cost) + ' 🪙');
+      showFlash('Need ' + formatNum(cost) + ' 🪙 for diplomacy');
       return;
     }
   }
@@ -1715,11 +1898,16 @@ function renderCraft() {
   }
 
   CRAFT_RECIPES.forEach(function(recipe) {
+    // Skip locked recipes
+    if (recipe.locked) {
+      rh += '<div class="cr-recipe" style="opacity:0.2;cursor:default;"><div class="cr-recipe-top"><div><div class="cr-recipe-name">🔒 ' + recipe.name + '</div><div class="cr-recipe-price" style="color:var(--txt-dm);">Coming soon</div></div><div class="cr-recipe-time">⏱ ' + recipe.time + 's</div></div></div>';
+      return;
+    }
+
     var affordable = canAffordCraft(recipe);
     var hasFreeSlot = freeSlot >= 0;
     var canStart = affordable && hasFreeSlot;
 
-    // Check if any slot has auto for this recipe
     var autoOn = G.craftSlots.some(function(sl){ return sl.auto && sl.autoRecipe === recipe.id; });
     var autoSlotIdx = -1;
     G.craftSlots.forEach(function(sl, si){ if (sl.auto && sl.autoRecipe === recipe.id) autoSlotIdx = si; });
@@ -1727,11 +1915,15 @@ function renderCraft() {
     rh += '<div class="cr-recipe' + (affordable ? '' : ' cant-afford') + '">';
     rh += '<div class="cr-recipe-top">';
     rh += '<div><div class="cr-recipe-name">' + recipe.icon + ' ' + recipe.name + '</div>';
-    rh += '<div class="cr-recipe-price">Sells for ' + recipe.sellPrice + ' 🪙</div></div>';
+    if (recipe.type === 'map') {
+      rh += '<div class="cr-recipe-price" style="color:var(--teal);">🧭 Scouting Map</div>';
+    } else if (recipe.sellPrice > 0) {
+      rh += '<div class="cr-recipe-price">Sells for ' + recipe.sellPrice + ' 🪙</div>';
+    }
+    rh += '</div>';
     rh += '<div class="cr-recipe-time">⏱ ' + recipe.time + 's</div>';
     rh += '</div>';
 
-    // Cost list
     rh += '<div class="cr-recipe-cost">';
     Object.keys(recipe.cost).forEach(function(rid, i) {
       var have = getCraftResource(rid);
@@ -1742,7 +1934,6 @@ function renderCraft() {
     });
     rh += '</div>';
 
-    // Buttons
     rh += '<div class="cr-recipe-actions">';
     rh += '<button class="cr-btn cr-btn-craft" onclick="startCraft(' + (freeSlot >= 0 ? freeSlot : 0) + ',\'' + recipe.id + '\')"' + (canStart ? '' : ' disabled') + '>Craft 1</button>';
     rh += '<button class="cr-btn cr-btn-auto' + (autoOn ? ' on' : '') + '" onclick="toggleAutoCraft(' + (autoSlotIdx >= 0 ? autoSlotIdx : (freeSlot >= 0 ? freeSlot : 0)) + ',\'' + recipe.id + '\')">' + (autoOn ? '⏹ Stop Auto' : '🔄 Auto-Craft') + '</button>';
@@ -1835,17 +2026,30 @@ function updateMapNodes() {
   ZONES.forEach(function(z){
     var node = document.getElementById('mapzone-' + z.id);
     var route = document.getElementById('route-' + z.id);
-    var unlocked = G.zones[z.id].unlocked;
+    var zState = G.zones[z.id].state;
 
-    var h = '<div class="map-zone-bubble ' + (unlocked ? 'mz-unlocked' : 'mz-locked') + '" style="background:' + z.bg + ';">' + z.icon + '</div>';
+    if (zState === 'hidden') {
+      node.style.display = 'none';
+      route.setAttribute('stroke', 'transparent');
+      return;
+    }
+
+    node.style.display = '';
+    var isUnlocked = zState === 'unlocked';
+    var isDiscovered = zState === 'discovered';
+
+    var bubbleClass = isUnlocked ? 'mz-unlocked' : 'mz-locked';
+    var h = '<div class="map-zone-bubble ' + bubbleClass + '" style="background:' + z.bg + ';">' + z.icon + '</div>';
     h += '<div class="map-zone-name">' + z.name + '</div>';
-    if (!unlocked) {
+
+    if (isDiscovered) {
       var cost = getZoneUnlockCost(z);
       var canAfford = G.crowns >= cost;
-      h += '<div class="map-zone-price" style="' + (canAfford ? 'border-color:rgba(90,154,90,0.5);color:#88d088;' : '') + '">🪙 ' + formatNum(cost) + '</div>';
+      h += '<div class="map-zone-price" style="' + (canAfford ? 'border-color:rgba(90,154,90,0.5);color:#88d088;' : '') + '">🤝 ' + formatNum(cost) + '</div>';
     }
+
     node.innerHTML = h;
-    route.setAttribute('stroke', unlocked ? 'rgba(212,168,67,0.35)' : 'rgba(212,168,67,0.1)');
+    route.setAttribute('stroke', isUnlocked ? 'rgba(212,168,67,0.35)' : isDiscovered ? 'rgba(212,168,67,0.12)' : 'transparent');
   });
 }
 
@@ -1856,7 +2060,7 @@ function updateCaravans() {
     var els = caravanEls[z.id];
     var zs = G.zones[z.id];
 
-    if (!zs.unlocked) {
+    if (zs.state !== 'unlocked') {
       els.forEach(function(el){ el.style.opacity = '0'; });
       return;
     }
@@ -1929,6 +2133,7 @@ setInterval(function(){ tick(); tickCraft(); }, 100);
 setInterval(function(){
   renderHUD();
   if (G.currentScreen === 'map') { renderMap(); updateMapNodes(); }
+  else if (G.currentScreen === 'scouting') { renderScouting(); }
   else if (G.currentScreen === 'zone') { renderZoneDetail(); }
   else if (G.currentScreen === 'bazaar') { renderBazaar(); }
   else if (G.currentScreen === 'craft') { renderCraft(); }
@@ -1959,6 +2164,7 @@ window.sellSelected = sellSelected;
 window.startCraft = startCraft;
 window.toggleAutoCraft = toggleAutoCraft;
 window.wipeSave = wipeSave;
+window.useScouting = useScouting;
 window.doPrestige = doPrestige;
 window.buyPrestigeUpgrade = buyPrestigeUpgrade;
 })();
