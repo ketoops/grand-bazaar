@@ -83,7 +83,7 @@
   :root[data-theme="light"] .zd-up-cost { background: rgba(245,240,232,0.9); }
   :root[data-theme="light"] .bz-res-card { background: #fff; }
   :root[data-theme="light"] .bz-sell-btn { background: linear-gradient(135deg, #f0e0c0, #e8d8b0); color: var(--gold); box-shadow: 0 2px 8px rgba(160,120,40,0.12); }
-  :root[data-theme="light"] .bz-sell-btn.sell-all-btn { background: #f0ece4; color: var(--txt-dm); border-color: var(--border); }
+  :root[data-theme="light"] .bz-sell-all-fab { background: linear-gradient(135deg, #f0e0c0, #e8d8b0); border-color: var(--gold); }
   :root[data-theme="light"] .cr-recipe { background: #fff; }
   :root[data-theme="light"] .cr-slot { background: #fff; }
   :root[data-theme="light"] .cr-inventory { background: #fff; }
@@ -532,13 +532,26 @@
   }
   .bz-sell-btn:active { transform: scale(0.95); box-shadow: var(--glow-gold); }
   .bz-sell-btn:disabled { opacity: 0.25; cursor: default; box-shadow: none; }
-  .bz-sell-btn.sell-all-btn {
-    background: rgba(20,16,32,0.6);
-    border-color: var(--border);
-    color: var(--txt-dm);
-    font-size: 12px;
-    padding: 10px;
-    margin-top: 10px;
+  .bz-sell-all-fab {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg, #2a2018, #1e1610);
+    border: 2px solid var(--gold);
+    font-size: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-left: 10px;
+    box-shadow: 0 2px 12px rgba(212,168,67,0.2);
+    transition: transform 0.15s, box-shadow 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .bz-sell-all-fab:active { transform: scale(0.9); box-shadow: var(--glow-gold); }
+  .bz-sell-all-fab.auto-on {
+    border-color: var(--green);
+    box-shadow: 0 0 16px rgba(74,170,90,0.3);
+    animation: fabPulse 1.5s ease-in-out infinite;
+  }
+  @keyframes fabPulse {
+    0%,100% { box-shadow: 0 0 12px rgba(74,170,90,0.2); }
+    50% { box-shadow: 0 0 20px rgba(74,170,90,0.4); }
   }
 
   .bz-income {
@@ -879,14 +892,19 @@
   </div>
 
   <!-- BAZAAR -->
-  <div class="screen" id="scrBazaar">
-    <div class="bz-income">
-      <div class="bz-income-label">Total Income</div>
-      <div class="bz-income-val" id="bzIncome">0.0 🪙/s</div>
+  <div class="screen" id="scrBazaar" style="position:relative;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div class="bz-income" style="flex:1;margin:0;">
+        <div class="bz-income-label">Total Income</div>
+        <div class="bz-income-val" id="bzIncome">0.0 🪙/s</div>
+      </div>
+      <button class="bz-sell-all-fab" id="sellAllFab"
+        onmousedown="startLongPress()" onmouseup="endLongPress()" onmouseleave="endLongPress()"
+        ontouchstart="startLongPress()" ontouchend="endLongPress()" ontouchcancel="endLongPress()"
+        onclick="if(!longPressTriggered)sellAll()">💰</button>
     </div>
     <div class="section-label">Tap a resource to sell</div>
     <div id="bzResources"></div>
-    <button class="bz-sell-btn sell-all-btn" onclick="sellAll()">Sell All Resources</button>
   </div>
 
   <!-- CRAFT -->
@@ -2810,6 +2828,7 @@ updateMapNodes();
 setInterval(function(){
   var loops = G.godMode ? 10 : 1;
   for (var i = 0; i < loops; i++) { tick(); tickCraft(); tickAutoSell(); }
+  tickContinuousSell();
 }, 100);
 
 // UI render — 250ms (values update, no DOM rebuild)
@@ -2836,6 +2855,65 @@ setInterval(saveGame, 5000);
 
 // Save on page close/refresh
 window.addEventListener('beforeunload', saveGame);
+
+// Sell All FAB — tap = sell once, long press = toggle continuous auto-sell
+var longPressTimer = null;
+var longPressTriggered = false;
+var continuousSell = false;
+
+function startLongPress() {
+  longPressTriggered = false;
+  longPressTimer = setTimeout(function() {
+    longPressTriggered = true;
+    continuousSell = !continuousSell;
+    var fab = document.getElementById('sellAllFab');
+    if (continuousSell) {
+      fab.classList.add('auto-on');
+      fab.textContent = '🔄';
+      showFlash('Auto-Sell ON');
+    } else {
+      fab.classList.remove('auto-on');
+      fab.textContent = '💰';
+      showFlash('Auto-Sell OFF');
+    }
+  }, 500);
+}
+
+function endLongPress() {
+  clearTimeout(longPressTimer);
+}
+
+function tickContinuousSell() {
+  if (!continuousSell) return;
+  var resData = getResData();
+  var sellMult = getSellMultiplier();
+  var total = 0;
+  Object.keys(G.bazaar).forEach(function(rid){
+    var qty = G.bazaar[rid];
+    if (qty >= 1 && resData[rid]) {
+      var toSell = Math.floor(qty);
+      total += toSell * resData[rid].price * sellMult;
+      G.bazaar[rid] -= toSell;
+      if (G.bazaar[rid] < 0.01) G.bazaar[rid] = 0;
+    }
+  });
+  Object.keys(G.craftInventory).forEach(function(rid){
+    var qty = G.craftInventory[rid];
+    var r = resData[rid];
+    if (qty >= 1 && r && r.price > 0) {
+      total += qty * r.price * sellMult;
+      G.craftInventory[rid] = 0;
+    }
+  });
+  if (total > 0) {
+    total = Math.floor(total);
+    G.crowns += total;
+    G.totalCrownsEarned += total;
+  }
+}
+
+window.startLongPress = startLongPress;
+window.endLongPress = endLongPress;
 
 // God Mode
 function toggleGodMode() {
