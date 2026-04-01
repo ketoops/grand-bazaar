@@ -2400,6 +2400,7 @@ function buildZoneDetail() {
   h += '</div>';
 
   $zoneDetail.innerHTML = h;
+  applyAllCollapses();
 }
 
 function renderZoneDetail() {
@@ -2762,6 +2763,7 @@ function renderCraft() {
   rh += '</div>'; // close collapse-body
   }); // end craftTiers.forEach
   document.getElementById('crRecipes').innerHTML = rh;
+  applyAllCollapses();
 
   // Inventory
   var ih = '';
@@ -3126,17 +3128,26 @@ setInterval(saveGame, 5000);
 // Save on page close/refresh
 window.addEventListener('beforeunload', saveGame);
 
-// Collapsible sections
+// Collapsible sections — track open state globally
+var openSections = {};
 function toggleCollapse(id) {
+  openSections[id] = !openSections[id];
+  applyCollapse(id);
+}
+function applyCollapse(id) {
   var body = document.getElementById(id);
   var arrow = document.getElementById(id + 'Arrow');
-  if (body.classList.contains('open')) {
-    body.classList.remove('open');
-    if (arrow) arrow.classList.remove('open');
-  } else {
+  if (!body) return;
+  if (openSections[id]) {
     body.classList.add('open');
     if (arrow) arrow.classList.add('open');
+  } else {
+    body.classList.remove('open');
+    if (arrow) arrow.classList.remove('open');
   }
+}
+function applyAllCollapses() {
+  Object.keys(openSections).forEach(applyCollapse);
 }
 window.toggleCollapse = toggleCollapse;
 
