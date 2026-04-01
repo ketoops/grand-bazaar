@@ -1,0 +1,2326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grand Bazaar — Idle Game Concept Board</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-deep:       #0d0b14;
+    --bg-panel:      #16131f;
+    --bg-card:       #1e1a2a;
+    --bg-card-hover: #262136;
+    --border:        #2e2845;
+    --border-gold:   #6b5c3e;
+    --gold:          #d4a843;
+    --gold-light:    #f0d078;
+    --gold-dim:      #917633;
+    --text:          #cec5b8;
+    --text-dim:      #8a8078;
+    --text-bright:   #f0e8d8;
+    --accent-purple: #7b5ea7;
+    --accent-teal:   #3a8a7a;
+    --accent-red:    #a85454;
+    --accent-blue:   #4a7aad;
+    --accent-green:  #5a9a5a;
+    --accent-orange: #b87a3a;
+    --radius:        10px;
+    --radius-sm:     6px;
+  }
+
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg-deep);
+    color: var(--text);
+    line-height: 1.55;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    text-align: center;
+    padding: 36px 20px 18px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #141020 0%, var(--bg-deep) 100%);
+  }
+  .header-icon { font-size: 38px; margin-bottom: 6px; }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+  .header p {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+  }
+  .header .badge {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 3px 14px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    border: 1px solid var(--border-gold);
+    border-radius: 20px;
+    color: var(--gold-dim);
+  }
+
+  /* ===== TAB NAV ===== */
+  .tab-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+    padding: 14px 12px;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .tab-btn {
+    padding: 7px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+  .tab-btn:hover { color: var(--text); background: var(--bg-card); }
+  .tab-btn.active {
+    color: var(--gold);
+    border-color: var(--border-gold);
+    background: var(--bg-card);
+  }
+
+  /* ===== SECTIONS ===== */
+  .section { display: none; padding: 24px 16px 60px; max-width: 900px; margin: 0 auto; }
+  .section.active { display: block; }
+
+  .section-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--gold);
+    text-align: center;
+    margin-bottom: 6px;
+  }
+  .section-sub {
+    font-size: 13px;
+    color: var(--text-dim);
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 14px;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--border-gold); }
+  .card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--gold-light);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title .icon { font-size: 18px; }
+  .card-body { font-size: 13px; color: var(--text); }
+  .card-body .label {
+    display: inline-block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-top: 10px;
+    margin-bottom: 2px;
+  }
+  .card-body .value { color: var(--text-bright); }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 10px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border-radius: 12px;
+    margin: 2px 2px;
+  }
+  .tag-gold   { background: #2e2614; color: var(--gold); border: 1px solid #3e3420; }
+  .tag-purple { background: #1e1630; color: #a888d0; border: 1px solid #2e2445; }
+  .tag-teal   { background: #102828; color: #5abcaa; border: 1px solid #1a3838; }
+  .tag-red    { background: #281414; color: #d08888; border: 1px solid #382020; }
+  .tag-blue   { background: #141828; color: #88aad0; border: 1px solid #1e2840; }
+  .tag-green  { background: #142814; color: #88d088; border: 1px solid #1e3820; }
+  .tag-orange { background: #281e10; color: #d0a868; border: 1px solid #383018; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  @media (max-width: 600px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+
+  .placeholder-box {
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-dim);
+    background: rgba(255,255,255,0.01);
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 28px 0;
+  }
+
+  .note-box {
+    background: #1a1620;
+    border-left: 3px solid var(--gold-dim);
+    padding: 12px 16px;
+    font-size: 12px;
+    color: var(--text-dim);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    margin-top: 14px;
+  }
+
+  /* ===== GAME PHONE MOCKUP ===== */
+  .phone-frame {
+    position: relative;
+    width: 100%;
+    max-width: 380px;
+    margin: 0 auto 24px;
+    aspect-ratio: 9 / 18;
+    background: #080610;
+    border: 3px solid #2a2540;
+    border-radius: 32px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 0 1px #1a1630;
+  }
+  .phone-notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 120px; height: 22px;
+    background: #080610;
+    border-radius: 0 0 14px 14px;
+    z-index: 50;
+  }
+  .phone-screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* HUD overlay */
+  .game-hud-left {
+    position: absolute;
+    top: 30px; left: 14px;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .game-hud-left .hud-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    font-weight: 700;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+  }
+  .game-hud-left .hud-row .hud-icon { font-size: 14px; }
+  .hud-crowns { color: var(--gold-light); }
+  .hud-seals { color: #a888d0; }
+  .hud-prem { color: #e08040; }
+
+  .game-hud-right {
+    position: absolute;
+    top: 28px; right: 12px;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+  }
+  .hud-btn {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: rgba(30,26,42,0.8);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    position: relative;
+  }
+  .hud-btn .hud-badge {
+    position: absolute;
+    top: -3px; right: -3px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--accent-red);
+    font-size: 8px;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Game world background */
+  .game-world {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 45%, #1a1428 0%, #0e0a18 50%, #060410 100%);
+  }
+  .game-world::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(1px 1px at 20% 15%, rgba(255,255,220,0.25), transparent),
+      radial-gradient(1px 1px at 80% 25%, rgba(255,255,220,0.2), transparent),
+      radial-gradient(1px 1px at 45% 8%, rgba(255,255,220,0.15), transparent),
+      radial-gradient(1px 1px at 70% 60%, rgba(255,255,220,0.12), transparent),
+      radial-gradient(1px 1px at 15% 70%, rgba(255,255,220,0.18), transparent),
+      radial-gradient(1px 1px at 90% 80%, rgba(255,255,220,0.1), transparent),
+      radial-gradient(1px 1px at 35% 90%, rgba(255,255,220,0.15), transparent);
+    opacity: 0.6;
+  }
+  /* parchment terrain hint */
+  .game-world::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 48%, rgba(40,32,20,0.25) 0%, transparent 60%);
+  }
+
+  /* Grand Bazaar - central hub */
+  .gb-hub {
+    position: absolute;
+    top: 42%; left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 20;
+    text-align: center;
+  }
+  .gb-hub-ring {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #2e2418 0%, #1a1410 70%, #12100c 100%);
+    border: 2.5px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+      0 0 20px rgba(212,168,67,0.2),
+      0 0 50px rgba(212,168,67,0.08),
+      inset 0 0 20px rgba(212,168,67,0.06);
+    margin: 0 auto;
+    position: relative;
+  }
+  .gb-hub-ring::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    border: 1px solid rgba(212,168,67,0.12);
+  }
+  .gb-hub-icon { font-size: 32px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+  .gb-hub-name {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-top: 5px;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.8);
+  }
+
+  /* Zone nodes */
+  .zone-node {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    z-index: 15;
+    text-align: center;
+    cursor: default;
+    transition: transform 0.2s;
+  }
+  .zone-node:hover { transform: translate(-50%, -50%) scale(1.08); }
+  .zone-bubble {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin: 0 auto;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  }
+  .zone-bubble-unlocked {
+    border: 2px solid rgba(255,255,255,0.15);
+  }
+  .zone-bubble-locked {
+    border: 2px solid rgba(255,255,255,0.06);
+    filter: brightness(0.5) saturate(0.3);
+  }
+  .zone-node-name {
+    font-size: 8px;
+    font-weight: 700;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 3px;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+  }
+  .zone-node-price {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--gold-light);
+    background: rgba(14,10,24,0.75);
+    padding: 1px 7px;
+    border-radius: 8px;
+    border: 1px solid rgba(212,168,67,0.25);
+    margin-top: 2px;
+    display: inline-block;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+  }
+
+  /* Trade routes (dashed paths) */
+  .trade-route {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 5;
+    pointer-events: none;
+  }
+  .trade-route line {
+    stroke: rgba(212,168,67,0.18);
+    stroke-width: 1.5;
+    stroke-dasharray: 4 4;
+  }
+  .trade-route line.route-active {
+    stroke: rgba(212,168,67,0.35);
+  }
+
+  /* Caravans */
+  .caravan {
+    position: absolute;
+    z-index: 18;
+    font-size: 12px;
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.6));
+    pointer-events: none;
+  }
+  @keyframes caravanMove {
+    0%   { offset-distance: 0%; opacity: 0; }
+    5%   { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { offset-distance: 100%; opacity: 0; }
+  }
+
+  /* Bottom game nav */
+  .game-nav {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 52px;
+    background: rgba(14,10,22,0.92);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    z-index: 30;
+    backdrop-filter: blur(8px);
+  }
+  .game-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    opacity: 0.5;
+  }
+  .game-nav-item.nav-active { opacity: 1; }
+  .game-nav-item .nav-icon { font-size: 18px; }
+  .game-nav-item .nav-label {
+    font-size: 7px;
+    font-weight: 600;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .game-nav-item.nav-active .nav-label { color: var(--gold); }
+
+  /* ===== GAMEPLAY LOOP ===== */
+  .loop-flow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin: 20px 0;
+  }
+  .loop-step {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    text-align: center;
+    min-width: 110px;
+  }
+  .loop-step .step-icon { font-size: 22px; margin-bottom: 4px; }
+  .loop-step .step-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-bright);
+  }
+  .loop-step .step-desc {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+  .loop-arrow {
+    font-size: 18px;
+    color: var(--gold-dim);
+  }
+
+  /* ===== SCREEN WIREFRAMES ===== */
+  .wireframe {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .wireframe-header {
+    background: #1a1626;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gold-light);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .wireframe-body { padding: 14px; }
+  .wireframe-phone {
+    background: #0e0c14;
+    border: 2px solid var(--border);
+    border-radius: 20px;
+    padding: 28px 12px 20px;
+    max-width: 220px;
+    margin: 0 auto;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .wireframe-phone .wf-bar {
+    height: 10px;
+    border-radius: 4px;
+    background: var(--bg-card);
+  }
+  .wireframe-phone .wf-block {
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    text-align: center;
+    font-size: 9px;
+    color: var(--text-dim);
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .wireframe-phone .wf-btn {
+    background: var(--bg-card);
+    border: 1px solid var(--border-gold);
+    border-radius: 6px;
+    padding: 6px;
+    text-align: center;
+    font-size: 9px;
+    color: var(--gold);
+    font-weight: 600;
+  }
+  .wireframe-phone .wf-nav {
+    display: flex;
+    gap: 4px;
+    margin-top: auto;
+  }
+  .wireframe-phone .wf-nav-item {
+    flex: 1;
+    background: var(--bg-card);
+    border-radius: 4px;
+    padding: 6px 2px;
+    text-align: center;
+    font-size: 8px;
+    color: var(--text-dim);
+  }
+
+  /* ===== PRESTIGE SECTION ===== */
+  .prestige-flow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    margin: 20px 0;
+  }
+  .prestige-step {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+  }
+  .prestige-step .ps-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-bright);
+  }
+  .prestige-step .ps-desc {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 3px;
+  }
+  .prestige-arrow-down {
+    font-size: 20px;
+    color: var(--gold-dim);
+    padding: 4px 0;
+  }
+
+  /* ===== NAMING TABLE ===== */
+  .naming-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .naming-row:last-child { border-bottom: none; }
+  .naming-icon { font-size: 28px; width: 44px; text-align: center; flex-shrink: 0; }
+  .naming-info { flex: 1; }
+  .naming-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-bottom: 2px;
+  }
+  .naming-value {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--gold-light);
+  }
+  .naming-desc {
+    font-size: 12px;
+    color: var(--text);
+    margin-top: 3px;
+  }
+
+  /* ===== MONETIZATION ===== */
+  .monet-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    text-align: center;
+  }
+  .monet-card .monet-icon { font-size: 28px; margin-bottom: 6px; }
+  .monet-card .monet-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 4px;
+  }
+  .monet-card .monet-desc {
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .monet-card .monet-placeholder {
+    margin-top: 10px;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px;
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  /* ===== ZONE CARDS ===== */
+  .zone-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    transition: border-color 0.2s;
+  }
+  .zone-card:hover { border-color: var(--border-gold); }
+  .zone-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .zone-icon {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .zone-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--gold-light);
+  }
+  .zone-tier {
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  .zone-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .zone-field-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    margin-bottom: 1px;
+  }
+  .zone-field-value {
+    font-size: 12px;
+    color: var(--text);
+  }
+  .zone-notes {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-dim);
+    font-style: italic;
+  }
+
+  /* ===== FUTURE SYSTEMS ===== */
+  .future-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .future-card::before {
+    content: 'PLANNED';
+    position: absolute;
+    top: 8px; right: -22px;
+    background: var(--accent-purple);
+    color: #fff;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 2px 28px;
+    transform: rotate(35deg);
+  }
+  .future-card .future-icon { font-size: 26px; margin-bottom: 8px; }
+  .future-card .future-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 4px;
+  }
+  .future-card .future-desc {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+  .future-card .future-notes {
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px;
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  /* ===== ECONOMY TABLES ===== */
+  .econ-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin: 10px 0;
+  }
+  .econ-table th {
+    text-align: left;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(0,0,0,0.15);
+  }
+  .econ-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  .econ-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .econ-table .crowns { color: var(--gold-light); font-weight: 600; }
+  .econ-table .rate { color: var(--accent-teal); }
+  .econ-table .zone-col { color: var(--text-bright); font-weight: 600; }
+
+  .formula-box {
+    background: #12101a;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: var(--gold-light);
+    margin: 16px 0;
+    letter-spacing: 0.5px;
+  }
+  .formula-box .formula-label {
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .formula-box .formula-example {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 10px;
+    font-family: 'Segoe UI', sans-serif;
+  }
+
+  .flow-pipe {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin: 20px 0;
+    flex-wrap: wrap;
+  }
+  .flow-pipe .pipe-node {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    text-align: center;
+    min-width: 140px;
+  }
+  .flow-pipe .pipe-node .pipe-icon { font-size: 22px; }
+  .flow-pipe .pipe-node .pipe-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-bright);
+    margin-top: 4px;
+  }
+  .flow-pipe .pipe-node .pipe-desc {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+  .flow-pipe .pipe-arrow {
+    font-size: 20px;
+    color: var(--gold-dim);
+    padding: 0 6px;
+  }
+
+  .sink-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .sink-item:last-child { border-bottom: none; }
+  .sink-item .sink-icon { font-size: 20px; width: 32px; text-align: center; flex-shrink: 0; }
+  .sink-item .sink-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-bright);
+  }
+  .sink-item .sink-desc {
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .sink-item .sink-cost {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--gold);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .unlock-path {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    padding: 16px 0;
+    margin: 10px 0;
+  }
+  .unlock-path .up-node {
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    width: 64px; height: 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .unlock-path .up-node.up-start { border-color: var(--accent-green); }
+  .unlock-path .up-node.up-end { border-color: var(--gold); }
+  .unlock-path .up-node .up-icon { font-size: 18px; }
+  .unlock-path .up-node .up-label { font-size: 7px; font-weight: 600; color: var(--text); text-transform: uppercase; }
+  .unlock-path .up-node .up-cost { font-size: 7px; color: var(--text-dim); }
+  .unlock-path .up-line {
+    width: 24px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--border), var(--gold-dim));
+    flex-shrink: 0;
+  }
+
+  /* ===== PRESTIGE SHOP ===== */
+  .shop-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 16px 0;
+  }
+  @media (max-width: 600px) { .shop-grid { grid-template-columns: 1fr; } }
+  .shop-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    transition: border-color 0.2s;
+    position: relative;
+  }
+  .shop-item:hover { border-color: var(--accent-purple); }
+  .shop-item .shop-cost {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: #1e1630;
+    border: 1px solid #2e2445;
+    border-radius: 12px;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #a888d0;
+  }
+  .shop-item .shop-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 3px;
+    padding-right: 60px;
+  }
+  .shop-item .shop-effect {
+    font-size: 11px;
+    color: var(--accent-teal);
+    margin-bottom: 2px;
+  }
+  .shop-item .shop-desc {
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  .seal-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 14px 0;
+  }
+  .seal-table th {
+    text-align: center;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    padding: 8px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(0,0,0,0.15);
+  }
+  .seal-table td {
+    text-align: center;
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .seal-table .seal-crowns { color: var(--gold-light); font-weight: 600; }
+  .seal-table .seal-seals { color: #a888d0; font-weight: 700; font-size: 15px; }
+  .seal-table .seal-bar {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--accent-purple);
+    display: inline-block;
+  }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    text-align: center;
+    padding: 30px 16px;
+    font-size: 11px;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<div class="header">
+  <div class="header-icon">&#x1F3DB;</div>
+  <h1>Grand Bazaar</h1>
+  <p>Idle Trade Empire &mdash; Game Concept Board</p>
+  <div class="badge">Planning Mockup &bull; Not a Playable Build</div>
+</div>
+
+<!-- ============ TAB NAV ============ -->
+<nav class="tab-nav" id="tabNav">
+  <button class="tab-btn active" data-tab="world">World View</button>
+  <button class="tab-btn" data-tab="zones">Zones</button>
+  <button class="tab-btn" data-tab="naming">Naming</button>
+  <button class="tab-btn" data-tab="economy">Economy</button>
+  <button class="tab-btn" data-tab="screens">Screens</button>
+  <button class="tab-btn" data-tab="loop">Game Loop</button>
+  <button class="tab-btn" data-tab="prestige">Prestige</button>
+  <button class="tab-btn" data-tab="monetization">Monetization</button>
+  <button class="tab-btn" data-tab="future">Future</button>
+</nav>
+
+<!-- ============================================================ -->
+<!-- SECTION 1 : WORLD VIEW                                       -->
+<!-- ============================================================ -->
+<div class="section active" id="sec-world">
+  <h2 class="section-title">World View</h2>
+  <p class="section-sub">Main game screen mockup &mdash; inspired by Idle Planet Miner</p>
+
+  <!-- Phone mockup -->
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <div class="phone-screen">
+      <div class="game-world" id="gameWorld">
+
+        <!-- HUD left: currencies -->
+        <div class="game-hud-left">
+          <div class="hud-row hud-crowns"><span class="hud-icon">&#x1FA99;</span> 12,450</div>
+          <div class="hud-row hud-seals"><span class="hud-icon">&#x1F396;</span> 3</div>
+          <div class="hud-row hud-prem"><span class="hud-icon">&#x1F48E;</span> 0</div>
+        </div>
+
+        <!-- HUD right: buttons -->
+        <div class="game-hud-right">
+          <div class="hud-btn">&#x2699;&#xFE0F;</div>
+          <div class="hud-btn">&#x1F6D2;<span class="hud-badge">1</span></div>
+          <div class="hud-btn">&#x1F3C6;</div>
+          <div class="hud-btn">&#x1F4CA;</div>
+        </div>
+
+        <!-- Trade routes SVG -->
+        <svg class="trade-route" id="tradeRoutes" viewBox="0 0 380 760" preserveAspectRatio="none"></svg>
+
+        <!-- Grand Bazaar hub -->
+        <div class="gb-hub">
+          <div class="gb-hub-ring">
+            <span class="gb-hub-icon">&#x1F3DB;</span>
+          </div>
+          <div class="gb-hub-name">Grand Bazaar</div>
+        </div>
+
+        <!-- Zone nodes injected by JS -->
+
+      </div>
+
+      <!-- Bottom nav bar -->
+      <div class="game-nav">
+        <div class="game-nav-item nav-active">
+          <span class="nav-icon">&#x1F5FA;</span>
+          <span class="nav-label">Map</span>
+        </div>
+        <div class="game-nav-item">
+          <span class="nav-icon">&#x1F3DB;</span>
+          <span class="nav-label">Bazaar</span>
+        </div>
+        <div class="game-nav-item">
+          <span class="nav-icon">&#x2B06;</span>
+          <span class="nav-label">Upgrades</span>
+        </div>
+        <div class="game-nav-item">
+          <span class="nav-icon">&#x1F4B0;</span>
+          <span class="nav-label">Market</span>
+        </div>
+        <div class="game-nav-item">
+          <span class="nav-icon">&#x26A1;</span>
+          <span class="nav-label">Boosts</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note-box">
+    &#9432; This mockup shows the <strong>main game screen</strong> as it would appear on a mobile device. Zones orbit Grand Bazaar like planets in Idle Planet Miner. <strong>Caravans</strong> (&#x1F42A; &#x1F434;) travel along trade routes carrying resources to the central hub. Tap a zone to enter its detail screen.
+  </div>
+
+  <hr class="divider">
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="icon">&#x1F5FA;</span> Map Design Notes</div>
+      <div class="card-body">
+        <p>The world map is the primary screen. Zones are scattered around Grand Bazaar at varying distances. Closer = earlier zones, further = later zones.</p>
+        <div class="label">Layout</div>
+        <div class="value">Hub-and-spoke, scrollable/zoomable</div>
+        <div class="label">Art Direction</div>
+        <div class="value">Dark parchment world with warm ambient glow. Each zone has a unique visual biome.</div>
+        <div class="label">Interaction</div>
+        <div class="value">Tap zone = open detail. Pinch = zoom. Pan = scroll map.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon">&#x1F42B;</span> Transport System: Caravans</div>
+      <div class="card-body">
+        <p>Caravans replace IPM's shuttles. They carry resources from zones to Grand Bazaar along visible trade routes.</p>
+        <div class="label">Visual Style</div>
+        <div class="value">Animated sprites moving along dashed paths. Camels for desert zones, horses for European zones, boats for coastal zones.</div>
+        <div class="label">Upgradeable Stats</div>
+        <div class="value">Caravan Speed, Cargo Capacity &mdash; mirrors IPM's Ship Speed &amp; Cargo per zone.</div>
+        <div class="label">Future Variants</div>
+        <div class="value">Ox carts, merchant ships, royal escorts &mdash; cosmetic + functional upgrades.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">&#x1F3AE;</span> IPM &rarr; Grand Bazaar Translation</div>
+    <div class="card-body" style="overflow-x:auto;">
+      <table class="econ-table">
+        <thead><tr><th>Idle Planet Miner</th><th>Grand Bazaar</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Space Station (Hub)</td><td class="zone-col">Grand Bazaar</td><td>Central sell point, visually prominent</td></tr>
+          <tr><td>Planets</td><td class="zone-col">Trade Zones</td><td>Forests, farms, cities, ports</td></tr>
+          <tr><td>Shuttles</td><td class="zone-col">Caravans</td><td>Camels, horses, boats by zone type</td></tr>
+          <tr><td>Ores / Alloys / Items</td><td class="zone-col">Raw / Crafted / Exotic</td><td>Resource categories</td></tr>
+          <tr><td>Mining Rate</td><td class="zone-col">Production Rate</td><td>Workers gathering resources</td></tr>
+          <tr><td>Ship Speed</td><td class="zone-col">Caravan Speed</td><td>How fast resources reach Bazaar</td></tr>
+          <tr><td>Cargo</td><td class="zone-col">Cargo Capacity</td><td>Resources per caravan trip</td></tr>
+          <tr><td>Managers</td><td class="zone-col">Merchants / Overseers</td><td>Assignable characters with bonuses</td></tr>
+          <tr><td>Projects (Tech Tree)</td><td class="zone-col">Prestige Tree (future)</td><td>Branching permanent upgrades</td></tr>
+          <tr><td>Boosts</td><td class="zone-col">Royal Decrees / Boosts</td><td>Timed multipliers, ad rewards</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 2 : ZONES OVERVIEW                                   -->
+<!-- ============================================================ -->
+<div class="section" id="sec-zones">
+  <h2 class="section-title">Zones Overview</h2>
+  <p class="section-sub">Planned progression of trade zones &mdash; early to late game</p>
+
+  <div id="zoneCards"></div>
+
+  <div class="note-box" style="margin-top:20px;">
+    &#9432; Zones unlock in order. Each zone has its own resource types, visual theme, and upgrade path. Balancing TBD.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 3 : CORE NAMING                                      -->
+<!-- ============================================================ -->
+<div class="section" id="sec-naming">
+  <h2 class="section-title">Core Naming System</h2>
+  <p class="section-sub">Established names and terminology for the game</p>
+
+  <div class="card" style="padding:0;">
+    <div class="naming-row">
+      <div class="naming-icon">&#x1F3DB;</div>
+      <div class="naming-info">
+        <div class="naming-label">Central Hub</div>
+        <div class="naming-value">Grand Bazaar</div>
+        <div class="naming-desc">The heart of the trade empire. All resources flow here. The player sells goods and manages their empire from this screen. Visually the most prominent element.</div>
+      </div>
+    </div>
+    <div class="naming-row">
+      <div class="naming-icon">&#x1FA99;</div>
+      <div class="naming-info">
+        <div class="naming-label">Main Currency</div>
+        <div class="naming-value">Crowns</div>
+        <div class="naming-desc">Earned by selling resources at Grand Bazaar. Used to unlock zones, buy upgrades, and expand operations. Resets on prestige.</div>
+      </div>
+    </div>
+    <div class="naming-row">
+      <div class="naming-icon">&#x1F396;</div>
+      <div class="naming-info">
+        <div class="naming-label">Prestige Currency</div>
+        <div class="naming-value">Legacy Seals</div>
+        <div class="naming-desc">Earned when the player resets their world. Permanent across runs. Used to purchase powerful permanent upgrades that accelerate future runs.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="card">
+    <div class="card-title"><span class="icon">&#x1F4DD;</span> Additional Naming (Placeholder)</div>
+    <div class="card-body">
+      <div class="label">Zone Resources</div>
+      <div class="value">Named per zone theme — e.g., Timber (Greenwood), Grain (Sunfield), Marble (Stonehaven)</div>
+      <div class="label">Upgrades</div>
+      <div class="value">TBD — e.g., Edicts, Trade Contracts, Royal Decrees</div>
+      <div class="label">Prestige Upgrades</div>
+      <div class="value">TBD — e.g., Ancestral Boons, Heritage Perks</div>
+      <div class="label">Premium Currency (optional)</div>
+      <div class="value">TBD — e.g., Gems, Royal Tokens</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION : ECONOMY SYSTEM                                      -->
+<!-- ============================================================ -->
+<div class="section" id="sec-economy">
+  <h2 class="section-title">Economy System</h2>
+  <p class="section-sub">Core economy built on 3 starting zones &mdash; P&#x103;dure, Ferm&#x103;, Min&#x103;</p>
+
+  <!-- Resource Flow Diagram -->
+  <div class="card">
+    <div class="card-title"><span class="icon">&#x1F4E6;</span> Resource Flow</div>
+    <div class="card-body">
+      <p style="margin-bottom:12px;">Resources are produced automatically (idle) in each unlocked zone, carried by caravans to Grand Bazaar, and sold for Crowns.</p>
+      <div class="flow-pipe">
+        <div class="pipe-node">
+          <div class="pipe-icon">&#x26CF;</div>
+          <div class="pipe-label">Zones Produce</div>
+          <div class="pipe-desc">Automatic, non-stop</div>
+        </div>
+        <div class="pipe-arrow">&#x27A1;</div>
+        <div class="pipe-node">
+          <div class="pipe-icon">&#x1F434;</div>
+          <div class="pipe-label">Caravans Carry</div>
+          <div class="pipe-desc">Speed + Cargo upgradeable</div>
+        </div>
+        <div class="pipe-arrow">&#x27A1;</div>
+        <div class="pipe-node" style="border-color:var(--gold-dim);">
+          <div class="pipe-icon">&#x1F3DB;</div>
+          <div class="pipe-label">Grand Bazaar</div>
+          <div class="pipe-desc">Resources accumulate</div>
+        </div>
+        <div class="pipe-arrow">&#x27A1;</div>
+        <div class="pipe-node" style="border-color:var(--gold);">
+          <div class="pipe-icon">&#x1FA99;</div>
+          <div class="pipe-label">Sell for Crowns</div>
+          <div class="pipe-desc">Manual / Auto-sell</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ====== 3 ZONE DETAIL CARDS ====== -->
+  <h3 style="font-size:16px;color:var(--gold);text-align:center;margin-bottom:16px;">Zone Economics &mdash; Concrete Numbers</h3>
+
+  <!-- ZONE 1: PĂDURE -->
+  <div class="card" style="border-color:#2a4a2a;">
+    <div class="card-title"><span class="icon">&#x1F332;</span> P&#x103;dure (Greenwood)</div>
+    <div class="card-body">
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <span class="tag tag-green">Tier 1</span>
+        <span class="tag tag-gold">Free &mdash; Starting Zone</span>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table class="econ-table">
+          <thead><tr><th>Resource</th><th>Yield</th><th>Base Rate</th><th>Sell Price</th><th>Base Income/s</th></tr></thead>
+          <tbody>
+            <tr><td class="zone-col">&#x1FAB5; Wood</td><td>70%</td><td class="rate">1.0 /s</td><td class="crowns">2 &#x1FA99;</td><td class="crowns">2.0 /s</td></tr>
+            <tr><td class="zone-col">&#x1F34E; Food</td><td>30%</td><td class="rate">0.4 /s</td><td class="crowns">3 &#x1FA99;</td><td class="crowns">1.2 /s</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="font-size:11px;color:var(--text-dim);margin:6px 0 12px;">Combined base income: <strong style="color:var(--gold-light);">3.2 &#x1FA99;/s</strong></div>
+
+      <div style="font-size:12px;font-weight:700;color:var(--text-bright);margin-bottom:8px;">4 Upgrades:</div>
+      <div style="overflow-x:auto;">
+        <table class="econ-table">
+          <thead><tr><th>Upgrade</th><th>Effect</th><th>Lv 1</th><th>Lv 5</th><th>Lv 10</th><th>Scaling</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="zone-col">&#x26CF; Production Rate</td>
+              <td>+0.15 /s per level</td>
+              <td class="crowns">10 &#x1FA99;</td>
+              <td class="crowns">50 &#x1FA99;</td>
+              <td class="crowns">260 &#x1FA99;</td>
+              <td>&times;1.45</td>
+            </tr>
+            <tr>
+              <td class="zone-col">&#x1F434; Caravan Speed</td>
+              <td>+10% delivery speed</td>
+              <td class="crowns">15 &#x1FA99;</td>
+              <td class="crowns">75 &#x1FA99;</td>
+              <td class="crowns">390 &#x1FA99;</td>
+              <td>&times;1.45</td>
+            </tr>
+            <tr>
+              <td class="zone-col">&#x1F4E6; Cargo</td>
+              <td>+5 units per trip</td>
+              <td class="crowns">20 &#x1FA99;</td>
+              <td class="crowns">100 &#x1FA99;</td>
+              <td class="crowns">520 &#x1FA99;</td>
+              <td>&times;1.45</td>
+            </tr>
+            <tr style="background:rgba(255,255,255,0.02);">
+              <td class="zone-col">&#x2728; Multi-Harvest</td>
+              <td>+1% double chance</td>
+              <td class="crowns">50 &#x1FA99;</td>
+              <td class="crowns">400 &#x1FA99;</td>
+              <td class="crowns">3.4K &#x1FA99;</td>
+              <td>&times;1.55</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="font-size:10px;color:var(--text-dim);margin-top:4px;">Multi-Harvest: max Lv 25 (25% cap). Cost scales faster than other upgrades &mdash; long-term investment.</div>
+    </div>
+  </div>
+
+  <!-- ZONE 2: FERMĂ -->
+  <div class="card" style="border-color:#4a4020;">
+    <div class="card-title"><span class="icon">&#x1F33E;</span> Ferm&#x103; (Sunfield)</div>
+    <div class="card-body">
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <span class="tag tag-green">Tier 1</span>
+        <span class="tag tag-gold">Unlock: 500 &#x1FA99;</span>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table class="econ-table">
+          <thead><tr><th>Resource</th><th>Yield</th><th>Base Rate</th><th>Sell Price</th><th>Base Income/s</th></tr></thead>
+          <tbody>
+            <tr><td class="zone-col">&#x1F34E; Food</td><td>75%</td><td class="rate">1.2 /s</td><td class="crowns">3 &#x1FA99;</td><td class="crowns">3.6 /s</td></tr>
+            <tr><td class="zone-col">&#x1FAB5; Wood</td><td>25%</td><td class="rate">0.3 /s</td><td class="crowns">2 &#x1FA99;</td><td class="crowns">0.6 /s</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="font-size:11px;color:var(--text-dim);margin:6px 0 12px;">Combined base income: <strong style="color:var(--gold-light);">4.2 &#x1FA99;/s</strong></div>
+
+      <div style="font-size:12px;font-weight:700;color:var(--text-bright);margin-bottom:8px;">4 Upgrades:</div>
+      <div style="overflow-x:auto;">
+        <table class="econ-table">
+          <thead><tr><th>Upgrade</th><th>Effect</th><th>Lv 1</th><th>Lv 5</th><th>Lv 10</th><th>Scaling</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="zone-col">&#x26CF; Production Rate</td>
+              <td>+0.18 /s per level</td>
+              <td class="crowns">25 &#x1FA99;</td>
+              <td class="crowns">125 &#x1FA99;</td>
+              <td class="crowns">650 &#x1FA99;</td>
+              <td>&times;1.45</td>
+            </tr>
+            <tr>
+              <td class="zone-col">&#x1F402; Caravan Speed</td>
+              <td>+10% delivery speed</td>
+              <td class="crowns">35 &#x1FA99;</td>
+              <td class="crowns">175 &#x1FA99;</td>
+              <td class="crowns">910 &#x1FA99;</td>
+              <td>&times;1.45</td>
+            </tr>
+            <tr>
+              <td class="zone-col">&#x1F4E6; Cargo</td>
+              <td>+8 units per trip</td>
+              <td class="crowns">45 &#x1FA99;</td>
+              <td class="crowns">225 &#x1FA99;</td>
+              <td class="crowns">1.2K &#x1FA99;</td>
+              <td>&times;1.45</td>
+            </tr>
+            <tr style="background:rgba(255,255,255,0.02);">
+              <td class="zone-col">&#x2728; Multi-Harvest</td>
+              <td>+1% double chance</td>
+              <td class="crowns">120 &#x1FA99;</td>
+              <td class="crowns">960 &#x1FA99;</td>
+              <td class="crowns">8.2K &#x1FA99;</td>
+              <td>&times;1.55</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="font-size:10px;color:var(--text-dim);margin-top:4px;">Fermă produces more total income than P&#x103;dure but costs 500 &#x1FA99; to unlock. ROI &sim;2-3 minutes.</div>
+    </div>
+  </div>
+
+  <!-- ZONE 3: MINĂ -->
+  <div class="card" style="border-color:#3a3a4a;">
+    <div class="card-title"><span class="icon">&#x26F0;&#xFE0F;</span> Min&#x103; (Stonehaven)</div>
+    <div class="card-body">
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <span class="tag tag-blue">Tier 2</span>
+        <span class="tag tag-gold">Unlock: 2,500 &#x1FA99;</span>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table class="econ-table">
+          <thead><tr><th>Resource</th><th>Yield</th><th>Base Rate</th><th>Sell Price</th><th>Base Income/s</th></tr></thead>
+          <tbody>
+            <tr><td class="zone-col">&#x1FAA8; Stone</td><td>60%</td><td class="rate">0.6 /s</td><td class="crowns">5 &#x1FA99;</td><td class="crowns">3.0 /s</td></tr>
+            <tr><td class="zone-col">&#x2699;&#xFE0F; Iron</td><td>40%</td><td class="rate">0.3 /s</td><td class="crowns">10 &#x1FA99;</td><td class="crowns">3.0 /s</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="font-size:11px;color:var(--text-dim);margin:6px 0 12px;">Combined base income: <strong style="color:var(--gold-light);">6.0 &#x1FA99;/s</strong></div>
+
+      <div style="font-size:12px;font-weight:700;color:var(--text-bright);margin-bottom:8px;">4 Upgrades:</div>
+      <div style="overflow-x:auto;">
+        <table class="econ-table">
+          <thead><tr><th>Upgrade</th><th>Effect</th><th>Lv 1</th><th>Lv 5</th><th>Lv 10</th><th>Scaling</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="zone-col">&#x26CF; Production Rate</td>
+              <td>+0.12 /s per level</td>
+              <td class="crowns">80 &#x1FA99;</td>
+              <td class="crowns">400 &#x1FA99;</td>
+              <td class="crowns">2.1K &#x1FA99;</td>
+              <td>&times;1.50</td>
+            </tr>
+            <tr>
+              <td class="zone-col">&#x1F434; Caravan Speed</td>
+              <td>+10% delivery speed</td>
+              <td class="crowns">100 &#x1FA99;</td>
+              <td class="crowns">500 &#x1FA99;</td>
+              <td class="crowns">2.6K &#x1FA99;</td>
+              <td>&times;1.50</td>
+            </tr>
+            <tr>
+              <td class="zone-col">&#x1F4E6; Cargo</td>
+              <td>+10 units per trip</td>
+              <td class="crowns">120 &#x1FA99;</td>
+              <td class="crowns">600 &#x1FA99;</td>
+              <td class="crowns">3.1K &#x1FA99;</td>
+              <td>&times;1.50</td>
+            </tr>
+            <tr style="background:rgba(255,255,255,0.02);">
+              <td class="zone-col">&#x2728; Multi-Harvest</td>
+              <td>+1% double chance</td>
+              <td class="crowns">300 &#x1FA99;</td>
+              <td class="crowns">2.4K &#x1FA99;</td>
+              <td class="crowns">20K &#x1FA99;</td>
+              <td>&times;1.55</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="font-size:10px;color:var(--text-dim);margin-top:4px;">Min&#x103; produces slower but higher-value resources. Iron at 10 &#x1FA99; is the most valuable early resource. Upgrade scaling is steeper (&times;1.50 vs &times;1.45).</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Zone Detail Phone Mockup (IPM style) -->
+  <h3 style="font-size:16px;color:var(--gold);text-align:center;margin-bottom:16px;">Zone Detail Screen &mdash; How It Looks In-Game</h3>
+
+  <div class="phone-frame" style="aspect-ratio: 9/16;">
+    <div class="phone-notch"></div>
+    <div class="phone-screen">
+      <div class="game-world">
+        <!-- HUD -->
+        <div class="game-hud-left">
+          <div class="hud-row hud-crowns"><span class="hud-icon">&#x1FA99;</span> 1,247</div>
+          <div class="hud-row hud-seals"><span class="hud-icon">&#x1F396;</span> 0</div>
+        </div>
+
+        <!-- Zone detail panel -->
+        <div style="position:absolute;top:24px;right:12px;z-index:30;">
+          <div style="background:rgba(30,26,42,0.8);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px;">Zone &#x25BC;</div>
+        </div>
+
+        <!-- Zone banner -->
+        <div style="position:absolute;top:60px;left:0;right:0;text-align:center;z-index:20;">
+          <div style="font-size:40px;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.6));">&#x1F332;</div>
+          <div style="font-size:16px;font-weight:700;color:var(--text-bright);margin-top:2px;text-shadow:0 2px 6px rgba(0,0,0,0.8);">1. P&#x103;dure</div>
+        </div>
+
+        <!-- Resources table -->
+        <div style="position:absolute;top:145px;left:12px;right:12px;z-index:20;">
+          <table style="width:100%;font-size:11px;border-collapse:collapse;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--border);">
+                <th style="text-align:left;padding:6px 4px;font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-dim);">Resource</th>
+                <th style="text-align:center;padding:6px 4px;font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-dim);">Yield</th>
+                <th style="text-align:center;padding:6px 4px;font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-dim);">Rate</th>
+                <th style="text-align:right;padding:6px 4px;font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-dim);">Gathered</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td style="padding:6px 4px;color:var(--text-bright);">&#x1FAB5; Wood</td><td style="text-align:center;color:var(--text);">70%</td><td style="text-align:center;color:var(--accent-teal);">2.53 /s</td><td style="text-align:right;color:var(--text);">1,847</td></tr>
+              <tr><td style="padding:6px 4px;color:var(--text-bright);">&#x1F34E; Food</td><td style="text-align:center;color:var(--text);">30%</td><td style="text-align:center;color:var(--accent-teal);">0.92 /s</td><td style="text-align:right;color:var(--text);">512</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Upgrade buttons (IPM style) -->
+        <div style="position:absolute;top:260px;left:12px;right:12px;z-index:20;display:flex;flex-direction:column;gap:8px;">
+          <!-- Production Rate -->
+          <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(30,26,42,0.6);border:1px solid var(--border);border-radius:10px;padding:10px 12px;">
+            <div>
+              <div style="font-size:12px;font-weight:700;color:var(--text-bright);">&#x26CF; Production Rate</div>
+              <div style="font-size:10px;color:var(--text-dim);">Lv. 10 &nbsp;&bull;&nbsp; 2.53 /s</div>
+            </div>
+            <div style="background:rgba(20,16,32,0.8);border:1.5px solid var(--accent-teal);border-radius:8px;padding:6px 16px;font-size:12px;font-weight:700;color:var(--accent-teal);">&#x1FA99; 260</div>
+          </div>
+          <!-- Caravan Speed -->
+          <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(30,26,42,0.6);border:1px solid var(--border);border-radius:10px;padding:10px 12px;">
+            <div>
+              <div style="font-size:12px;font-weight:700;color:var(--text-bright);">&#x1F434; Caravan Speed</div>
+              <div style="font-size:10px;color:var(--text-dim);">Lv. 8 &nbsp;&bull;&nbsp; 3.2 mkph</div>
+            </div>
+            <div style="background:rgba(20,16,32,0.8);border:1.5px solid var(--accent-teal);border-radius:8px;padding:6px 16px;font-size:12px;font-weight:700;color:var(--accent-teal);">&#x1FA99; 185</div>
+          </div>
+          <!-- Cargo -->
+          <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(30,26,42,0.6);border:1px solid var(--border);border-radius:10px;padding:10px 12px;">
+            <div>
+              <div style="font-size:12px;font-weight:700;color:var(--text-bright);">&#x1F4E6; Cargo</div>
+              <div style="font-size:10px;color:var(--text-dim);">Lv. 7 &nbsp;&bull;&nbsp; 35 units</div>
+            </div>
+            <div style="background:rgba(20,16,32,0.8);border:1.5px solid var(--accent-teal);border-radius:8px;padding:6px 16px;font-size:12px;font-weight:700;color:var(--accent-teal);">&#x1FA99; 210</div>
+          </div>
+          <!-- Multi-Harvest -->
+          <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(30,26,42,0.6);border:1px solid var(--border);border-radius:10px;padding:10px 12px;">
+            <div>
+              <div style="font-size:12px;font-weight:700;color:var(--gold-light);">&#x2728; Multi-Harvest</div>
+              <div style="font-size:10px;color:var(--text-dim);">Lv. 3 / 25 &nbsp;&bull;&nbsp; 3% chance</div>
+            </div>
+            <div style="background:rgba(20,16,32,0.8);border:1.5px solid var(--gold-dim);border-radius:8px;padding:6px 16px;font-size:12px;font-weight:700;color:var(--gold);">&#x1FA99; 120</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom nav -->
+      <div class="game-nav">
+        <div class="game-nav-item">
+          <span class="nav-icon">&#x1F5FA;</span>
+          <span class="nav-label">Map</span>
+        </div>
+        <div class="game-nav-item">
+          <span class="nav-icon">&#x1F3DB;</span>
+          <span class="nav-label">Bazaar</span>
+        </div>
+        <div class="game-nav-item nav-active">
+          <span class="nav-icon">&#x2B06;</span>
+          <span class="nav-label">Upgrades</span>
+        </div>
+        <div class="game-nav-item">
+          <span class="nav-icon">&#x1F4B0;</span>
+          <span class="nav-label">Market</span>
+        </div>
+        <div class="game-nav-item">
+          <span class="nav-icon">&#x26A1;</span>
+          <span class="nav-label">Boosts</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note-box" style="margin-top:14px;">
+    &#9432; Zone Detail mockup mirrors the Idle Planet Miner planet screen: zone icon + name at top, resource table with Yield/Rate/Gathered, and <strong>4 upgrade buttons</strong> with level, current value, and cost. Multi-Harvest is visually distinct (gold border) to signal it's a special upgrade.
+  </div>
+
+  <hr class="divider">
+
+  <!-- Scaling Analysis -->
+  <div class="card">
+    <div class="card-title"><span class="icon">&#x1F4CA;</span> Income Progression &mdash; 3 Zone Snapshot</div>
+    <div class="card-body">
+      <div style="overflow-x:auto;">
+        <table class="econ-table">
+          <thead><tr><th>Stage</th><th>Zones Active</th><th>Total Income/s</th><th>Time to Next Unlock</th></tr></thead>
+          <tbody>
+            <tr><td class="zone-col">Start</td><td>P&#x103;dure only</td><td class="crowns">3.2 /s</td><td>~2.5 min to Ferm&#x103; (500)</td></tr>
+            <tr><td class="zone-col">Ferm&#x103; unlocked</td><td>P&#x103;dure + Ferm&#x103;</td><td class="crowns">7.4 /s</td><td>~5.5 min to Min&#x103; (2,500)</td></tr>
+            <tr><td class="zone-col">Min&#x103; unlocked</td><td>All 3 zones</td><td class="crowns">13.4 /s</td><td>~7 min to Zone 4 (8,000)</td></tr>
+            <tr style="background:rgba(255,255,255,0.02);"><td class="zone-col">All 3 upgraded (Lv 10)</td><td>All 3 zones</td><td class="crowns">~35-40 /s</td><td>Approaching first soft wall</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note-box" style="margin-top:10px;">&#9432; These are <strong>base rates without selling delay</strong>. Actual income depends on Caravan Speed + Cargo + sell timing. The gap between unlock costs grows faster than income, creating natural <strong>soft walls</strong> that encourage upgrading existing zones before rushing new ones.</div>
+    </div>
+  </div>
+
+  <!-- Upgrade Cost Formula -->
+  <div class="card">
+    <div class="card-title"><span class="icon">&#x1F9EE;</span> Upgrade Cost Formula</div>
+    <div class="card-body">
+      <div class="formula-box">
+        <div class="formula-label">Cost Per Level</div>
+        cost(level) = baseCost &times; multiplier<sup>level</sup>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="econ-table" style="margin-top:10px;">
+          <thead><tr><th>Zone</th><th>Base Upgrades Scaling</th><th>Multi-Harvest Scaling</th><th>Why Different</th></tr></thead>
+          <tbody>
+            <tr><td class="zone-col">&#x1F332; P&#x103;dure</td><td>&times;1.45</td><td>&times;1.55</td><td>Cheapest zone, gentle curve</td></tr>
+            <tr><td class="zone-col">&#x1F33E; Ferm&#x103;</td><td>&times;1.45</td><td>&times;1.55</td><td>Similar to P&#x103;dure but higher base cost</td></tr>
+            <tr><td class="zone-col">&#x26F0;&#xFE0F; Min&#x103;</td><td>&times;1.50</td><td>&times;1.55</td><td>Steeper scaling &mdash; higher-value resources justify it</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:11px;color:var(--text-dim);margin-top:8px;">Multi-Harvest always scales at &times;1.55 regardless of zone. It's intentionally the most expensive upgrade per level to prevent it from dominating early game. At Lv 25 (max), total cost invested is significant.</p>
+    </div>
+  </div>
+
+  <!-- Resource Overlap Note -->
+  <div class="card">
+    <div class="card-title"><span class="icon">&#x1F500;</span> Shared Resources Between Zones</div>
+    <div class="card-body">
+      <p style="margin-bottom:10px;">Resources appear in multiple zones but with different yields. This creates natural variety without complexity.</p>
+      <div style="overflow-x:auto;">
+        <table class="econ-table">
+          <thead><tr><th>Resource</th><th>P&#x103;dure</th><th>Ferm&#x103;</th><th>Min&#x103;</th><th>Sell Price</th></tr></thead>
+          <tbody>
+            <tr><td class="zone-col">&#x1FAB5; Wood</td><td class="rate">70% &mdash; 1.0/s</td><td class="rate">25% &mdash; 0.3/s</td><td>&mdash;</td><td class="crowns">2 &#x1FA99;</td></tr>
+            <tr><td class="zone-col">&#x1F34E; Food</td><td class="rate">30% &mdash; 0.4/s</td><td class="rate">75% &mdash; 1.2/s</td><td>&mdash;</td><td class="crowns">3 &#x1FA99;</td></tr>
+            <tr><td class="zone-col">&#x1FAA8; Stone</td><td>&mdash;</td><td>&mdash;</td><td class="rate">60% &mdash; 0.6/s</td><td class="crowns">5 &#x1FA99;</td></tr>
+            <tr><td class="zone-col">&#x2699;&#xFE0F; Iron</td><td>&mdash;</td><td>&mdash;</td><td class="rate">40% &mdash; 0.3/s</td><td class="crowns">10 &#x1FA99;</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:11px;color:var(--text-dim);margin-top:8px;">Wood &amp; Food are shared between P&#x103;dure and Ferm&#x103;. Stone &amp; Iron are exclusive to Min&#x103; for now. Later zones will introduce new resources (Marble, Silk, Spices...) and may also produce small amounts of earlier resources.</p>
+    </div>
+  </div>
+
+  <!-- Economy Design Notes -->
+  <div class="card" style="margin-top:14px;">
+    <div class="card-title"><span class="icon">&#x1F4DD;</span> Economy Design Notes</div>
+    <div class="card-body">
+      <div class="label">Production Model</div>
+      <div class="value">Full idle &mdash; zones produce 24/7, including offline. No tap-to-collect.</div>
+      <div class="label">Sell Model</div>
+      <div class="value">Manual sell at start &rarr; auto-sell unlockable via Crowns or Legacy Seals.</div>
+      <div class="label">Price Model</div>
+      <div class="value">Fixed base prices per resource + multipliers from upgrades. Dynamic market = future feature.</div>
+      <div class="label">Resources Per Zone</div>
+      <div class="value">2 resources per zone from start. Resources can overlap between zones with different yields.</div>
+      <div class="label">Upgrades Per Zone</div>
+      <div class="value">4 upgrades: Production Rate, Caravan Speed, Cargo, Multi-Harvest (capped Lv 25).</div>
+      <div class="label">Scaling Philosophy</div>
+      <div class="value">Upgrade costs exponential. Later zones have steeper multipliers. Multi-Harvest always &times;1.55. Income grows but never catches up to costs &mdash; soft walls are intentional.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 4 : MAIN SCREENS                                     -->
+<!-- ============================================================ -->
+<div class="section" id="sec-screens">
+  <h2 class="section-title">Main Screens</h2>
+  <p class="section-sub">Conceptual wireframes for core mobile screens</p>
+
+  <div class="grid-2">
+    <!-- World Map -->
+    <div class="wireframe">
+      <div class="wireframe-header">&#x1F5FA; World Map / Hub</div>
+      <div class="wireframe-body">
+        <div class="wireframe-phone">
+          <div class="wf-bar" style="width:40%;align-self:center;"></div>
+          <div class="wf-block" style="flex:3;">
+            Radial zone map with Grand Bazaar center.<br>Tap nodes to enter zones.
+          </div>
+          <div class="wf-btn">&#x1FA99; 12,450 Crowns</div>
+          <div class="wf-nav">
+            <div class="wf-nav-item">Map</div>
+            <div class="wf-nav-item">Bazaar</div>
+            <div class="wf-nav-item">Market</div>
+            <div class="wf-nav-item">More</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grand Bazaar -->
+    <div class="wireframe">
+      <div class="wireframe-header">&#x1F3DB; Grand Bazaar</div>
+      <div class="wireframe-body">
+        <div class="wireframe-phone">
+          <div class="wf-bar" style="width:60%;align-self:center;"></div>
+          <div class="wf-block">Incoming resource stream display</div>
+          <div class="wf-block" style="flex:2;">
+            Sell interface<br>Resource list + sell buttons<br>Auto-sell toggle
+          </div>
+          <div class="wf-btn">Sell All</div>
+          <div class="wf-nav">
+            <div class="wf-nav-item">Map</div>
+            <div class="wf-nav-item">Bazaar</div>
+            <div class="wf-nav-item">Market</div>
+            <div class="wf-nav-item">More</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zone Detail -->
+    <div class="wireframe">
+      <div class="wireframe-header">&#x1F3D4; Zone Detail</div>
+      <div class="wireframe-body">
+        <div class="wireframe-phone">
+          <div class="wf-bar" style="width:50%;"></div>
+          <div class="wf-block">Zone illustration / banner</div>
+          <div class="wf-block" style="flex:1.5;">
+            Resource production rates<br>Active workers / miners<br>Zone-specific upgrades
+          </div>
+          <div class="wf-btn">Upgrade Zone — 500 &#x1FA99;</div>
+          <div class="wf-nav">
+            <div class="wf-nav-item">Map</div>
+            <div class="wf-nav-item">Bazaar</div>
+            <div class="wf-nav-item">Market</div>
+            <div class="wf-nav-item">More</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Market -->
+    <div class="wireframe">
+      <div class="wireframe-header">&#x1F4B0; Market</div>
+      <div class="wireframe-body">
+        <div class="wireframe-phone">
+          <div class="wf-bar" style="width:45%;align-self:center;"></div>
+          <div class="wf-block" style="flex:2;">
+            Resource price list<br>Demand indicators<br>Price trends (future feature)
+          </div>
+          <div class="wf-block">
+            Special trade deals / timed offers
+          </div>
+          <div class="wf-nav">
+            <div class="wf-nav-item">Map</div>
+            <div class="wf-nav-item">Bazaar</div>
+            <div class="wf-nav-item">Market</div>
+            <div class="wf-nav-item">More</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Prestige -->
+    <div class="wireframe">
+      <div class="wireframe-header">&#x1F396; Prestige</div>
+      <div class="wireframe-body">
+        <div class="wireframe-phone">
+          <div class="wf-bar" style="width:55%;align-self:center;"></div>
+          <div class="wf-block">
+            Current run stats<br>Crowns earned this run
+          </div>
+          <div class="wf-block" style="flex:1.5;">
+            Legacy Seals available on reset<br>Prestige upgrade tree
+          </div>
+          <div class="wf-btn" style="border-color:var(--accent-purple);color:var(--accent-purple);">Reset World — Earn 3 &#x1F396;</div>
+          <div class="wf-nav">
+            <div class="wf-nav-item">Map</div>
+            <div class="wf-nav-item">Bazaar</div>
+            <div class="wf-nav-item">Market</div>
+            <div class="wf-nav-item">More</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upgrades -->
+    <div class="wireframe">
+      <div class="wireframe-header">&#x2B06; Upgrades</div>
+      <div class="wireframe-body">
+        <div class="wireframe-phone">
+          <div class="wf-bar" style="width:40%;align-self:center;"></div>
+          <div class="wf-block" style="flex:2.5;">
+            Categorized upgrade list<br><br>
+            &bull; Production speed<br>
+            &bull; Resource value<br>
+            &bull; Automation level<br>
+            &bull; Zone capacity<br>
+            &bull; Sell multiplier
+          </div>
+          <div class="wf-btn">Buy Upgrade — 2,000 &#x1FA99;</div>
+          <div class="wf-nav">
+            <div class="wf-nav-item">Map</div>
+            <div class="wf-nav-item">Bazaar</div>
+            <div class="wf-nav-item">Market</div>
+            <div class="wf-nav-item">More</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 5 : GAMEPLAY LOOP                                    -->
+<!-- ============================================================ -->
+<div class="section" id="sec-loop">
+  <h2 class="section-title">Core Gameplay Loop</h2>
+  <p class="section-sub">The fundamental cycle the player repeats</p>
+
+  <div class="loop-flow">
+    <div class="loop-step">
+      <div class="step-icon">&#x26CF;</div>
+      <div class="step-label">Gather</div>
+      <div class="step-desc">Zones produce resources automatically</div>
+    </div>
+    <div class="loop-arrow">&#x27A1;</div>
+    <div class="loop-step">
+      <div class="step-icon">&#x1F4E6;</div>
+      <div class="step-label">Send</div>
+      <div class="step-desc">Resources flow to Grand Bazaar</div>
+    </div>
+    <div class="loop-arrow">&#x27A1;</div>
+    <div class="loop-step">
+      <div class="step-icon">&#x1FA99;</div>
+      <div class="step-label">Sell</div>
+      <div class="step-desc">Convert resources into Crowns</div>
+    </div>
+    <div class="loop-arrow">&#x27A1;</div>
+    <div class="loop-step">
+      <div class="step-icon">&#x1F30D;</div>
+      <div class="step-label">Expand</div>
+      <div class="step-desc">Unlock &amp; upgrade zones</div>
+    </div>
+    <div class="loop-arrow">&#x27A1;</div>
+    <div class="loop-step">
+      <div class="step-icon">&#x1F3C1;</div>
+      <div class="step-label">Threshold</div>
+      <div class="step-desc">Reach reset target</div>
+    </div>
+    <div class="loop-arrow">&#x27A1;</div>
+    <div class="loop-step">
+      <div class="step-icon">&#x1F396;</div>
+      <div class="step-label">Prestige</div>
+      <div class="step-desc">Reset &amp; earn Legacy Seals</div>
+    </div>
+    <div class="loop-arrow">&#x27A1;</div>
+    <div class="loop-step">
+      <div class="step-icon">&#x2B06;</div>
+      <div class="step-label">Permanent Upgrades</div>
+      <div class="step-desc">Invest Seals for lasting power</div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin:10px 0;">
+    <span class="loop-arrow" style="font-size:24px;">&#x1F504;</span>
+    <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">Cycle repeats — each run is faster and more rewarding</div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="card">
+    <div class="card-title"><span class="icon">&#x1F4CB;</span> Loop Design Notes</div>
+    <div class="card-body">
+      <p>The core loop follows the proven idle/incremental pattern: <strong>earn → spend → reset → earn faster</strong>. Key considerations:</p>
+      <div class="label">Session Length</div>
+      <div class="value">Target: meaningful progress in 2–5 minute active sessions + idle gains</div>
+      <div class="label">Reset Pacing</div>
+      <div class="value">First prestige ~30–60 minutes of total play. Later prestiges speed up.</div>
+      <div class="label">Engagement Hooks</div>
+      <div class="value">New zone unlocks, upgrade milestones, visual progression on the world map</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 6 : PRESTIGE CONCEPT                                 -->
+<!-- ============================================================ -->
+<div class="section" id="sec-prestige">
+  <h2 class="section-title">Prestige System</h2>
+  <p class="section-sub">Detailed mechanics for the world reset &amp; Legacy Seals economy</p>
+
+  <!-- Prestige Flow -->
+  <div class="prestige-flow">
+    <div class="prestige-step" style="border-color:var(--gold-dim);">
+      <div style="font-size:22px;margin-bottom:4px;">&#x1FA99;</div>
+      <div class="ps-label">Earn Crowns During a Run</div>
+      <div class="ps-desc">Play normally &mdash; gather, sell, upgrade, expand zones</div>
+    </div>
+    <div class="prestige-arrow-down">&#x25BC;</div>
+    <div class="prestige-step">
+      <div style="font-size:22px;margin-bottom:4px;">&#x1F3C1;</div>
+      <div class="ps-label">Reach Reset Threshold</div>
+      <div class="ps-desc">Minimum <strong>100,000 Crowns</strong> earned total in current run</div>
+    </div>
+    <div class="prestige-arrow-down">&#x25BC;</div>
+    <div class="prestige-step" style="border-color:var(--accent-purple);">
+      <div style="font-size:22px;margin-bottom:4px;">&#x1F504;</div>
+      <div class="ps-label">Reset the World</div>
+      <div class="ps-desc">All zones, Crowns, and in-run upgrades are wiped. The world starts fresh.</div>
+    </div>
+    <div class="prestige-arrow-down">&#x25BC;</div>
+    <div class="prestige-step" style="border-color:var(--accent-purple);">
+      <div style="font-size:22px;margin-bottom:4px;">&#x1F396;</div>
+      <div class="ps-label">Gain Legacy Seals</div>
+      <div class="ps-desc">Amount calculated from total Crowns earned (see formula below)</div>
+    </div>
+    <div class="prestige-arrow-down">&#x25BC;</div>
+    <div class="prestige-step" style="border-color:var(--gold-dim);">
+      <div style="font-size:22px;margin-bottom:4px;">&#x2B06;</div>
+      <div class="ps-label">Buy Permanent Upgrades</div>
+      <div class="ps-desc">Spend Legacy Seals in the Prestige Shop for bonuses that persist forever</div>
+    </div>
+  </div>
+
+  <div class="note-box">
+    &#9432; The player can <strong>continue playing past the threshold</strong> to earn more Legacy Seals before resetting. Diminishing returns encourage resetting sooner rather than grinding forever.
+  </div>
+
+  <hr class="divider">
+
+  <!-- Legacy Seals Formula -->
+  <div class="card">
+    <div class="card-title"><span class="icon">&#x1F4CA;</span> Legacy Seals Formula</div>
+    <div class="card-body">
+      <div class="formula-box">
+        <div class="formula-label">Seals Earned on Reset</div>
+        Legacy Seals = floor( &radic;( totalCrownsEarned / 100,000 ) )
+        <div class="formula-example">
+          Diminishing returns: doubling your Seals requires 4x the Crowns
+        </div>
+      </div>
+
+      <table class="seal-table">
+        <thead>
+          <tr><th>Total Crowns Earned</th><th>Legacy Seals</th><th>Visual</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="seal-crowns">100,000</td><td class="seal-seals">1</td><td><span class="seal-bar" style="width:10%;"></span></td></tr>
+          <tr><td class="seal-crowns">400,000</td><td class="seal-seals">2</td><td><span class="seal-bar" style="width:20%;"></span></td></tr>
+          <tr><td class="seal-crowns">900,000</td><td class="seal-seals">3</td><td><span class="seal-bar" style="width:30%;"></span></td></tr>
+          <tr><td class="seal-crowns">1,600,000</td><td class="seal-seals">4</td><td><span class="seal-bar" style="width:40%;"></span></td></tr>
+          <tr><td class="seal-crowns">2,500,000</td><td class="seal-seals">5</td><td><span class="seal-bar" style="width:50%;"></span></td></tr>
+          <tr><td class="seal-crowns">6,400,000</td><td class="seal-seals">8</td><td><span class="seal-bar" style="width:80%;"></span></td></tr>
+          <tr><td class="seal-crowns">10,000,000</td><td class="seal-seals">10</td><td><span class="seal-bar" style="width:100%;"></span></td></tr>
+        </tbody>
+      </table>
+      <div class="note-box">&#9432; Formula and threshold are <strong>placeholder values</strong>. Final balancing TBD during playtesting. First prestige timing is intentionally left open.</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- What Resets vs Persists -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="icon">&#x1F4A1;</span> What Resets</div>
+      <div class="card-body">
+        <div class="value">
+          &bull; All Crowns (current balance)<br>
+          &bull; All zone unlocks &amp; levels<br>
+          &bull; Zone production upgrade levels<br>
+          &bull; Sell price multiplier upgrades<br>
+          &bull; Auto-sell (unless permanent via prestige)<br>
+          &bull; Resource stockpiles at Bazaar<br>
+          &bull; Player starts back at Greenwood only
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon">&#x1F512;</span> What Persists</div>
+      <div class="card-body">
+        <div class="value">
+          &bull; Legacy Seals (total accumulated)<br>
+          &bull; All prestige upgrades purchased<br>
+          &bull; Cosmetic themes &amp; skins<br>
+          &bull; Achievement progress<br>
+          &bull; Premium / IAP purchases<br>
+          &bull; Player statistics &amp; run history
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Prestige Shop -->
+  <div class="card">
+    <div class="card-title"><span class="icon">&#x1F396;</span> Prestige Upgrades Shop</div>
+    <div class="card-body">
+      <p style="margin-bottom:12px;font-size:12px;">Simple flat list &mdash; no tree or branches for v1. Each upgrade is a one-time purchase with a clear permanent effect.</p>
+
+      <div class="shop-grid">
+        <div class="shop-item">
+          <div class="shop-cost">1 &#x1F396;</div>
+          <div class="shop-name">Starting Crowns</div>
+          <div class="shop-effect">Start each run with 1,000 Crowns</div>
+          <div class="shop-desc">Skip the very early grind on subsequent runs</div>
+        </div>
+        <div class="shop-item">
+          <div class="shop-cost">2 &#x1F396;</div>
+          <div class="shop-name">Production Boost</div>
+          <div class="shop-effect">+25% base production, all zones</div>
+          <div class="shop-desc">Flat multiplier on all resource production rates</div>
+        </div>
+        <div class="shop-item">
+          <div class="shop-cost">2 &#x1F396;</div>
+          <div class="shop-name">Better Prices</div>
+          <div class="shop-effect">+15% sell price, all resources</div>
+          <div class="shop-desc">Permanent sell multiplier stacking with in-run upgrades</div>
+        </div>
+        <div class="shop-item">
+          <div class="shop-cost">3 &#x1F396;</div>
+          <div class="shop-name">Quick Start</div>
+          <div class="shop-effect">Start with Sunfield unlocked</div>
+          <div class="shop-desc">Skip the first zone unlock, begin with 2 active zones</div>
+        </div>
+        <div class="shop-item">
+          <div class="shop-cost">3 &#x1F396;</div>
+          <div class="shop-name">Offline Boost</div>
+          <div class="shop-effect">2x offline earnings</div>
+          <div class="shop-desc">Double the resources earned while the app is closed</div>
+        </div>
+        <div class="shop-item">
+          <div class="shop-cost">4 &#x1F396;</div>
+          <div class="shop-name">Auto-Sell Permanent</div>
+          <div class="shop-effect">Auto-sell persists across resets</div>
+          <div class="shop-desc">No need to re-buy auto-sell every run</div>
+        </div>
+        <div class="shop-item">
+          <div class="shop-cost">5 &#x1F396;</div>
+          <div class="shop-name">Crown Magnet</div>
+          <div class="shop-effect">+50% Crowns from all sales</div>
+          <div class="shop-desc">Major income boost, stacks with other multipliers</div>
+        </div>
+        <div class="shop-item">
+          <div class="shop-cost">5 &#x1F396;</div>
+          <div class="shop-name">Zone Rush</div>
+          <div class="shop-effect">Zone unlock costs -30%</div>
+          <div class="shop-desc">Reach later zones faster each run</div>
+        </div>
+        <div class="shop-item">
+          <div class="shop-cost">8 &#x1F396;</div>
+          <div class="shop-name">Legacy Trader</div>
+          <div class="shop-effect">+1 bonus Legacy Seal per prestige</div>
+          <div class="shop-desc">Accelerates all future prestige gains</div>
+        </div>
+        <div class="shop-item">
+          <div class="shop-cost">10 &#x1F396;</div>
+          <div class="shop-name">Grand Merchant</div>
+          <div class="shop-effect">Start with 3 zones unlocked</div>
+          <div class="shop-desc">Ultimate convenience &mdash; begin each run at Stonehaven</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Prestige Design Notes -->
+  <div class="card" style="margin-top:14px;">
+    <div class="card-title"><span class="icon">&#x1F4DD;</span> Prestige Design Notes</div>
+    <div class="card-body">
+      <div class="label">Layer Count</div>
+      <div class="value">Single layer for v1. One reset type, one prestige currency. Additional layers can be added post-launch if needed.</div>
+      <div class="label">Formula Design</div>
+      <div class="value">Square root creates diminishing returns &mdash; encourages resetting rather than grinding. The player naturally finds an efficient reset cadence.</div>
+      <div class="label">Upgrade Structure</div>
+      <div class="value">Flat list, not a tree. Keeps it simple and easy to balance. Prestige tree is in the Future Systems backlog.</div>
+      <div class="label">Pacing</div>
+      <div class="value">First prestige timing: TBD. Design goal: player should <em>want</em> to prestige, never feel forced. Each subsequent run should feel noticeably faster.</div>
+      <div class="label">Player Psychology</div>
+      <div class="value">The reset should feel like an exciting new beginning, not a punishment. Show projected Seals before confirming. Show post-reset power increase.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 7 : MONETIZATION                                     -->
+<!-- ============================================================ -->
+<div class="section" id="sec-monetization">
+  <h2 class="section-title">Monetization Planning</h2>
+  <p class="section-sub">High-level revenue model concepts for mobile/tablet</p>
+
+  <div class="grid-2">
+    <div class="monet-card">
+      <div class="monet-icon">&#x1F3AC;</div>
+      <div class="monet-title">Rewarded Ads</div>
+      <div class="monet-desc">Optional video ads for temporary boosts</div>
+      <div class="monet-placeholder">
+        Examples: 2x production for 30 min, instant sell bonus, speed up timers.<br>
+        Limit: TBD ads per day.
+      </div>
+    </div>
+
+    <div class="monet-card">
+      <div class="monet-icon">&#x1F48E;</div>
+      <div class="monet-title">Premium Currency Packs</div>
+      <div class="monet-desc">Purchasable premium currency (name TBD)</div>
+      <div class="monet-placeholder">
+        Tiers: Small / Medium / Large / Best Value.<br>
+        Used for: cosmetics, speed-ups, QoL features.
+      </div>
+    </div>
+
+    <div class="monet-card">
+      <div class="monet-icon">&#x1F3A8;</div>
+      <div class="monet-title">Cosmetic Themes</div>
+      <div class="monet-desc">Visual skins for zones and Grand Bazaar</div>
+      <div class="monet-placeholder">
+        Zone themes, map skins, UI color palettes, animated effects.<br>
+        Purely cosmetic — no gameplay advantage.
+      </div>
+    </div>
+
+    <div class="monet-card">
+      <div class="monet-icon">&#x1F381;</div>
+      <div class="monet-title">Starter Bundle</div>
+      <div class="monet-desc">One-time new player purchase</div>
+      <div class="monet-placeholder">
+        Contents: premium currency + starting Crowns boost + exclusive cosmetic.<br>
+        Discount: ~70% off vs. buying individually.
+      </div>
+    </div>
+
+    <div class="monet-card" style="grid-column: 1 / -1;">
+      <div class="monet-icon">&#x2728;</div>
+      <div class="monet-title">Quality-of-Life Upgrades</div>
+      <div class="monet-desc">Permanent convenience purchases</div>
+      <div class="monet-placeholder">
+        Examples: permanent auto-sell, 2x offline earnings, remove interstitial ads, extra manager slots.<br>
+        One-time purchases — not consumable.
+      </div>
+    </div>
+  </div>
+
+  <div class="note-box" style="margin-top:20px;">
+    &#9432; Monetization should enhance convenience, not gate core content. The game must be fully playable and enjoyable without spending. Avoid pay-to-win mechanics.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 8 : FUTURE SYSTEMS                                   -->
+<!-- ============================================================ -->
+<div class="section" id="sec-future">
+  <h2 class="section-title">Future Systems</h2>
+  <p class="section-sub">Planned features for future development phases</p>
+
+  <div class="grid-2">
+    <div class="future-card">
+      <div class="future-icon">&#x2692;</div>
+      <div class="future-title">Crafting</div>
+      <div class="future-desc">Combine raw resources into higher-value goods for better sell prices at Grand Bazaar.</div>
+      <div class="future-notes">Design questions: recipe system? crafting stations per zone? crafting queue or instant?</div>
+    </div>
+
+    <div class="future-card">
+      <div class="future-icon">&#x1F4C8;</div>
+      <div class="future-title">Market Demand</div>
+      <div class="future-desc">Dynamic pricing at Grand Bazaar — resource values fluctuate based on supply/demand cycles.</div>
+      <div class="future-notes">Design questions: cycle length? player-visible forecasts? demand events?</div>
+    </div>
+
+    <div class="future-card">
+      <div class="future-icon">&#x2699;</div>
+      <div class="future-title">Automation</div>
+      <div class="future-desc">Managers and auto-systems that handle selling, upgrading, and zone management.</div>
+      <div class="future-notes">Design questions: unlock via prestige? tiered automation? manager characters?</div>
+    </div>
+
+    <div class="future-card">
+      <div class="future-icon">&#x1F333;</div>
+      <div class="future-title">Prestige Tree</div>
+      <div class="future-desc">Branching upgrade tree using Legacy Seals with meaningful choices between paths.</div>
+      <div class="future-notes">Design questions: number of branches? respec option? multi-layer prestige?</div>
+    </div>
+
+    <div class="future-card">
+      <div class="future-icon">&#x1F3D7;</div>
+      <div class="future-title">Zone Upgrades</div>
+      <div class="future-desc">Deep per-zone upgrade paths: buildings, workers, efficiency, resource discovery.</div>
+      <div class="future-notes">Design questions: building slots? visual progression? zone-specific milestones?</div>
+    </div>
+
+    <div class="future-card">
+      <div class="future-icon">&#x1F319;</div>
+      <div class="future-title">Offline Earnings</div>
+      <div class="future-desc">Players earn resources while away. Catch-up mechanic for idle gameplay.</div>
+      <div class="future-notes">Design questions: earning cap? percentage of active rate? ad boost for offline?</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ FOOTER ============ -->
+<div class="footer">
+  Grand Bazaar &mdash; Idle Trade Empire &bull; Concept Board v0.1 &bull; Planning Document Only
+</div>
+
+<!-- ============ JS ============ -->
+<script>
+(function () {
+  /* ---- Tab switching ---- */
+  const nav = document.getElementById('tabNav');
+  nav.addEventListener('click', function (e) {
+    const btn = e.target.closest('.tab-btn');
+    if (!btn) return;
+    nav.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('sec-' + btn.dataset.tab).classList.add('active');
+  });
+
+  /* ---- Game World Map: zones + trade routes + caravans ---- */
+  var mapZones = [
+    { name:'Greenwood',      icon:'\u{1F332}', bg:'#1a3a1a', price:null,       unlocked:true,  x:32, y:24, caravan:'\u{1F434}' },
+    { name:'Sunfield',       icon:'\u{1F33E}', bg:'#3a3418', price:null,       unlocked:true,  x:72, y:20, caravan:'\u{1F434}' },
+    { name:'Stonehaven',     icon:'\u{26F0}\u{FE0F}',  bg:'#2a2a32', price:null,       unlocked:true,  x:15, y:48, caravan:'\u{1F434}' },
+    { name:'Athenai',        icon:'\u{1F3DB}\u{FE0F}', bg:'#1e2848', price:'8K',       unlocked:false, x:82, y:45, caravan:'\u{26F5}' },
+    { name:'Roma',           icon:'\u{1F3DF}\u{FE0F}', bg:'#3a2018', price:'25K',      unlocked:false, x:22, y:72, caravan:'\u{1F434}' },
+    { name:'Alexandria',     icon:'\u{1F4DC}', bg:'#38341a', price:'60K',      unlocked:false, x:78, y:70, caravan:'\u{1F42A}' },
+    { name:'Constantinople', icon:'\u{1F54C}', bg:'#2e1838', price:'150K',     unlocked:false, x:50, y:85, caravan:'\u{1F42A}' },
+    { name:'Venetia',        icon:'\u{26F5}',  bg:'#142838', price:'400K',     unlocked:false, x:88, y:88, caravan:'\u{26F5}' },
+  ];
+
+  var world = document.getElementById('gameWorld');
+  var svgRoutes = document.getElementById('tradeRoutes');
+  // Hub center in percentages (matching .gb-hub position: left:50%, top:42%)
+  var hubX = 50, hubY = 42;
+
+  mapZones.forEach(function (z, i) {
+    // Trade route line (SVG)
+    var zPxX = z.x / 100 * 380;
+    var zPxY = z.y / 100 * 760;
+    var hPxX = hubX / 100 * 380;
+    var hPxY = hubY / 100 * 760;
+    var line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', zPxX);
+    line.setAttribute('y1', zPxY);
+    line.setAttribute('x2', hPxX);
+    line.setAttribute('y2', hPxY);
+    if (z.unlocked) line.classList.add('route-active');
+    svgRoutes.appendChild(line);
+
+    // Zone node
+    var node = document.createElement('div');
+    node.className = 'zone-node';
+    node.style.left = z.x + '%';
+    node.style.top = z.y + '%';
+
+    var bubbleClass = z.unlocked ? 'zone-bubble zone-bubble-unlocked' : 'zone-bubble zone-bubble-locked';
+    var priceHtml = z.price
+      ? '<div class="zone-node-price">\u{1FA99} ' + z.price + '</div>'
+      : '';
+
+    node.innerHTML =
+      '<div class="' + bubbleClass + '" style="background:' + z.bg + ';">' + z.icon + '</div>' +
+      '<div class="zone-node-name">' + z.name + '</div>' +
+      priceHtml;
+
+    world.appendChild(node);
+
+    // Animated caravan (only for unlocked zones)
+    if (z.unlocked) {
+      var caravan = document.createElement('div');
+      caravan.className = 'caravan';
+      caravan.textContent = z.caravan;
+      // Create a path from zone to hub for offset-path
+      var pathD = 'M ' + zPxX + ' ' + zPxY + ' L ' + hPxX + ' ' + hPxY;
+      caravan.style.offsetPath = "path('" + pathD + "')";
+      caravan.style.animation = 'caravanMove ' + (4 + i * 1.5) + 's linear ' + (i * 2) + 's infinite';
+      world.appendChild(caravan);
+    }
+  });
+
+  /* ---- Zone cards ---- */
+  const zoneData = [
+    { name:'Greenwood', icon:'\u{1F332}', bg:'#142814', border:'#1e3820',
+      type:'Forest / Woodland', theme:'Lush green canopy, log cabins, rivers',
+      resources:'Timber, Herbs, Pelts', unlock:'Starting zone — free',
+      notes:'Tutorial zone. Introduces gathering and sending resources to Grand Bazaar.' },
+    { name:'Sunfield', icon:'\u{1F33E}', bg:'#282414', border:'#383018',
+      type:'Farmland / Plains', theme:'Golden wheat fields, windmills, warm light',
+      resources:'Grain, Wool, Honey', unlock:'Easy — 500 Crowns',
+      notes:'Second zone. Introduces zone upgrades and worker assignments.' },
+    { name:'Stonehaven', icon:'\u{26F0}\u{FE0F}', bg:'#1a1a20', border:'#2a2a34',
+      type:'Mountain / Quarry', theme:'Grey cliffs, mine shafts, stone walls',
+      resources:'Stone, Iron Ore, Marble', unlock:'Medium — 2,500 Crowns',
+      notes:'Introduces mining mechanics and slower but higher-value resources.' },
+    { name:'Athenai', icon:'\u{1F3DB}\u{FE0F}', bg:'#1a1828', border:'#2a2840',
+      type:'Classical City', theme:'White columns, olive groves, blue sea',
+      resources:'Olive Oil, Pottery, Scrolls', unlock:'Medium — 8,000 Crowns',
+      notes:'Cultural zone. May introduce crafting or a scholarly resource type.' },
+    { name:'Roma', icon:'\u{1F3DF}\u{FE0F}', bg:'#281a14', border:'#382818',
+      type:'Imperial Capital', theme:'Red banners, aqueducts, marble forums',
+      resources:'Wine, Weapons, Gold Coins', unlock:'Hard — 25,000 Crowns',
+      notes:'Military/trade powerhouse. High-value resource output.' },
+    { name:'Alexandria', icon:'\u{1F4DC}', bg:'#28241a', border:'#383420',
+      type:'Scholarly Port', theme:'Lighthouse, papyrus, desert coast',
+      resources:'Papyrus, Spices, Incense', unlock:'Hard — 60,000 Crowns',
+      notes:'Exotic resources. May tie into market demand mechanics.' },
+    { name:'Constantinople', icon:'\u{1F54C}', bg:'#201428', border:'#301e38',
+      type:'Trade Crossroads', theme:'Domed roofs, silk markets, golden light',
+      resources:'Silk, Jewels, Dyes', unlock:'Very Hard — 150,000 Crowns',
+      notes:'Late-game zone. Premium resources with highest base values.' },
+    { name:'Venetia', icon:'\u{26F5}', bg:'#142028', border:'#1e3040',
+      type:'Maritime Republic', theme:'Canals, gondolas, merchant ships',
+      resources:'Glass, Salt, Exotic Goods', unlock:'Very Hard — 400,000 Crowns',
+      notes:'Final planned zone. Master traders. May unlock special bazaar features.' },
+  ];
+
+  const container = document.getElementById('zoneCards');
+  zoneData.forEach(function (z, i) {
+    const tierNum = i < 2 ? 1 : i < 4 ? 2 : i < 6 ? 3 : 4;
+    const tierColors = ['tag-green','tag-blue','tag-orange','tag-red'];
+    const html =
+      '<div class="zone-card">' +
+        '<div class="zone-header">' +
+          '<div class="zone-icon" style="background:' + z.bg + ';border:1px solid ' + z.border + ';">' + z.icon + '</div>' +
+          '<div>' +
+            '<div class="zone-name">' + z.name + '</div>' +
+            '<span class="tag ' + tierColors[tierNum-1] + '">Tier ' + tierNum + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="zone-fields">' +
+          '<div><div class="zone-field-label">Zone Type</div><div class="zone-field-value">' + z.type + '</div></div>' +
+          '<div><div class="zone-field-label">Visual Theme</div><div class="zone-field-value">' + z.theme + '</div></div>' +
+          '<div><div class="zone-field-label">Resources</div><div class="zone-field-value">' + z.resources + '</div></div>' +
+          '<div><div class="zone-field-label">Unlock</div><div class="zone-field-value">' + z.unlock + '</div></div>' +
+        '</div>' +
+        '<div class="zone-notes">' + z.notes + '</div>' +
+      '</div>';
+    container.insertAdjacentHTML('beforeend', html);
+  });
+})();
+</script>
+</body>
+</html>

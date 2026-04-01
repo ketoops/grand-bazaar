@@ -1,0 +1,1967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Grand Bazaar</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:         #0a0814;
+    --bg-panel:   #14101e;
+    --bg-card:    #1c1828;
+    --border:     #2a2540;
+    --border-gold:#6b5c3e;
+    --gold:       #d4a843;
+    --gold-lt:    #f0d078;
+    --gold-dm:    #917633;
+    --txt:        #cec5b8;
+    --txt-dm:     #8a8078;
+    --txt-br:     #f0e8d8;
+    --teal:       #3a8a7a;
+    --purple:     #7b5ea7;
+    --red:        #c05050;
+    --green:      #5a9a5a;
+    --r:          10px;
+  }
+  html, body {
+    height: 100%; overflow: hidden;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #000; color: var(--txt);
+  }
+
+  /* ===== PHONE FRAME ===== */
+  .phone {
+    position: relative;
+    width: 100%; max-width: 420px; height: 100vh; max-height: 900px;
+    margin: 0 auto;
+    background: var(--bg);
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  @media (min-width: 500px) {
+    body { display: flex; align-items: center; justify-content: center; background: #060408; }
+    .phone { border-radius: 28px; border: 3px solid #2a2540; height: 92vh; box-shadow: 0 0 60px rgba(0,0,0,0.5); }
+  }
+
+  /* ===== TOP HUD ===== */
+  .hud {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 14px 6px;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    min-height: 44px;
+  }
+  .hud-currencies { display: flex; gap: 14px; }
+  .hud-c { display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 700; }
+  .hud-crowns { color: var(--gold-lt); }
+  .hud-seals { color: #b090e0; }
+  .hud-title { font-size: 11px; color: var(--txt-dm); text-transform: uppercase; letter-spacing: 1px; }
+
+  /* Prestige progress bar in HUD */
+  .hud-progress {
+    display: flex; align-items: center; gap: 6px;
+    padding: 0 14px 6px;
+    background: var(--bg-panel);
+    flex-shrink: 0;
+  }
+  .hud-prog-bar {
+    flex: 1; height: 6px; border-radius: 3px;
+    background: var(--border);
+    overflow: hidden;
+  }
+  .hud-prog-fill {
+    height: 100%; border-radius: 3px;
+    background: linear-gradient(90deg, var(--purple), #b090e0);
+    transition: width 0.3s ease;
+  }
+  .hud-prog-label {
+    font-size: 9px; color: var(--txt-dm); white-space: nowrap; min-width: 60px; text-align: right;
+  }
+  .hud-prog-seals {
+    font-size: 9px; color: #b090e0; font-weight: 700; white-space: nowrap;
+  }
+
+  /* ===== SCREENS ===== */
+  .screen { display: none; flex: 1; overflow-y: auto; padding: 12px 12px 8px; }
+  .screen.active { display: block; }
+  .screen::-webkit-scrollbar { width: 0; }
+
+  /* ===== BOTTOM NAV ===== */
+  .nav {
+    display: flex; align-items: stretch;
+    background: var(--bg-panel);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 8px 0 6px;
+    font-size: 10px; color: var(--txt-dm); font-weight: 600;
+    cursor: pointer; transition: color 0.15s;
+    border: none; background: none; font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .nav-item.active { color: var(--gold); }
+  .nav-item .ni { font-size: 20px; margin-bottom: 1px; }
+
+  /* ===== MAP SCREEN ===== */
+  .map-world {
+    position: relative;
+    width: 100%; aspect-ratio: 1/1.1;
+    background: radial-gradient(ellipse at 50% 40%, #1a1428 0%, #0e0a18 60%, #060410 100%);
+    border-radius: var(--r);
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .map-hub {
+    position: absolute; top: 38%; left: 50%; transform: translate(-50%,-50%);
+    text-align: center; z-index: 10; cursor: pointer;
+  }
+  .map-hub-ring {
+    width: 68px; height: 68px; border-radius: 50%;
+    background: radial-gradient(circle, #2e2418, #1a1410);
+    border: 2.5px solid var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 24px rgba(212,168,67,0.2);
+    margin: 0 auto; font-size: 28px;
+  }
+  .map-hub-name { font-size: 8px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+
+  .map-zone {
+    position: absolute; transform: translate(-50%,-50%);
+    text-align: center; z-index: 10; cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .map-zone:active { transform: translate(-50%,-50%) scale(0.93); }
+  .map-zone-bubble {
+    width: 52px; height: 52px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; margin: 0 auto;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+  }
+  .mz-unlocked { border: 2px solid rgba(255,255,255,0.15); }
+  .mz-locked { border: 2px solid rgba(255,255,255,0.06); filter: brightness(0.4) saturate(0.2); }
+  .map-zone-name { font-size: 7px; font-weight: 700; color: var(--txt); text-transform: uppercase; margin-top: 2px; }
+  .map-zone-price {
+    font-size: 8px; font-weight: 700; color: var(--gold-lt);
+    background: rgba(10,8,20,0.8); padding: 1px 6px; border-radius: 6px;
+    border: 1px solid rgba(212,168,67,0.2); margin-top: 1px; display: inline-block;
+  }
+  .map-route {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 1;
+  }
+
+  /* ===== CARAVANS ON MAP ===== */
+  .caravan-dot {
+    position: absolute;
+    width: 20px; height: 20px;
+    font-size: 14px;
+    z-index: 8;
+    pointer-events: none;
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.7));
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+  }
+  .caravan-dot.active {
+    animation: caravanPulse 2s ease-in-out infinite;
+  }
+  @keyframes caravanPulse {
+    0%, 100% { opacity: 0.7; } 50% { opacity: 1; }
+  }
+
+  /* Resource float particles */
+  .res-particle {
+    position: absolute;
+    font-size: 10px;
+    pointer-events: none;
+    z-index: 9;
+    opacity: 0;
+    animation: particleFloat 2s ease-out forwards;
+  }
+  @keyframes particleFloat {
+    0% { opacity: 1; transform: translate(0, 0) scale(1); }
+    100% { opacity: 0; transform: translate(0, -20px) scale(0.5); }
+  }
+
+  /* Zone click feedback */
+  .map-zone-bubble.pulse {
+    animation: zonePulse 0.3s ease-out;
+  }
+  @keyframes zonePulse {
+    0% { box-shadow: 0 3px 10px rgba(0,0,0,0.4); }
+    50% { box-shadow: 0 3px 10px rgba(0,0,0,0.4), 0 0 16px rgba(212,168,67,0.3); }
+    100% { box-shadow: 0 3px 10px rgba(0,0,0,0.4); }
+  }
+
+  /* Locked zone shake when can't afford */
+  .map-zone.shake {
+    animation: zoneShake 0.4s ease-out;
+  }
+  @keyframes zoneShake {
+    0%, 100% { transform: translate(-50%,-50%); }
+    20% { transform: translate(calc(-50% + 4px),-50%); }
+    40% { transform: translate(calc(-50% - 4px),-50%); }
+    60% { transform: translate(calc(-50% + 2px),-50%); }
+    80% { transform: translate(calc(-50% - 2px),-50%); }
+  }
+
+  /* Zone unlocked glow */
+  .mz-unlocked { border: 2px solid rgba(255,255,255,0.15); transition: box-shadow 0.3s; }
+  .mz-unlocked:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.4), 0 0 12px rgba(212,168,67,0.15); }
+
+  /* ===== ZONE DETAIL SCREEN ===== */
+  .zd-header { text-align: center; margin-bottom: 14px; }
+  .zd-header .zd-icon { font-size: 44px; }
+  .zd-header .zd-name { font-size: 18px; font-weight: 700; color: var(--txt-br); margin-top: 2px; }
+  .zd-header .zd-sub { font-size: 11px; color: var(--txt-dm); }
+
+  .zd-res-table { width: 100%; font-size: 12px; border-collapse: collapse; margin-bottom: 14px; }
+  .zd-res-table th { font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--txt-dm); padding: 6px 4px; text-align: left; border-bottom: 1px solid var(--border); }
+  .zd-res-table td { padding: 7px 4px; border-bottom: 1px solid var(--border); }
+  .zd-res-table .r-name { color: var(--txt-br); font-weight: 600; }
+  .zd-res-table .r-rate { color: var(--teal); }
+  .zd-res-table .r-count { text-align: right; color: var(--txt); }
+
+  .zd-upgrade {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r);
+    padding: 10px 12px; margin-bottom: 8px;
+    cursor: pointer; transition: border-color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .zd-upgrade:active { border-color: var(--teal); }
+  .zd-upgrade.cant-afford { opacity: 0.5; }
+  .zd-up-info .zd-up-name { font-size: 12px; font-weight: 700; color: var(--txt-br); }
+  .zd-up-info .zd-up-stat { font-size: 10px; color: var(--txt-dm); }
+  .zd-up-cost {
+    background: rgba(20,16,32,0.8); border: 1.5px solid var(--teal); border-radius: 8px;
+    padding: 5px 14px; font-size: 12px; font-weight: 700; color: var(--teal);
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .zd-up-cost.gold-border { border-color: var(--gold-dm); color: var(--gold); }
+  .zd-up-cost.maxed { border-color: var(--txt-dm); color: var(--txt-dm); }
+  .zd-back {
+    display: inline-block; padding: 6px 14px; font-size: 11px; font-weight: 600;
+    color: var(--txt-dm); background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 6px; cursor: pointer; margin-bottom: 12px;
+    font-family: inherit; -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ===== BAZAAR SCREEN ===== */
+  .bz-res-card {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r);
+    padding: 12px; margin-bottom: 10px; cursor: pointer;
+    transition: border-color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .bz-res-card.selected { border-color: var(--gold); }
+  .bz-res-card.empty { opacity: 0.4; }
+  .bz-res-top {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .bz-res-info { display: flex; align-items: center; gap: 8px; }
+  .bz-res-icon { font-size: 22px; }
+  .bz-res-name { font-size: 13px; font-weight: 600; color: var(--txt-br); }
+  .bz-res-qty { font-size: 11px; color: var(--txt-dm); }
+  .bz-res-price { font-size: 12px; color: var(--gold); font-weight: 600; text-align: right; }
+  .bz-res-ppu { font-size: 9px; color: var(--txt-dm); text-align: right; }
+
+  /* Sell panel (shows when resource selected) */
+  .bz-sell-panel {
+    margin-top: 10px; padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+  .bz-slider-row {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+  }
+  .bz-slider-pct {
+    font-size: 18px; font-weight: 700; color: var(--gold-lt);
+    min-width: 48px; text-align: right;
+  }
+  .bz-slider {
+    flex: 1; -webkit-appearance: none; appearance: none;
+    height: 8px; border-radius: 4px;
+    background: var(--border);
+    outline: none;
+  }
+  .bz-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--gold); cursor: pointer;
+    border: 2px solid var(--gold-lt);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+  .bz-slider::-moz-range-thumb {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--gold); cursor: pointer;
+    border: 2px solid var(--gold-lt);
+  }
+  .bz-sell-preview {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 12px; color: var(--txt-dm); margin-bottom: 10px;
+  }
+  .bz-sell-preview .sell-amount { color: var(--txt-br); font-weight: 600; }
+  .bz-sell-preview .sell-value { color: var(--gold-lt); font-weight: 700; font-size: 14px; }
+
+  .bz-quick-btns {
+    display: flex; gap: 6px; margin-bottom: 10px;
+  }
+  .bz-quick-btn {
+    flex: 1; padding: 6px; font-size: 10px; font-weight: 700;
+    background: rgba(20,16,32,0.6); border: 1px solid var(--border); border-radius: 6px;
+    color: var(--txt-dm); cursor: pointer; text-align: center;
+    font-family: inherit; -webkit-tap-highlight-color: transparent;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .bz-quick-btn:active { border-color: var(--gold-dm); color: var(--gold); }
+
+  .bz-sell-btn {
+    display: block; width: 100%; padding: 14px;
+    background: linear-gradient(135deg, #2a2018, #1e1812);
+    border: 2px solid var(--gold);
+    border-radius: var(--r); font-size: 15px; font-weight: 700;
+    color: var(--gold-lt); text-align: center; cursor: pointer;
+    font-family: inherit; transition: transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .bz-sell-btn:active { transform: scale(0.97); }
+  .bz-sell-btn:disabled { opacity: 0.3; cursor: default; }
+  .bz-sell-btn.sell-all-btn {
+    background: rgba(20,16,32,0.6);
+    border-color: var(--border);
+    color: var(--txt-dm);
+    font-size: 12px;
+    padding: 10px;
+    margin-top: 10px;
+  }
+
+  .bz-income {
+    text-align: center; padding: 10px; margin-bottom: 12px;
+    background: var(--bg-card); border-radius: var(--r); border: 1px solid var(--border);
+  }
+  .bz-income-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--txt-dm); }
+  .bz-income-val { font-size: 20px; font-weight: 700; color: var(--gold-lt); margin-top: 2px; }
+
+  /* ===== CRAFT SCREEN ===== */
+  .cr-slot {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r);
+    padding: 12px; margin-bottom: 10px;
+  }
+  .cr-slot.active { border-color: var(--teal); }
+  .cr-slot.locked { opacity: 0.35; }
+  .cr-slot-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .cr-slot-title { font-size: 12px; font-weight: 700; color: var(--txt-br); }
+  .cr-slot-status { font-size: 10px; color: var(--txt-dm); }
+
+  .cr-progress {
+    height: 8px; border-radius: 4px; background: var(--border);
+    overflow: hidden; margin-bottom: 6px;
+  }
+  .cr-progress-fill {
+    height: 100%; border-radius: 4px;
+    background: linear-gradient(90deg, var(--teal), #5abcaa);
+    transition: width 0.1s linear;
+  }
+  .cr-slot-info {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 11px; color: var(--txt-dm);
+  }
+  .cr-slot-product { color: var(--txt-br); font-weight: 600; }
+
+  .cr-recipe {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r);
+    padding: 12px; margin-bottom: 8px;
+    cursor: pointer; transition: border-color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .cr-recipe:active { border-color: var(--teal); }
+  .cr-recipe.cant-afford { opacity: 0.4; }
+  .cr-recipe-top {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .cr-recipe-name { font-size: 13px; font-weight: 700; color: var(--txt-br); }
+  .cr-recipe-time { font-size: 11px; color: var(--teal); font-weight: 600; }
+  .cr-recipe-price { font-size: 10px; color: var(--gold); margin-top: 1px; }
+  .cr-recipe-cost {
+    font-size: 10px; color: var(--txt-dm); margin-top: 4px;
+  }
+  .cr-recipe-cost span { color: var(--txt); }
+  .cr-recipe-actions {
+    display: flex; gap: 6px; margin-top: 8px;
+  }
+  .cr-btn {
+    flex: 1; padding: 8px; font-size: 11px; font-weight: 700;
+    border-radius: 6px; cursor: pointer; text-align: center;
+    font-family: inherit; -webkit-tap-highlight-color: transparent;
+    transition: transform 0.1s;
+  }
+  .cr-btn:active { transform: scale(0.96); }
+  .cr-btn-craft {
+    background: rgba(58,138,122,0.15); border: 1.5px solid var(--teal); color: var(--teal);
+  }
+  .cr-btn-auto {
+    background: rgba(212,168,67,0.1); border: 1.5px solid var(--gold-dm); color: var(--gold);
+  }
+  .cr-btn-auto.on {
+    background: rgba(212,168,67,0.25); border-color: var(--gold);
+  }
+  .cr-btn:disabled { opacity: 0.3; cursor: default; }
+
+  .cr-inventory {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r);
+    padding: 12px; margin-bottom: 10px;
+  }
+  .cr-inv-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 4px 0;
+  }
+  .cr-inv-name { font-size: 12px; color: var(--txt-br); font-weight: 600; }
+  .cr-inv-qty { font-size: 12px; color: var(--txt); }
+  .cr-inv-val { font-size: 10px; color: var(--gold); }
+
+  /* ===== PRESTIGE SCREEN ===== */
+  .pr-box {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r);
+    padding: 16px; margin-bottom: 12px; text-align: center;
+  }
+  .pr-box h3 { font-size: 14px; color: var(--txt-br); margin-bottom: 6px; }
+  .pr-box .pr-val { font-size: 28px; font-weight: 700; margin: 6px 0; }
+  .pr-box .pr-sub { font-size: 11px; color: var(--txt-dm); }
+
+  .pr-reset-btn {
+    display: block; width: 100%; padding: 16px; margin-top: 12px;
+    background: linear-gradient(135deg, #1e1630, #16102a);
+    border: 2px solid var(--purple);
+    border-radius: var(--r); font-size: 15px; font-weight: 700;
+    color: #b090e0; text-align: center; cursor: pointer;
+    font-family: inherit; transition: transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pr-reset-btn:active { transform: scale(0.97); }
+  .pr-reset-btn:disabled { opacity: 0.35; cursor: default; }
+
+  .pr-upgrades-title { font-size: 13px; font-weight: 700; color: #b090e0; margin: 16px 0 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .pr-shop-btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 14px; margin-top: 14px;
+    background: var(--bg-card); border: 2px solid var(--purple); border-radius: var(--r);
+    font-size: 14px; font-weight: 700; color: #b090e0;
+    cursor: pointer; font-family: inherit; transition: transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pr-shop-btn:active { transform: scale(0.97); }
+  .pr-shop-count {
+    background: var(--purple); color: #fff; font-size: 11px; font-weight: 700;
+    padding: 2px 8px; border-radius: 10px;
+  }
+
+  .pr-milestone {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r);
+    padding: 10px 12px; margin-bottom: 6px;
+    transition: border-color 0.2s;
+  }
+  .pr-milestone.reached { border-color: var(--purple); }
+  .pr-milestone.next { border-color: var(--gold-dm); }
+  .pr-milestone.locked { opacity: 0.35; }
+  .pr-ms-icon { font-size: 20px; width: 28px; text-align: center; flex-shrink: 0; }
+  .pr-ms-info { flex: 1; }
+  .pr-ms-target { font-size: 12px; font-weight: 700; color: var(--txt-br); }
+  .pr-ms-bar { height: 4px; border-radius: 2px; background: var(--border); margin-top: 4px; overflow: hidden; }
+  .pr-ms-bar-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--purple), #b090e0); transition: width 0.3s; }
+  .pr-ms-seals { font-size: 14px; font-weight: 700; color: #b090e0; white-space: nowrap; }
+
+  .pr-up-item {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r);
+    padding: 10px 12px; margin-bottom: 8px;
+    cursor: pointer; transition: border-color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pr-up-item.owned { border-color: var(--purple); opacity: 0.6; }
+  .pr-up-item.cant-afford { opacity: 0.4; }
+  .pr-up-name { font-size: 12px; font-weight: 700; color: var(--txt-br); }
+  .pr-up-effect { font-size: 10px; color: var(--teal); }
+  .pr-up-desc { font-size: 9px; color: var(--txt-dm); }
+  .pr-up-cost {
+    background: rgba(20,16,32,0.8); border: 1.5px solid var(--purple); border-radius: 8px;
+    padding: 4px 12px; font-size: 11px; font-weight: 700; color: #b090e0;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .pr-up-cost.owned-badge { border-color: var(--green); color: var(--green); }
+
+  /* ===== SELL FLASH ===== */
+  .sell-flash {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    font-size: 28px; font-weight: 700; color: var(--gold-lt);
+    text-shadow: 0 2px 12px rgba(212,168,67,0.5);
+    pointer-events: none; opacity: 0;
+    animation: flashUp 0.8s ease-out forwards;
+    z-index: 999;
+  }
+  @keyframes flashUp {
+    0% { opacity: 1; transform: translate(-50%,-50%) translateY(0); }
+    100% { opacity: 0; transform: translate(-50%,-50%) translateY(-60px); }
+  }
+
+  /* ===== PRESTIGE FLASH ===== */
+  .prestige-flash {
+    position: fixed; inset: 0;
+    background: radial-gradient(circle, rgba(123,94,167,0.3), transparent);
+    pointer-events: none; opacity: 0;
+    animation: pFlash 1.2s ease-out forwards;
+    z-index: 998;
+  }
+  @keyframes pFlash {
+    0% { opacity: 1; } 100% { opacity: 0; }
+  }
+
+  .section-label {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--txt-dm); margin-bottom: 8px; padding-left: 2px;
+  }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <!-- HUD -->
+  <div class="hud">
+    <div class="hud-currencies">
+      <div class="hud-c hud-crowns"><span>🪙</span> <span id="hudCrowns">0</span></div>
+      <div class="hud-c hud-seals"><span>🎖️</span> <span id="hudSeals">0</span></div>
+    </div>
+    <div class="hud-title">Grand Bazaar</div>
+  </div>
+  <div class="hud-progress">
+    <div class="hud-prog-seals" id="hudProgSeals">🎖️ 0</div>
+    <div class="hud-prog-bar"><div class="hud-prog-fill" id="hudProgFill" style="width:0%"></div></div>
+    <div class="hud-prog-label" id="hudProgLabel">0 / 25K</div>
+  </div>
+
+  <!-- SCREENS -->
+
+  <!-- MAP -->
+  <div class="screen active" id="scrMap">
+    <div class="map-world" id="mapWorld">
+      <svg class="map-route" id="mapRoutes" viewBox="0 0 400 440" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="map-hub" onclick="showScreen('bazaar')">
+        <div class="map-hub-ring">🏛️</div>
+        <div class="map-hub-name">Grand Bazaar</div>
+      </div>
+      <!-- zones injected by JS -->
+    </div>
+    <div class="bz-income">
+      <div class="bz-income-label">Total Income</div>
+      <div class="bz-income-val" id="mapIncome">0.0 🪙/s</div>
+    </div>
+  </div>
+
+  <!-- ZONE DETAIL -->
+  <div class="screen" id="scrZone">
+    <button class="zd-back" onclick="showScreen('map')">← Back to Map</button>
+    <div id="zoneDetail"></div>
+  </div>
+
+  <!-- BAZAAR -->
+  <div class="screen" id="scrBazaar">
+    <div class="bz-income">
+      <div class="bz-income-label">Total Income</div>
+      <div class="bz-income-val" id="bzIncome">0.0 🪙/s</div>
+    </div>
+    <div class="section-label">Tap a resource to sell</div>
+    <div id="bzResources"></div>
+    <button class="bz-sell-btn sell-all-btn" onclick="sellAll()">Sell All Resources</button>
+  </div>
+
+  <!-- CRAFT -->
+  <div class="screen" id="scrCraft">
+    <div class="section-label">Craft Slots</div>
+    <div id="crSlots"></div>
+    <div class="section-label" style="margin-top:14px;">Recipes</div>
+    <div id="crRecipes"></div>
+    <div class="section-label" style="margin-top:14px;">Crafted Inventory</div>
+    <div class="cr-inventory" id="crInventory"></div>
+  </div>
+
+  <!-- PRESTIGE: Milestones -->
+  <div class="screen" id="scrPrestige">
+    <div class="pr-box">
+      <h3>🎖️ Legacy Seals</h3>
+      <div class="pr-val" style="color:#b090e0;" id="prSeals">0</div>
+      <div class="pr-sub">Permanent currency — persists across resets</div>
+    </div>
+
+    <div class="pr-box">
+      <h3>🪙 This Run</h3>
+      <div class="pr-val" style="color:var(--gold-lt);" id="prCrownsEarned">0</div>
+      <div class="pr-sub">Total Crowns earned this run</div>
+    </div>
+
+    <div class="section-label" style="margin-top:14px;">Milestones</div>
+    <div id="prMilestones"></div>
+
+    <button class="pr-reset-btn" id="prResetBtn" onclick="doPrestige()" disabled>
+      🔄 Reset World
+    </button>
+    <div style="text-align:center;font-size:10px;color:var(--txt-dm);margin-top:6px;" id="prResetSub"></div>
+
+    <div style="text-align:center;margin-top:16px;padding-top:12px;border-top:1px solid var(--border);">
+      <button style="background:none;border:1px solid var(--border);border-radius:6px;padding:6px 16px;font-size:10px;color:var(--txt-dm);cursor:pointer;font-family:inherit;" onclick="if(confirm('Delete ALL progress? This cannot be undone!'))wipeSave()">🗑️ Wipe Save</button>
+    </div>
+
+    <button class="pr-shop-btn" onclick="showScreen('prestShop')" style="margin-top:14px;">
+      🎖️ Prestige Upgrades Shop
+      <span class="pr-shop-count" id="prShopCount"></span>
+    </button>
+  </div>
+
+  <!-- PRESTIGE: Upgrades Shop -->
+  <div class="screen" id="scrPrestShop">
+    <button class="zd-back" onclick="showScreen('prestige')">← Back to Milestones</button>
+    <div class="pr-box" style="margin-top:4px;">
+      <h3>🎖️ Legacy Seals</h3>
+      <div class="pr-val" style="color:#b090e0;" id="prSeals2">0</div>
+      <div class="pr-sub">Available to spend</div>
+    </div>
+    <div class="section-label">Upgrades</div>
+    <div id="prUpgrades"></div>
+  </div>
+
+  <!-- NAV -->
+  <div class="nav">
+    <button class="nav-item active" onclick="showScreen('map')"><span class="ni">🗺️</span>Map</button>
+    <button class="nav-item" onclick="showScreen('bazaar')"><span class="ni">🏛️</span>Bazaar</button>
+    <button class="nav-item" onclick="showScreen('craft')"><span class="ni">⚒️</span>Craft</button>
+    <button class="nav-item" onclick="showScreen('prestige')"><span class="ni">🎖️</span>Prestige</button>
+  </div>
+</div>
+
+<script>
+(function(){
+/* ============================================================
+   GAME DATA
+   ============================================================ */
+var ZONES = [
+  {
+    id:'forest', name:'Pădure', icon:'🌲', bg:'#1a3a1a', x:30, y:18,
+    cost:0, caravan:'🐴',
+    resources:[
+      { id:'wood', name:'Wood', icon:'🪵', yield:70, baseRate:1.0, price:2 },
+      { id:'food', name:'Food', icon:'🍎', yield:30, baseRate:0.4, price:3 }
+    ],
+    upgrades:{
+      production:{ base:10, mult:1.45, perLvl:0.15, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ base:15, mult:1.45, perLvl:10, label:'Caravan Speed', icon:'🐴', unit:'%' },
+      cargo:{ base:20, mult:1.45, perLvl:5, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ base:50, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ base:200, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'🐴+', unit:'', max:4 }
+    }
+  },
+  {
+    id:'farm', name:'Fermă', icon:'🌾', bg:'#3a3418', x:72, y:22,
+    cost:500, caravan:'🐂',
+    resources:[
+      { id:'food', name:'Food', icon:'🍎', yield:75, baseRate:1.2, price:3 },
+      { id:'wood', name:'Wood', icon:'🪵', yield:25, baseRate:0.3, price:2 }
+    ],
+    upgrades:{
+      production:{ base:25, mult:1.45, perLvl:0.18, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ base:35, mult:1.45, perLvl:10, label:'Caravan Speed', icon:'🐂', unit:'%' },
+      cargo:{ base:45, mult:1.45, perLvl:8, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ base:120, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ base:500, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'🐂+', unit:'', max:4 }
+    }
+  },
+  {
+    id:'mine', name:'Mină', icon:'⛰️', bg:'#2a2a32', x:50, y:75,
+    cost:2500, caravan:'🐴',
+    resources:[
+      { id:'stone', name:'Stone', icon:'🪨', yield:60, baseRate:0.6, price:5 },
+      { id:'iron', name:'Iron', icon:'⚙️', yield:40, baseRate:0.3, price:10 }
+    ],
+    upgrades:{
+      production:{ base:80, mult:1.50, perLvl:0.12, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ base:100, mult:1.50, perLvl:10, label:'Caravan Speed', icon:'🐴', unit:'%' },
+      cargo:{ base:120, mult:1.50, perLvl:10, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ base:300, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ base:1200, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'🐴+', unit:'', max:4 }
+    }
+  }
+];
+
+var CRAFT_RECIPES = [
+  { id:'planks',     name:'Planks',      icon:'🪵',  time:5,   sellPrice:8,   cost:{ wood:5 } },
+  { id:'bricks',     name:'Bricks',      icon:'🧱',  time:8,   sellPrice:18,  cost:{ stone:8, wood:2 } },
+  { id:'tools',      name:'Tools',       icon:'🔧',  time:15,  sellPrice:35,  cost:{ planks:3, iron:5 } },
+  { id:'provisions', name:'Provisions',  icon:'🎒',  time:12,  sellPrice:25,  cost:{ food:10, wood:3 } },
+  { id:'scoutKit',   name:'Scout Kit',   icon:'🧭',  time:30,  sellPrice:80,  cost:{ tools:2, provisions:5 } },
+  { id:'steelBar',   name:'Steel Bar',   icon:'⚔️',  time:20,  sellPrice:50,  cost:{ iron:8, stone:3 } },
+];
+
+var MAX_CRAFT_SLOTS = 3;
+
+var PRESTIGE_MILESTONES = [
+  { crowns: 25000,   seals: 1,  label: '25K' },
+  { crowns: 50000,   seals: 2,  label: '50K' },
+  { crowns: 100000,  seals: 3,  label: '100K' },
+  { crowns: 250000,  seals: 5,  label: '250K' },
+  { crowns: 500000,  seals: 8,  label: '500K' },
+  { crowns: 1000000, seals: 12, label: '1M' },
+];
+
+var PRESTIGE_UPGRADES = [
+  { id:'startCrowns',   name:'Starting Crowns',      effect:'+1,000 starting Crowns',     desc:'Skip early grind', cost:1 },
+  { id:'prodBoost',     name:'Production Boost',      effect:'+25% all production',        desc:'Flat multiplier all zones', cost:2 },
+  { id:'betterPrices',  name:'Better Prices',         effect:'+15% all sell prices',       desc:'Permanent sell bonus', cost:2 },
+  { id:'quickStart',    name:'Quick Start',           effect:'Start with Fermă unlocked',  desc:'Begin with 2 zones', cost:3 },
+  { id:'offlineBoost',  name:'Offline Boost',         effect:'2x offline earnings',        desc:'Double idle gains', cost:3 },
+  { id:'autoSellPerm',  name:'Auto-Sell Permanent',   effect:'Auto-sell persists on reset', desc:'Never re-buy auto-sell', cost:4 },
+  { id:'crownMagnet',   name:'Crown Magnet',          effect:'+50% Crowns from sales',     desc:'Major income boost', cost:5 },
+  { id:'zoneRush',      name:'Zone Rush',             effect:'-30% zone unlock costs',     desc:'Reach later zones faster', cost:5 },
+  { id:'legacyTrader',  name:'Legacy Trader',         effect:'+1 bonus Seal per prestige', desc:'Accelerates future gains', cost:8 },
+  { id:'grandMerchant', name:'Grand Merchant',        effect:'Start with 3 zones unlocked', desc:'Begin at Mină', cost:10 },
+];
+
+/* ============================================================
+   GAME STATE
+   ============================================================ */
+var SAVE_KEY = 'grandBazaarSave';
+
+var G = loadGame() || createFreshState();
+
+function createFreshState() {
+  var state = {
+    crowns: 0,
+    totalCrownsEarned: 0,
+    legacySeals: 0,
+    ownedPrestige: {},
+    zones: {},
+    bazaar: {},
+    currentScreen: 'map',
+    selectedZone: null,
+    selectedResource: null,
+    sellPercent: 100,
+    craftSlots: [{ recipeId:null, progress:0, timeLeft:0, auto:false }],
+    craftInventory: {}
+  };
+  ZONES.forEach(function(z){
+    var stored = {};
+    z.resources.forEach(function(r){ stored[r.id] = 0; });
+    state.zones[z.id] = {
+      unlocked: z.cost === 0,
+      upgrades: { production:0, speed:0, cargo:0, harvest:0, extraCaravan:0 },
+      stored: stored,
+      caravans: [{ progress:0, phase:'loading', cargo:{} }]
+    };
+    z.resources.forEach(function(r){
+      if (!state.bazaar[r.id]) state.bazaar[r.id] = 0;
+    });
+  });
+  return state;
+}
+
+function resetForPrestige() {
+  var seals = calcPrestigeSeals();
+  G.legacySeals += seals;
+  var kept = { legacySeals: G.legacySeals, ownedPrestige: Object.assign({}, G.ownedPrestige) };
+
+  G.crowns = 0;
+  G.totalCrownsEarned = 0;
+  G.bazaar = {};
+  G.selectedZone = null;
+  G.craftSlots = [{ recipeId:null, progress:0, timeLeft:0, auto:false }];
+  G.craftInventory = {};
+
+  ZONES.forEach(function(z){
+    var stored = {};
+    z.resources.forEach(function(r){ stored[r.id] = 0; });
+    G.zones[z.id] = {
+      unlocked: z.cost === 0,
+      upgrades: { production:0, speed:0, cargo:0, harvest:0, extraCaravan:0 },
+      stored: stored,
+      caravans: [{ progress:0, phase:'loading', cargo:{} }]
+    };
+    z.resources.forEach(function(r){
+      if (!G.bazaar[r.id]) G.bazaar[r.id] = 0;
+    });
+  });
+
+  G.legacySeals = kept.legacySeals;
+  G.ownedPrestige = kept.ownedPrestige;
+
+  // Apply prestige effects
+  if (G.ownedPrestige.startCrowns) { G.crowns = 1000; }
+  if (G.ownedPrestige.quickStart) { G.zones.farm.unlocked = true; }
+  if (G.ownedPrestige.grandMerchant) { G.zones.farm.unlocked = true; G.zones.mine.unlocked = true; }
+}
+
+/* ============================================================
+   SAVE / LOAD
+   ============================================================ */
+function saveGame() {
+  try {
+    var data = {
+      v: 1, // save version for future migrations
+      crowns: G.crowns,
+      totalCrownsEarned: G.totalCrownsEarned,
+      legacySeals: G.legacySeals,
+      ownedPrestige: G.ownedPrestige,
+      craftInventory: G.craftInventory,
+      craftSlots: G.craftSlots.map(function(s){
+        return { recipeId:s.recipeId, progress:s.progress, timeLeft:s.timeLeft, auto:s.auto, autoRecipe:s.autoRecipe||null };
+      }),
+      zones: {},
+      bazaar: G.bazaar
+    };
+    ZONES.forEach(function(z){
+      var zs = G.zones[z.id];
+      data.zones[z.id] = {
+        unlocked: zs.unlocked,
+        upgrades: zs.upgrades,
+        stored: zs.stored
+      };
+    });
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+  } catch(e) {}
+}
+
+function loadGame() {
+  try {
+    var raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return null;
+    var data = JSON.parse(raw);
+
+    var state = createFreshState();
+    state.crowns = data.crowns || 0;
+    state.totalCrownsEarned = data.totalCrownsEarned || 0;
+    state.legacySeals = data.legacySeals || 0;
+    state.ownedPrestige = data.ownedPrestige || {};
+    state.craftInventory = data.craftInventory || {};
+    state.bazaar = data.bazaar || state.bazaar;
+
+    // Restore craft slots
+    if (data.craftSlots) {
+      state.craftSlots = data.craftSlots.map(function(s){
+        return { recipeId:s.recipeId||null, progress:s.progress||0, timeLeft:s.timeLeft||0, auto:!!s.auto, autoRecipe:s.autoRecipe||null };
+      });
+    }
+
+    // Restore zones
+    ZONES.forEach(function(z){
+      if (data.zones && data.zones[z.id]) {
+        var saved = data.zones[z.id];
+        state.zones[z.id].unlocked = saved.unlocked;
+        state.zones[z.id].upgrades = saved.upgrades || state.zones[z.id].upgrades;
+        // Ensure all upgrade keys exist
+        if (!state.zones[z.id].upgrades.extraCaravan) state.zones[z.id].upgrades.extraCaravan = 0;
+        state.zones[z.id].stored = saved.stored || state.zones[z.id].stored;
+      }
+    });
+
+    return state;
+  } catch(e) {
+    return null;
+  }
+}
+
+function wipeSave() {
+  localStorage.removeItem(SAVE_KEY);
+  location.reload();
+}
+
+/* ============================================================
+   CALCULATIONS
+   ============================================================ */
+function upgradeCost(baseC, mult, level) {
+  return Math.floor(baseC * Math.pow(mult, level));
+}
+
+function getZoneProductionRate(zone) {
+  var zs = G.zones[zone.id];
+  var base = 1 + zs.upgrades.production * zone.upgrades.production.perLvl;
+  var prestigeMult = 1;
+  if (G.ownedPrestige.prodBoost) prestigeMult *= 1.25;
+  return base * prestigeMult;
+}
+
+function getHarvestChance(zone) {
+  var zs = G.zones[zone.id];
+  return Math.min(zs.upgrades.harvest, zone.upgrades.harvest.max || 25) / 100;
+}
+
+function getSellMultiplier() {
+  var m = 1;
+  if (G.ownedPrestige.betterPrices) m *= 1.15;
+  if (G.ownedPrestige.crownMagnet) m *= 1.5;
+  return m;
+}
+
+function getZoneUnlockCost(zone) {
+  var cost = zone.cost;
+  if (G.ownedPrestige.zoneRush) cost = Math.floor(cost * 0.7);
+  return cost;
+}
+
+function getCargoCapacity(zone) {
+  var zs = G.zones[zone.id];
+  var base = 10;
+  return base + zs.upgrades.cargo * zone.upgrades.cargo.perLvl;
+}
+
+function getCaravanSpeed(zone) {
+  var zs = G.zones[zone.id];
+  var base = 0.02;
+  return base * (1 + zs.upgrades.speed * 0.10);
+}
+
+function getCaravanCount(zone) {
+  var zs = G.zones[zone.id];
+  return 1 + zs.upgrades.extraCaravan;
+}
+
+function syncCaravans(zone) {
+  var zs = G.zones[zone.id];
+  var needed = getCaravanCount(zone);
+  // Add caravans if needed
+  while (zs.caravans.length < needed) {
+    // Stagger new caravans so they don't all start at same point
+    var offset = zs.caravans.length / needed;
+    zs.caravans.push({ progress: offset, phase: offset > 0 ? 'toHub' : 'loading', cargo:{} });
+  }
+  // Remove excess (shouldn't happen normally)
+  while (zs.caravans.length > needed) {
+    zs.caravans.pop();
+  }
+}
+
+function calcTotalIncome() {
+  // Estimated income: production rate × sell price, adjusted for caravan throughput
+  var total = 0;
+  ZONES.forEach(function(z){
+    if (!G.zones[z.id].unlocked) return;
+    var prodMult = getZoneProductionRate(z);
+    var harvestBonus = 1 + getHarvestChance(z);
+    var sellMult = getSellMultiplier();
+    z.resources.forEach(function(r){
+      total += r.baseRate * prodMult * harvestBonus * r.price * sellMult;
+    });
+  });
+  return total;
+}
+
+function getHighestMilestone() {
+  var best = null;
+  for (var i = PRESTIGE_MILESTONES.length - 1; i >= 0; i--) {
+    if (G.totalCrownsEarned >= PRESTIGE_MILESTONES[i].crowns) {
+      best = PRESTIGE_MILESTONES[i];
+      break;
+    }
+  }
+  return best;
+}
+
+function getNextMilestone() {
+  for (var i = 0; i < PRESTIGE_MILESTONES.length; i++) {
+    if (G.totalCrownsEarned < PRESTIGE_MILESTONES[i].crowns) {
+      return PRESTIGE_MILESTONES[i];
+    }
+  }
+  return null; // all milestones reached
+}
+
+function calcPrestigeSeals() {
+  var m = getHighestMilestone();
+  if (!m) return 0;
+  var bonus = G.ownedPrestige.legacyTrader ? 1 : 0;
+  return m.seals + bonus;
+}
+
+/* ============================================================
+   GAME TICK — Production + Caravan Transport
+   ============================================================ */
+function tick() {
+  ZONES.forEach(function(z){
+    var zs = G.zones[z.id];
+    if (!zs.unlocked) return;
+
+    // 1) Zone produces resources → stored locally
+    var prodMult = getZoneProductionRate(z);
+    var harvestChance = getHarvestChance(z);
+    z.resources.forEach(function(r){
+      var amount = r.baseRate * prodMult * 0.1; // per 100ms
+      if (Math.random() < harvestChance) amount *= 2;
+      zs.stored[r.id] = (zs.stored[r.id] || 0) + amount;
+    });
+
+    // 2) Sync caravan count with upgrade
+    syncCaravans(z);
+
+    // 3) Caravan logic — each caravan runs independently
+    var speed = getCaravanSpeed(z);
+    var capacity = getCargoCapacity(z);
+
+    zs.caravans.forEach(function(c) {
+      if (c.phase === 'loading') {
+        var totalStored = 0;
+        z.resources.forEach(function(r){ totalStored += (zs.stored[r.id] || 0); });
+
+        if (totalStored >= 1) {
+          var toLoad = Math.min(totalStored, capacity);
+          c.cargo = {};
+          z.resources.forEach(function(r){
+            var available = zs.stored[r.id] || 0;
+            var share = totalStored > 0 ? (available / totalStored) : 0;
+            var take = toLoad * share;
+            c.cargo[r.id] = take;
+            zs.stored[r.id] = Math.max(0, available - take);
+          });
+          c.phase = 'toHub';
+          c.progress = 0;
+        }
+
+      } else if (c.phase === 'toHub') {
+        c.progress += speed;
+        if (c.progress >= 1) {
+          c.progress = 1;
+          Object.keys(c.cargo).forEach(function(rid){
+            G.bazaar[rid] = (G.bazaar[rid] || 0) + c.cargo[rid];
+          });
+          c.cargo = {};
+          c.phase = 'returning';
+        }
+
+      } else if (c.phase === 'returning') {
+        c.progress -= speed * 1.5;
+        if (c.progress <= 0) {
+          c.progress = 0;
+          c.phase = 'loading';
+        }
+      }
+    });
+  });
+}
+
+/* ============================================================
+   ACTIONS
+   ============================================================ */
+/* ============================================================
+   CRAFTING LOGIC
+   ============================================================ */
+function getCraftResource(rid) {
+  // Check bazaar (raw) and craft inventory (crafted)
+  return (G.bazaar[rid] || 0) + (G.craftInventory[rid] || 0);
+}
+
+function consumeCraftResources(costs) {
+  // Consume from craft inventory first, then bazaar
+  Object.keys(costs).forEach(function(rid){
+    var need = costs[rid];
+    // Take from craft inventory first
+    var fromInv = Math.min(G.craftInventory[rid] || 0, need);
+    G.craftInventory[rid] = (G.craftInventory[rid] || 0) - fromInv;
+    need -= fromInv;
+    // Then from bazaar
+    if (need > 0) {
+      G.bazaar[rid] = (G.bazaar[rid] || 0) - need;
+      if (G.bazaar[rid] < 0) G.bazaar[rid] = 0;
+    }
+  });
+}
+
+function canAffordCraft(recipe) {
+  return Object.keys(recipe.cost).every(function(rid){
+    return getCraftResource(rid) >= recipe.cost[rid];
+  });
+}
+
+function startCraft(slotIdx, recipeId) {
+  var slot = G.craftSlots[slotIdx];
+  if (!slot || slot.recipeId) return; // slot busy
+  var recipe = CRAFT_RECIPES.find(function(r){ return r.id === recipeId; });
+  if (!recipe || !canAffordCraft(recipe)) return;
+
+  consumeCraftResources(recipe.cost);
+  slot.recipeId = recipeId;
+  slot.progress = 0;
+  slot.timeLeft = recipe.time;
+}
+
+function toggleAutoCraft(slotIdx, recipeId) {
+  var slot = G.craftSlots[slotIdx];
+  if (!slot) return;
+  if (slot.auto && slot.autoRecipe === recipeId) {
+    slot.auto = false;
+    slot.autoRecipe = null;
+  } else {
+    slot.auto = true;
+    slot.autoRecipe = recipeId;
+    // Start immediately if slot is free
+    if (!slot.recipeId) startCraft(slotIdx, recipeId);
+  }
+}
+
+function tickCraft() {
+  G.craftSlots.forEach(function(slot, idx) {
+    if (!slot.recipeId) {
+      // Auto-craft: try to start
+      if (slot.auto && slot.autoRecipe) {
+        startCraft(idx, slot.autoRecipe);
+      }
+      return;
+    }
+
+    slot.timeLeft -= 0.1; // 100ms tick
+    var recipe = CRAFT_RECIPES.find(function(r){ return r.id === slot.recipeId; });
+    slot.progress = recipe ? 1 - (slot.timeLeft / recipe.time) : 1;
+
+    if (slot.timeLeft <= 0) {
+      // Complete!
+      G.craftInventory[slot.recipeId] = (G.craftInventory[slot.recipeId] || 0) + 1;
+      slot.recipeId = null;
+      slot.progress = 0;
+      slot.timeLeft = 0;
+
+      // Auto-craft: start next
+      if (slot.auto && slot.autoRecipe) {
+        startCraft(idx, slot.autoRecipe);
+      }
+    }
+  });
+}
+
+function getResData() {
+  var resData = {};
+  ZONES.forEach(function(z){ z.resources.forEach(function(r){ resData[r.id] = r; }); });
+  // Add crafted items as sellable resources
+  CRAFT_RECIPES.forEach(function(r){
+    resData[r.id] = { id:r.id, name:r.name, icon:r.icon, price:r.sellPrice, crafted:true };
+  });
+  return resData;
+}
+
+function getBazaarQty(rid) {
+  // Raw resources from bazaar, crafted items from inventory
+  var resData = {};
+  ZONES.forEach(function(z){ z.resources.forEach(function(r){ resData[r.id] = r; }); });
+  if (resData[rid]) return G.bazaar[rid] || 0;
+  return G.craftInventory[rid] || 0;
+}
+
+function deductBazaarQty(rid, amount) {
+  var resData = {};
+  ZONES.forEach(function(z){ z.resources.forEach(function(r){ resData[r.id] = r; }); });
+  if (resData[rid]) {
+    G.bazaar[rid] = Math.max(0, (G.bazaar[rid] || 0) - amount);
+  } else {
+    G.craftInventory[rid] = Math.max(0, (G.craftInventory[rid] || 0) - amount);
+  }
+}
+
+function selectResource(rid) {
+  if (G.selectedResource === rid) {
+    G.selectedResource = null; // deselect
+  } else {
+    G.selectedResource = rid;
+    G.sellPercent = 100;
+  }
+}
+
+function setSellPercent(val) {
+  G.sellPercent = Math.max(0, Math.min(100, parseInt(val) || 0));
+}
+
+function sellSelected() {
+  var rid = G.selectedResource;
+  if (!rid) return;
+  var resData = getResData();
+  var r = resData[rid];
+  if (!r) return;
+
+  var qty = getBazaarQty(rid);
+  var toSell = Math.floor(qty * G.sellPercent / 100);
+  if (toSell <= 0) return;
+
+  var sellMult = getSellMultiplier();
+  var value = Math.floor(toSell * r.price * sellMult);
+
+  deductBazaarQty(rid, toSell);
+  G.crowns += value;
+  G.totalCrownsEarned += value;
+  showFlash('+' + formatNum(value) + ' 🪙');
+}
+
+function sellAll() {
+  var total = 0;
+  var sellMult = getSellMultiplier();
+  var resData = getResData();
+
+  // Sell raw resources
+  Object.keys(G.bazaar).forEach(function(rid){
+    var qty = G.bazaar[rid];
+    if (qty >= 1 && resData[rid]) {
+      var toSell = Math.floor(qty);
+      total += toSell * resData[rid].price * sellMult;
+      G.bazaar[rid] -= toSell;
+      if (G.bazaar[rid] < 0.01) G.bazaar[rid] = 0;
+    }
+  });
+
+  // Sell crafted items
+  Object.keys(G.craftInventory).forEach(function(rid){
+    var qty = G.craftInventory[rid];
+    if (qty >= 1 && resData[rid]) {
+      total += qty * resData[rid].price * sellMult;
+      G.craftInventory[rid] = 0;
+    }
+  });
+
+  total = Math.floor(total);
+  if (total > 0) {
+    G.crowns += total;
+    G.totalCrownsEarned += total;
+    G.selectedResource = null;
+    showFlash('+' + formatNum(total) + ' 🪙');
+  }
+}
+
+function buyUpgrade(zoneId, upKey) {
+  var zone = ZONES.find(function(z){ return z.id === zoneId; });
+  var up = zone.upgrades[upKey];
+  var zs = G.zones[zoneId];
+  if (up.max && zs.upgrades[upKey] >= up.max) return;
+  var cost = upgradeCost(up.base, up.mult, zs.upgrades[upKey]);
+  if (G.crowns >= cost) {
+    G.crowns -= cost;
+    zs.upgrades[upKey]++;
+    showFlash(up.icon + ' Lv.' + zs.upgrades[upKey]);
+  }
+}
+
+function unlockZone(zoneId) {
+  var zone = ZONES.find(function(z){ return z.id === zoneId; });
+  var cost = getZoneUnlockCost(zone);
+  if (G.crowns >= cost && !G.zones[zoneId].unlocked) {
+    G.crowns -= cost;
+    G.zones[zoneId].unlocked = true;
+  }
+}
+
+function buyPrestigeUpgrade(upId) {
+  var up = PRESTIGE_UPGRADES.find(function(u){ return u.id === upId; });
+  if (G.ownedPrestige[upId]) return;
+  if (G.legacySeals >= up.cost) {
+    G.legacySeals -= up.cost;
+    G.ownedPrestige[upId] = true;
+  }
+}
+
+function doPrestige() {
+  var highest = getHighestMilestone();
+  if (!highest) return;
+  resetForPrestige();
+  // flash
+  var el = document.createElement('div');
+  el.className = 'prestige-flash';
+  document.body.appendChild(el);
+  setTimeout(function(){ el.remove(); }, 1200);
+  showScreen('map');
+}
+
+/* ============================================================
+   UI RENDERING
+   ============================================================ */
+function showScreen(id) {
+  G.currentScreen = id;
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+
+  // Reset build caches when switching screens
+  if (id === 'zone') zdBuiltFor = null;
+  if (id === 'bazaar') bzBuiltSel = undefined;
+  if (id === 'prestige' || id === 'prestShop') prBuilt = false;
+
+  if (id === 'zone') {
+    document.getElementById('scrZone').classList.add('active');
+  } else if (id === 'prestShop') {
+    document.getElementById('scrPrestShop').classList.add('active');
+    // Highlight prestige nav
+    document.querySelectorAll('.nav-item')[3].classList.add('active');
+  } else {
+    document.getElementById('scr' + id.charAt(0).toUpperCase() + id.slice(1)).classList.add('active');
+    var navIdx = id === 'map' ? 0 : id === 'bazaar' ? 1 : id === 'craft' ? 2 : 3;
+    document.querySelectorAll('.nav-item')[navIdx].classList.add('active');
+  }
+}
+
+function openZone(zoneId) {
+  var zone = ZONES.find(function(z){ return z.id === zoneId; });
+  var node = document.getElementById('mapzone-' + zoneId);
+
+  if (!G.zones[zoneId].unlocked) {
+    var cost = getZoneUnlockCost(zone);
+    if (G.crowns >= cost) {
+      unlockZone(zoneId);
+      showFlash('🔓 ' + zone.name + ' unlocked!');
+      updateMapNodes();
+      updateCaravans();
+      return; // don't open detail yet, let player see it unlocked
+    } else {
+      // shake animation - can't afford
+      node.classList.remove('shake');
+      void node.offsetWidth; // force reflow
+      node.classList.add('shake');
+      showFlash('Need ' + formatNum(cost) + ' 🪙');
+      return;
+    }
+  }
+
+  // pulse feedback
+  var bubble = node.querySelector('.map-zone-bubble');
+  if (bubble) {
+    bubble.classList.remove('pulse');
+    void bubble.offsetWidth;
+    bubble.classList.add('pulse');
+  }
+
+  G.selectedZone = zoneId;
+  showScreen('zone');
+}
+
+function formatNum(n) {
+  if (n >= 1e9) return (n/1e9).toFixed(2) + 'B';
+  if (n >= 1e6) return (n/1e6).toFixed(2) + 'M';
+  if (n >= 1e4) return (n/1e3).toFixed(1) + 'K';
+  if (n >= 1000) return (n/1e3).toFixed(1) + 'K';
+  return Math.floor(n).toString();
+}
+
+function showFlash(text) {
+  var el = document.createElement('div');
+  el.className = 'sell-flash';
+  el.textContent = text;
+  document.body.appendChild(el);
+  setTimeout(function(){ el.remove(); }, 800);
+}
+
+/* ---- Cached DOM refs ---- */
+var $hudCrowns = document.getElementById('hudCrowns');
+var $hudSeals = document.getElementById('hudSeals');
+var $hudProgFill = document.getElementById('hudProgFill');
+var $hudProgLabel = document.getElementById('hudProgLabel');
+var $hudProgSeals = document.getElementById('hudProgSeals');
+var $mapIncome = document.getElementById('mapIncome');
+var $bzIncome = document.getElementById('bzIncome');
+var $bzResources = document.getElementById('bzResources');
+var $zoneDetail = document.getElementById('zoneDetail');
+var $prSeals = document.getElementById('prSeals');
+var $prCrownsEarned = document.getElementById('prCrownsEarned');
+var $prMilestones = document.getElementById('prMilestones');
+var $prResetSub = document.getElementById('prResetSub');
+var $prSeals2 = document.getElementById('prSeals2');
+var $prShopCount = document.getElementById('prShopCount');
+var $prResetBtn = document.getElementById('prResetBtn');
+var $prUpgrades = document.getElementById('prUpgrades');
+
+/* ---- Smart text updater (avoid layout thrash) ---- */
+function setText(el, val) {
+  if (el && el.textContent !== val) el.textContent = val;
+}
+
+function renderHUD() {
+  setText($hudCrowns, formatNum(G.crowns));
+  setText($hudSeals, String(G.legacySeals));
+
+  // Progress bar toward next milestone
+  var next = getNextMilestone();
+  var highest = getHighestMilestone();
+  var sealsAvailable = highest ? highest.seals + (G.ownedPrestige.legacyTrader ? 1 : 0) : 0;
+
+  setText($hudProgSeals, '🎖️ ' + sealsAvailable);
+
+  if (next) {
+    var prevCrowns = 0;
+    // Find previous milestone crowns for relative progress
+    for (var i = 0; i < PRESTIGE_MILESTONES.length; i++) {
+      if (PRESTIGE_MILESTONES[i] === next) break;
+      prevCrowns = PRESTIGE_MILESTONES[i].crowns;
+    }
+    var progress = (G.totalCrownsEarned - prevCrowns) / (next.crowns - prevCrowns);
+    progress = Math.max(0, Math.min(1, progress));
+    $hudProgFill.style.width = (progress * 100).toFixed(1) + '%';
+    setText($hudProgLabel, formatNum(G.totalCrownsEarned) + ' / ' + next.label);
+  } else {
+    $hudProgFill.style.width = '100%';
+    setText($hudProgLabel, 'MAX — ' + formatNum(G.totalCrownsEarned));
+  }
+}
+
+function renderMap() {
+  setText($mapIncome, calcTotalIncome().toFixed(1) + ' 🪙/s');
+}
+
+var zdBuiltFor = null; // track which zone the DOM is built for
+
+function buildZoneDetail() {
+  var zone = ZONES.find(function(z){ return z.id === G.selectedZone; });
+  if (!zone) return;
+  zdBuiltFor = zone.id;
+  var zs = G.zones[zone.id];
+
+  var h = '<div class="zd-header">';
+  h += '<div class="zd-icon">' + zone.icon + '</div>';
+  h += '<div class="zd-name">' + zone.name + '</div>';
+  h += '<div class="zd-sub" id="zd-caravan-status"></div>';
+  h += '</div>';
+
+  h += '<table class="zd-res-table"><thead><tr><th>Resource</th><th>Rate</th><th style="text-align:right">In Zone</th><th style="text-align:right">In Transit</th><th style="text-align:right">At Bazaar</th></tr></thead><tbody>';
+  zone.resources.forEach(function(r){
+    h += '<tr><td class="r-name">' + r.icon + ' ' + r.name + '</td>';
+    h += '<td class="r-rate" id="zd-rate-' + r.id + '"></td>';
+    h += '<td class="r-count" id="zd-zone-' + r.id + '"></td>';
+    h += '<td class="r-count" style="color:var(--gold-dm);" id="zd-transit-' + r.id + '"></td>';
+    h += '<td class="r-count" id="zd-bazaar-' + r.id + '"></td></tr>';
+  });
+  h += '</tbody></table>';
+
+  var upKeys = ['production','speed','cargo','harvest','extraCaravan'];
+  upKeys.forEach(function(key){
+    var up = zone.upgrades[key];
+    var costClass = (key === 'harvest' || key === 'extraCaravan') ? 'zd-up-cost gold-border' : 'zd-up-cost';
+    h += '<div class="zd-upgrade" id="zd-up-' + key + '" onclick="buyUpgrade(\'' + zone.id + '\',\'' + key + '\')">';
+    h += '<div class="zd-up-info"><div class="zd-up-name">' + up.icon + ' ' + up.label + '</div>';
+    h += '<div class="zd-up-stat" id="zd-upstat-' + key + '"></div></div>';
+    h += '<div class="' + costClass + '" id="zd-upcost-' + key + '"></div>';
+    h += '</div>';
+  });
+
+  $zoneDetail.innerHTML = h;
+}
+
+function renderZoneDetail() {
+  if (!G.selectedZone) return;
+  if (zdBuiltFor !== G.selectedZone) buildZoneDetail();
+
+  var zone = ZONES.find(function(z){ return z.id === G.selectedZone; });
+  var zs = G.zones[zone.id];
+  var prodMult = getZoneProductionRate(zone);
+
+  // Caravan summary
+  var numC = zs.caravans.length;
+  var enRoute = zs.caravans.filter(function(c){ return c.phase === 'toHub'; }).length;
+  var caravanStatus = zone.caravan + ' ' + numC + (numC === 1 ? ' caravan' : ' caravans') + ' — ' + enRoute + ' en route';
+  setText(document.getElementById('zd-caravan-status'), caravanStatus);
+
+  // Sum in-transit across all caravans
+  var inTransit = {};
+  zs.caravans.forEach(function(c){
+    Object.keys(c.cargo).forEach(function(rid){
+      inTransit[rid] = (inTransit[rid] || 0) + (c.cargo[rid] || 0);
+    });
+  });
+
+  zone.resources.forEach(function(r){
+    var rate = r.baseRate * prodMult;
+    setText(document.getElementById('zd-rate-' + r.id), rate.toFixed(2) + '/s');
+    setText(document.getElementById('zd-zone-' + r.id), String(Math.floor(zs.stored[r.id] || 0)));
+    setText(document.getElementById('zd-transit-' + r.id), String(Math.floor(inTransit[r.id] || 0)));
+    setText(document.getElementById('zd-bazaar-' + r.id), String(Math.floor(G.bazaar[r.id] || 0)));
+  });
+
+  var upKeys = ['production','speed','cargo','harvest','extraCaravan'];
+  upKeys.forEach(function(key){
+    var up = zone.upgrades[key];
+    var lvl = zs.upgrades[key];
+    var isMaxed = up.max && lvl >= up.max;
+    var cost = isMaxed ? 0 : upgradeCost(up.base, up.mult, lvl);
+    var canAfford = G.crowns >= cost && !isMaxed;
+
+    var statText = '';
+    if (key === 'production') statText = 'Lv.' + lvl + ' \u2022 ' + (1 + lvl * up.perLvl).toFixed(2) + 'x';
+    else if (key === 'speed') statText = 'Lv.' + lvl + ' \u2022 +' + (lvl * up.perLvl) + '%';
+    else if (key === 'cargo') statText = 'Lv.' + lvl + ' \u2022 +' + (lvl * up.perLvl) + ' units';
+    else if (key === 'harvest') statText = 'Lv.' + lvl + '/' + (up.max||25) + ' \u2022 ' + lvl + '% chance';
+    else if (key === 'extraCaravan') statText = 'Lv.' + lvl + '/' + (up.max||4) + ' \u2022 ' + (1 + lvl) + ' caravans';
+
+    setText(document.getElementById('zd-upstat-' + key), statText);
+    var costEl = document.getElementById('zd-upcost-' + key);
+    setText(costEl, isMaxed ? 'MAX' : '\u{1FA99} ' + formatNum(cost));
+
+    var upEl = document.getElementById('zd-up-' + key);
+    if (isMaxed) {
+      upEl.className = 'zd-upgrade';
+      costEl.className = 'zd-up-cost maxed';
+    } else {
+      upEl.className = canAfford ? 'zd-upgrade' : 'zd-upgrade cant-afford';
+      costEl.className = (key === 'harvest' || key === 'extraCaravan') ? 'zd-up-cost gold-border' : 'zd-up-cost';
+    }
+  });
+}
+
+var bzBuiltSel = undefined; // track what selection state the DOM was built for
+var bzSliderActive = false; // prevent rebuild while dragging
+
+function buildBazaar() {
+  var resData = getResData();
+  var sel = G.selectedResource;
+  bzBuiltSel = sel;
+  var h = '';
+
+  Object.keys(resData).forEach(function(rid){
+    var r = resData[rid];
+    h += '<div class="bz-res-card" id="bzcard-' + rid + '" onclick="selectResource(\'' + rid + '\')">';
+    h += '<div class="bz-res-top">';
+    h += '<div class="bz-res-info"><span class="bz-res-icon">' + r.icon + '</span><div><div class="bz-res-name">' + r.name + '</div><div class="bz-res-qty" id="bzqty-' + rid + '"></div></div></div>';
+    h += '<div><div class="bz-res-price" id="bzval-' + rid + '"></div><div class="bz-res-ppu">' + r.price + ' 🪙/unit</div></div>';
+    h += '</div>';
+
+    if (sel === rid) {
+      h += '<div class="bz-sell-panel">';
+      h += '<div class="bz-quick-btns">';
+      h += '<button class="bz-quick-btn" onclick="event.stopPropagation();setSellPercent(25)">25%</button>';
+      h += '<button class="bz-quick-btn" onclick="event.stopPropagation();setSellPercent(50)">50%</button>';
+      h += '<button class="bz-quick-btn" onclick="event.stopPropagation();setSellPercent(75)">75%</button>';
+      h += '<button class="bz-quick-btn" onclick="event.stopPropagation();setSellPercent(100)">100%</button>';
+      h += '</div>';
+      h += '<div class="bz-slider-row">';
+      h += '<input type="range" class="bz-slider" id="bzslider" min="0" max="100" value="' + G.sellPercent + '" oninput="event.stopPropagation();setSellPercent(this.value)" onclick="event.stopPropagation()" ontouchstart="bzSliderActive=true" ontouchend="bzSliderActive=false" onmousedown="bzSliderActive=true" onmouseup="bzSliderActive=false">';
+      h += '<div class="bz-slider-pct" id="bzpct"></div>';
+      h += '</div>';
+      h += '<div class="bz-sell-preview"><span>Selling <span class="sell-amount" id="bzsellqty"></span></span><span class="sell-value" id="bzsellval"></span></div>';
+      h += '<button class="bz-sell-btn" id="bzsellbtn" onclick="event.stopPropagation();sellSelected()">Sell</button>';
+      h += '</div>';
+    }
+
+    h += '</div>';
+  });
+
+  $bzResources.innerHTML = h;
+}
+
+function renderBazaar() {
+  var resData = getResData();
+  var sellMult = getSellMultiplier();
+  var sel = G.selectedResource;
+
+  // Rebuild structure only when selection changes
+  if (bzBuiltSel !== sel && !bzSliderActive) {
+    buildBazaar();
+  }
+
+  // Update values (fast, no DOM rebuild)
+  Object.keys(resData).forEach(function(rid){
+    var r = resData[rid];
+    var qty = Math.floor(getBazaarQty(rid));
+    var val = Math.floor(qty * r.price * sellMult);
+    var isEmpty = qty < 1;
+    var isSelected = sel === rid;
+
+    var card = document.getElementById('bzcard-' + rid);
+    if (card) {
+      var cls = 'bz-res-card';
+      if (isSelected) cls += ' selected';
+      if (isEmpty) cls += ' empty';
+      if (card.className !== cls) card.className = cls;
+    }
+
+    setText(document.getElementById('bzqty-' + rid), formatNum(qty) + ' units');
+    setText(document.getElementById('bzval-' + rid), formatNum(val) + ' 🪙');
+  });
+
+  // Update sell panel values if selected
+  if (sel && document.getElementById('bzpct')) {
+    var r = resData[sel];
+    var qty = Math.floor(getBazaarQty(sel));
+    var pct = G.sellPercent;
+    var sellQty = Math.floor(qty * pct / 100);
+    var sellVal = Math.floor(sellQty * r.price * sellMult);
+
+    setText(document.getElementById('bzpct'), pct + '%');
+    setText(document.getElementById('bzsellqty'), formatNum(sellQty) + ' ' + r.name);
+    setText(document.getElementById('bzsellval'), '+' + formatNum(sellVal) + ' 🪙');
+
+    var btn = document.getElementById('bzsellbtn');
+    if (btn) {
+      btn.disabled = sellQty < 1;
+      setText(btn, 'Sell ' + r.name);
+    }
+
+    // Sync slider value without destroying it
+    var slider = document.getElementById('bzslider');
+    if (slider && !bzSliderActive && parseInt(slider.value) !== pct) {
+      slider.value = pct;
+    }
+  }
+
+  setText($bzIncome, calcTotalIncome().toFixed(1) + ' 🪙/s');
+}
+
+var prBuilt = false;
+
+function buildPrestigeUpgrades() {
+  var h = '';
+  PRESTIGE_UPGRADES.forEach(function(up){
+    h += '<div class="pr-up-item" id="prup-' + up.id + '" onclick="buyPrestigeUpgrade(\'' + up.id + '\')">';
+    h += '<div><div class="pr-up-name">' + up.name + '</div>';
+    h += '<div class="pr-up-effect">' + up.effect + '</div>';
+    h += '<div class="pr-up-desc">' + up.desc + '</div></div>';
+    h += '<div class="pr-up-cost" id="prupcost-' + up.id + '"></div>';
+    h += '</div>';
+  });
+  $prUpgrades.innerHTML = h;
+  prBuilt = true;
+}
+
+function renderPrestige() {
+  if (!prBuilt) buildPrestigeUpgrades();
+
+  setText($prSeals, String(G.legacySeals));
+  setText($prCrownsEarned, formatNum(G.totalCrownsEarned));
+
+  // Milestones
+  var highest = getHighestMilestone();
+  var next = getNextMilestone();
+  var mh = '';
+  PRESTIGE_MILESTONES.forEach(function(m, i) {
+    var reached = G.totalCrownsEarned >= m.crowns;
+    var isNext = next && next === m;
+    var prevCrowns = i > 0 ? PRESTIGE_MILESTONES[i-1].crowns : 0;
+
+    var cls = reached ? 'pr-milestone reached' : isNext ? 'pr-milestone next' : 'pr-milestone locked';
+    var icon = reached ? '✅' : isNext ? '🎯' : '🔒';
+    var progress = 0;
+    if (reached) {
+      progress = 100;
+    } else if (isNext) {
+      progress = Math.max(0, Math.min(100, ((G.totalCrownsEarned - prevCrowns) / (m.crowns - prevCrowns)) * 100));
+    }
+
+    mh += '<div class="' + cls + '">';
+    mh += '<div class="pr-ms-icon">' + icon + '</div>';
+    mh += '<div class="pr-ms-info"><div class="pr-ms-target">' + m.label + ' Crowns</div>';
+    mh += '<div class="pr-ms-bar"><div class="pr-ms-bar-fill" style="width:' + progress.toFixed(1) + '%"></div></div></div>';
+    mh += '<div class="pr-ms-seals">' + m.seals + ' 🎖️</div>';
+    mh += '</div>';
+  });
+  $prMilestones.innerHTML = mh;
+
+  // Reset button
+  var sealsReward = calcPrestigeSeals();
+  if (highest) {
+    $prResetBtn.disabled = false;
+    setText($prResetBtn, '🔄 Reset World — Earn ' + sealsReward + ' 🎖️');
+    setText($prResetSub, 'Resets all zones, Crowns, and upgrades. Legacy Seals and prestige upgrades persist.');
+  } else {
+    $prResetBtn.disabled = true;
+    setText($prResetBtn, '🔒 Reach ' + PRESTIGE_MILESTONES[0].label + ' Crowns to unlock');
+    setText($prResetSub, '');
+  }
+
+  // Shop button count
+  var ownedCount = 0;
+  PRESTIGE_UPGRADES.forEach(function(up){ if (G.ownedPrestige[up.id]) ownedCount++; });
+  setText($prShopCount, ownedCount + ' / ' + PRESTIGE_UPGRADES.length);
+}
+
+/* ============================================================
+   CRAFT RENDERING
+   ============================================================ */
+function renderCraft() {
+  // Slots
+  var sh = '';
+  G.craftSlots.forEach(function(slot, idx) {
+    var isBusy = !!slot.recipeId;
+    var recipe = isBusy ? CRAFT_RECIPES.find(function(r){ return r.id === slot.recipeId; }) : null;
+    var pct = isBusy ? Math.min(100, slot.progress * 100) : 0;
+
+    sh += '<div class="cr-slot' + (isBusy ? ' active' : '') + '">';
+    sh += '<div class="cr-slot-header">';
+    sh += '<div class="cr-slot-title">Slot ' + (idx+1) + '</div>';
+    if (isBusy) {
+      sh += '<div class="cr-slot-status">' + Math.ceil(slot.timeLeft) + 's left</div>';
+    } else if (slot.auto && slot.autoRecipe) {
+      var autoR = CRAFT_RECIPES.find(function(r){ return r.id === slot.autoRecipe; });
+      sh += '<div class="cr-slot-status" style="color:var(--gold);">Auto: ' + (autoR ? autoR.name : '') + ' (waiting)</div>';
+    } else {
+      sh += '<div class="cr-slot-status">Empty</div>';
+    }
+    sh += '</div>';
+    sh += '<div class="cr-progress"><div class="cr-progress-fill" style="width:' + pct.toFixed(1) + '%"></div></div>';
+    if (isBusy) {
+      sh += '<div class="cr-slot-info"><span class="cr-slot-product">' + recipe.icon + ' ' + recipe.name + '</span></div>';
+    }
+    sh += '</div>';
+  });
+
+  // Locked slots
+  for (var i = G.craftSlots.length; i < MAX_CRAFT_SLOTS; i++) {
+    sh += '<div class="cr-slot locked"><div class="cr-slot-header"><div class="cr-slot-title">Slot ' + (i+1) + '</div><div class="cr-slot-status">🔒 Locked</div></div><div class="cr-progress"><div class="cr-progress-fill" style="width:0%"></div></div></div>';
+  }
+  document.getElementById('crSlots').innerHTML = sh;
+
+  // Recipes
+  var rh = '';
+  // Find first free slot
+  var freeSlot = -1;
+  for (var s = 0; s < G.craftSlots.length; s++) {
+    if (!G.craftSlots[s].recipeId) { freeSlot = s; break; }
+  }
+
+  CRAFT_RECIPES.forEach(function(recipe) {
+    var affordable = canAffordCraft(recipe);
+    var hasFreeSlot = freeSlot >= 0;
+    var canStart = affordable && hasFreeSlot;
+
+    // Check if any slot has auto for this recipe
+    var autoOn = G.craftSlots.some(function(sl){ return sl.auto && sl.autoRecipe === recipe.id; });
+    var autoSlotIdx = -1;
+    G.craftSlots.forEach(function(sl, si){ if (sl.auto && sl.autoRecipe === recipe.id) autoSlotIdx = si; });
+
+    rh += '<div class="cr-recipe' + (affordable ? '' : ' cant-afford') + '">';
+    rh += '<div class="cr-recipe-top">';
+    rh += '<div><div class="cr-recipe-name">' + recipe.icon + ' ' + recipe.name + '</div>';
+    rh += '<div class="cr-recipe-price">Sells for ' + recipe.sellPrice + ' 🪙</div></div>';
+    rh += '<div class="cr-recipe-time">⏱ ' + recipe.time + 's</div>';
+    rh += '</div>';
+
+    // Cost list
+    rh += '<div class="cr-recipe-cost">';
+    Object.keys(recipe.cost).forEach(function(rid, i) {
+      var have = getCraftResource(rid);
+      var need = recipe.cost[rid];
+      var color = have >= need ? 'color:var(--green)' : 'color:var(--red)';
+      if (i > 0) rh += ' + ';
+      rh += '<span style="' + color + '">' + need + ' ' + rid + ' (' + Math.floor(have) + ')</span>';
+    });
+    rh += '</div>';
+
+    // Buttons
+    rh += '<div class="cr-recipe-actions">';
+    rh += '<button class="cr-btn cr-btn-craft" onclick="startCraft(' + (freeSlot >= 0 ? freeSlot : 0) + ',\'' + recipe.id + '\')"' + (canStart ? '' : ' disabled') + '>Craft 1</button>';
+    rh += '<button class="cr-btn cr-btn-auto' + (autoOn ? ' on' : '') + '" onclick="toggleAutoCraft(' + (autoSlotIdx >= 0 ? autoSlotIdx : (freeSlot >= 0 ? freeSlot : 0)) + ',\'' + recipe.id + '\')">' + (autoOn ? '⏹ Stop Auto' : '🔄 Auto-Craft') + '</button>';
+    rh += '</div>';
+    rh += '</div>';
+  });
+  document.getElementById('crRecipes').innerHTML = rh;
+
+  // Inventory
+  var ih = '';
+  var hasAny = false;
+  CRAFT_RECIPES.forEach(function(r) {
+    var qty = G.craftInventory[r.id] || 0;
+    if (qty > 0) {
+      hasAny = true;
+      ih += '<div class="cr-inv-row"><div class="cr-inv-name">' + r.icon + ' ' + r.name + '</div><div class="cr-inv-qty">' + qty + '</div><div class="cr-inv-val">' + (qty * r.sellPrice) + ' 🪙</div></div>';
+    }
+  });
+  if (!hasAny) ih = '<div style="font-size:11px;color:var(--txt-dm);text-align:center;padding:8px;">No crafted items yet</div>';
+  document.getElementById('crInventory').innerHTML = ih;
+}
+
+function renderPrestShop() {
+  if (!prBuilt) buildPrestigeUpgrades();
+  setText($prSeals2, String(G.legacySeals));
+
+  PRESTIGE_UPGRADES.forEach(function(up){
+    var owned = G.ownedPrestige[up.id];
+    var canAfford = G.legacySeals >= up.cost && !owned;
+    var el = document.getElementById('prup-' + up.id);
+    var costEl = document.getElementById('prupcost-' + up.id);
+    if (!el) return;
+
+    var cls = owned ? 'pr-up-item owned' : canAfford ? 'pr-up-item' : 'pr-up-item cant-afford';
+    if (el.className !== cls) el.className = cls;
+
+    var costCls = owned ? 'pr-up-cost owned-badge' : 'pr-up-cost';
+    if (costEl.className !== costCls) costEl.className = costCls;
+    setText(costEl, owned ? '✓ Owned' : up.cost + ' 🎖️');
+  });
+}
+
+/* ============================================================
+   MAP SETUP (once)
+   ============================================================ */
+var hubX = 50, hubY = 38;
+var caravanEls = {}; // zoneId -> [dom elements]
+var MAX_VISUAL_CARAVANS = 5;
+
+function setupMap() {
+  var world = document.getElementById('mapWorld');
+  var svg = document.getElementById('mapRoutes');
+
+  ZONES.forEach(function(z){
+    // Route
+    var line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', z.x / 100 * 400);
+    line.setAttribute('y1', z.y / 100 * 440);
+    line.setAttribute('x2', hubX / 100 * 400);
+    line.setAttribute('y2', hubY / 100 * 440);
+    line.setAttribute('stroke', 'rgba(212,168,67,0.15)');
+    line.setAttribute('stroke-width', '1.5');
+    line.setAttribute('stroke-dasharray', '4 4');
+    line.id = 'route-' + z.id;
+    svg.appendChild(line);
+
+    // Node
+    var node = document.createElement('div');
+    node.className = 'map-zone';
+    node.id = 'mapzone-' + z.id;
+    node.style.left = z.x + '%';
+    node.style.top = z.y + '%';
+    node.onclick = function(){ openZone(z.id); };
+    world.appendChild(node);
+
+    // Pre-create max caravan elements (hidden by default)
+    caravanEls[z.id] = [];
+    for (var i = 0; i < MAX_VISUAL_CARAVANS; i++) {
+      var cEl = document.createElement('div');
+      cEl.className = 'caravan-dot';
+      cEl.textContent = z.caravan;
+      cEl.style.opacity = '0';
+      world.appendChild(cEl);
+      caravanEls[z.id].push(cEl);
+    }
+  });
+}
+
+function updateMapNodes() {
+  ZONES.forEach(function(z){
+    var node = document.getElementById('mapzone-' + z.id);
+    var route = document.getElementById('route-' + z.id);
+    var unlocked = G.zones[z.id].unlocked;
+
+    var h = '<div class="map-zone-bubble ' + (unlocked ? 'mz-unlocked' : 'mz-locked') + '" style="background:' + z.bg + ';">' + z.icon + '</div>';
+    h += '<div class="map-zone-name">' + z.name + '</div>';
+    if (!unlocked) {
+      var cost = getZoneUnlockCost(z);
+      var canAfford = G.crowns >= cost;
+      h += '<div class="map-zone-price" style="' + (canAfford ? 'border-color:rgba(90,154,90,0.5);color:#88d088;' : '') + '">🪙 ' + formatNum(cost) + '</div>';
+    }
+    node.innerHTML = h;
+    route.setAttribute('stroke', unlocked ? 'rgba(212,168,67,0.35)' : 'rgba(212,168,67,0.1)');
+  });
+}
+
+var lastCaravanPhases = {}; // zoneId -> [phases]
+
+function updateCaravans() {
+  ZONES.forEach(function(z){
+    var els = caravanEls[z.id];
+    var zs = G.zones[z.id];
+
+    if (!zs.unlocked) {
+      els.forEach(function(el){ el.style.opacity = '0'; });
+      return;
+    }
+
+    // Track phase changes for particles
+    if (!lastCaravanPhases[z.id]) lastCaravanPhases[z.id] = [];
+
+    zs.caravans.forEach(function(gc, i) {
+      var el = els[i];
+      if (!el) return;
+
+      // Spawn particle when caravan arrives at hub
+      if (lastCaravanPhases[z.id][i] === 'toHub' && gc.phase === 'returning') {
+        spawnParticle(z);
+      }
+      lastCaravanPhases[z.id][i] = gc.phase;
+
+      var t, opacity;
+      if (gc.phase === 'loading') {
+        t = 0; opacity = '0.3';
+      } else if (gc.phase === 'toHub') {
+        t = gc.progress; opacity = '1';
+      } else {
+        t = gc.progress; opacity = '0.4';
+      }
+
+      var x = z.x + (hubX - z.x) * t;
+      var y = z.y + (hubY - z.y) * t;
+      el.style.left = x + '%';
+      el.style.top = y + '%';
+      el.style.transform = 'translate(-50%,-50%)';
+      el.style.opacity = opacity;
+      el.classList.add('active');
+    });
+
+    // Hide unused caravan elements
+    for (var j = zs.caravans.length; j < els.length; j++) {
+      els[j].style.opacity = '0';
+      els[j].classList.remove('active');
+    }
+  });
+}
+
+function spawnParticle(zone) {
+  if (G.currentScreen !== 'map') return;
+  var world = document.getElementById('mapWorld');
+  var icons = zone.resources.map(function(r){ return r.icon; });
+  var icon = icons[Math.floor(Math.random() * icons.length)];
+
+  var p = document.createElement('div');
+  p.className = 'res-particle';
+  p.textContent = icon;
+  p.style.left = hubX + '%';
+  p.style.top = (hubY - 5) + '%';
+  p.style.transform = 'translate(-50%,-50%)';
+  world.appendChild(p);
+  setTimeout(function(){ p.remove(); }, 2000);
+}
+
+/* ============================================================
+   MAIN LOOP
+   ============================================================ */
+setupMap();
+updateMapNodes();
+
+// Production tick — 100ms (game logic only, no DOM)
+setInterval(function(){ tick(); tickCraft(); }, 100);
+
+// UI render — 250ms (values update, no DOM rebuild)
+setInterval(function(){
+  renderHUD();
+  if (G.currentScreen === 'map') { renderMap(); updateMapNodes(); }
+  else if (G.currentScreen === 'zone') { renderZoneDetail(); }
+  else if (G.currentScreen === 'bazaar') { renderBazaar(); }
+  else if (G.currentScreen === 'craft') { renderCraft(); }
+  else if (G.currentScreen === 'prestige') { renderPrestige(); }
+  else if (G.currentScreen === 'prestShop') { renderPrestShop(); }
+}, 250);
+
+// Caravan animation — smooth 60fps via requestAnimationFrame
+(function caravanLoop() {
+  if (G.currentScreen === 'map') updateCaravans();
+  requestAnimationFrame(caravanLoop);
+})();
+
+// Auto-save every 5 seconds
+setInterval(saveGame, 5000);
+
+// Save on page close/refresh
+window.addEventListener('beforeunload', saveGame);
+
+// expose to onclick
+window.showScreen = showScreen;
+window.openZone = openZone;
+window.buyUpgrade = buyUpgrade;
+window.sellAll = sellAll;
+window.selectResource = selectResource;
+window.setSellPercent = setSellPercent;
+window.sellSelected = sellSelected;
+window.startCraft = startCraft;
+window.toggleAutoCraft = toggleAutoCraft;
+window.wipeSave = wipeSave;
+window.doPrestige = doPrestige;
+window.buyPrestigeUpgrade = buyPrestigeUpgrade;
+})();
+</script>
+</body>
+</html>
