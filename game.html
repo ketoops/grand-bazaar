@@ -33,6 +33,78 @@
     --glow-teal:  0 0 16px rgba(58,154,136,0.12);
     --glow-purple:0 0 16px rgba(123,94,167,0.12);
   }
+  :root[data-theme="light"] {
+    --bg:         #f2ede6;
+    --bg-panel:   #ebe5dc;
+    --bg-card:    #ffffff;
+    --bg-card-h:  #f8f4ee;
+    --border:     #d8d0c4;
+    --border-gold:#c8a860;
+    --gold:       #a07828;
+    --gold-lt:    #886020;
+    --gold-dm:    #b89040;
+    --txt:        #4a4238;
+    --txt-dm:     #9a9088;
+    --txt-br:     #2a2420;
+    --teal:       #1a7a68;
+    --teal-lt:    #28a888;
+    --purple:     #6040a0;
+    --purple-lt:  #5030a0;
+    --red:        #c04040;
+    --green:      #2a8a3a;
+    --shadow:     0 2px 12px rgba(0,0,0,0.08);
+    --shadow-lg:  0 4px 24px rgba(0,0,0,0.12);
+    --glow-gold:  0 0 12px rgba(160,120,40,0.15);
+    --glow-teal:  0 0 12px rgba(26,122,104,0.12);
+    --glow-purple:0 0 12px rgba(96,64,160,0.12);
+  }
+
+  /* Light theme overrides for hardcoded colors */
+  :root[data-theme="light"] body { background: #e8e2d8; }
+  :root[data-theme="light"] .phone { background: var(--bg); }
+  :root[data-theme="light"] .hud { background: rgba(235,229,220,0.95); border-color: var(--border); }
+  :root[data-theme="light"] .hud-progress { background: var(--bg-panel); }
+  :root[data-theme="light"] .hud-prog-fill { background: linear-gradient(90deg, #6040a0, #8060c0); box-shadow: none; }
+  :root[data-theme="light"] .nav { background: rgba(235,229,220,0.95); border-color: var(--border); }
+  :root[data-theme="light"] .map-viewport { background: #ddd8cc; }
+  :root[data-theme="light"] .map-canvas { background: radial-gradient(ellipse at 50% 40%, #e8e0d0 0%, #d8d0c0 45%, #c8c0b0 75%, #b8b0a0 100%); }
+  :root[data-theme="light"] .map-canvas::before { opacity: 0; }
+  :root[data-theme="light"] .map-canvas::after { background: radial-gradient(ellipse at 50% 40%, rgba(180,160,120,0.15) 0%, transparent 50%); }
+  :root[data-theme="light"] .map-hub-ring { background: radial-gradient(circle at 40% 35%, #f0e8d0, #d8c8a0 70%); border-color: var(--gold); box-shadow: 0 4px 20px rgba(160,120,40,0.25); }
+  :root[data-theme="light"] .map-hub-name { text-shadow: 0 1px 4px rgba(0,0,0,0.15); }
+  :root[data-theme="light"] .mz-unlocked { border-color: rgba(0,0,0,0.12); box-shadow: 0 3px 12px rgba(0,0,0,0.12); }
+  :root[data-theme="light"] .mz-locked { filter: brightness(0.85) saturate(0.3); border-color: rgba(0,0,0,0.06); }
+  :root[data-theme="light"] .map-zone-name { color: var(--txt-br); text-shadow: 0 1px 3px rgba(255,255,255,0.6); }
+  :root[data-theme="light"] .map-zone-price { background: rgba(255,255,255,0.9); border-color: var(--border); color: var(--gold); backdrop-filter: blur(4px); text-shadow: none; }
+  :root[data-theme="light"] .map-center-btn,
+  :root[data-theme="light"] .map-zoom-btn { background: rgba(255,255,255,0.85); border-color: var(--border); color: var(--txt); }
+  :root[data-theme="light"] .caravan-dot { filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2)); }
+  :root[data-theme="light"] .zd-upgrade { background: linear-gradient(135deg, #fff, #f8f4ee); }
+  :root[data-theme="light"] .zd-up-cost { background: rgba(245,240,232,0.9); }
+  :root[data-theme="light"] .bz-res-card { background: #fff; }
+  :root[data-theme="light"] .bz-sell-btn { background: linear-gradient(135deg, #f0e0c0, #e8d8b0); color: var(--gold); box-shadow: 0 2px 8px rgba(160,120,40,0.12); }
+  :root[data-theme="light"] .bz-sell-btn.sell-all-btn { background: #f0ece4; color: var(--txt-dm); border-color: var(--border); }
+  :root[data-theme="light"] .cr-recipe { background: #fff; }
+  :root[data-theme="light"] .cr-slot { background: #fff; }
+  :root[data-theme="light"] .cr-inventory { background: #fff; }
+  :root[data-theme="light"] .pr-box { background: linear-gradient(135deg, #fff, #f8f4ee); }
+  :root[data-theme="light"] .pr-reset-btn { background: linear-gradient(135deg, #ece4f8, #e0d8f0); color: var(--purple); }
+  :root[data-theme="light"] .pr-milestone { background: #fff; }
+  :root[data-theme="light"] .pr-up-item { background: #fff; }
+  :root[data-theme="light"] .pr-shop-btn { background: #fff; }
+  :root[data-theme="light"] .scout-map-card { background: #fff; }
+  :root[data-theme="light"] .sell-flash { color: var(--gold); text-shadow: 0 2px 8px rgba(160,120,40,0.3); }
+  :root[data-theme="light"] .prestige-flash { background: radial-gradient(circle, rgba(96,64,160,0.15), transparent); }
+  :root[data-theme="light"] .bz-slider::-webkit-slider-thumb { background: var(--gold); border-color: var(--gold-dm); }
+  :root[data-theme="light"] .cr-ing-bar-wrap { background: #e8e2d8; }
+  :root[data-theme="light"] .cr-progress { background: #e8e2d8; }
+  :root[data-theme="light"] .hud-prog-bar { background: #d8d0c4; }
+
+  @media (min-width: 500px) {
+    :root[data-theme="light"] body { background: #ddd8cc; }
+    :root[data-theme="light"] .phone { border-color: #c8c0b4; box-shadow: 0 0 60px rgba(0,0,0,0.1); }
+  }
+
   html, body {
     height: 100%; overflow: hidden;
     font-family: -apple-system, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
@@ -728,7 +800,10 @@
       <div class="hud-c hud-crowns"><span>🪙</span> <span id="hudCrowns">0</span></div>
       <div class="hud-c hud-seals"><span>🎖️</span> <span id="hudSeals">0</span></div>
     </div>
-    <div class="hud-title">Grand Bazaar</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="hud-title">Grand Bazaar</div>
+      <button onclick="toggleTheme()" style="background:none;border:1px solid var(--border);border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;padding:0;" id="themeBtn">🌙</button>
+    </div>
   </div>
   <div class="hud-progress">
     <div class="hud-prog-seals" id="hudProgSeals">🎖️ 0</div>
@@ -2683,6 +2758,26 @@ setInterval(saveGame, 5000);
 
 // Save on page close/refresh
 window.addEventListener('beforeunload', saveGame);
+
+// Theme toggle
+function toggleTheme() {
+  var root = document.documentElement;
+  var isLight = root.getAttribute('data-theme') === 'light';
+  root.setAttribute('data-theme', isLight ? 'dark' : 'light');
+  document.getElementById('themeBtn').textContent = isLight ? '🌙' : '☀️';
+  try { localStorage.setItem('grandBazaarTheme', isLight ? 'dark' : 'light'); } catch(e){}
+}
+// Load saved theme
+(function(){
+  try {
+    var t = localStorage.getItem('grandBazaarTheme');
+    if (t === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+      document.getElementById('themeBtn').textContent = '☀️';
+    }
+  } catch(e){}
+})();
+window.toggleTheme = toggleTheme;
 
 // expose to onclick
 window.showScreen = showScreen;
