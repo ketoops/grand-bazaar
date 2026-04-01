@@ -107,34 +107,73 @@
   .nav-item .ni { font-size: 20px; margin-bottom: 1px; }
 
   /* ===== MAP SCREEN ===== */
-  .map-world {
+  .map-viewport {
     position: relative;
-    width: 100%; aspect-ratio: 1/1.1;
-    background: radial-gradient(ellipse at 50% 40%, #1a1428 0%, #0e0a18 60%, #060410 100%);
+    width: 100%; flex: 1;
     border-radius: var(--r);
     overflow: hidden;
-    margin-bottom: 10px;
+    touch-action: none;
+    background: #060410;
+    min-height: 250px;
   }
+  .map-canvas {
+    position: absolute;
+    width: 1600px; height: 1600px;
+    background:
+      radial-gradient(ellipse at 50% 40%, #1a1428 0%, #0e0a18 40%, #060410 70%);
+    transform-origin: 0 0;
+    will-change: transform;
+  }
+  .map-canvas::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(1px 1px at 15% 12%, rgba(255,255,220,0.2), transparent),
+      radial-gradient(1px 1px at 75% 20%, rgba(255,255,220,0.15), transparent),
+      radial-gradient(1px 1px at 40% 65%, rgba(255,255,220,0.12), transparent),
+      radial-gradient(1px 1px at 85% 78%, rgba(255,255,220,0.1), transparent),
+      radial-gradient(1px 1px at 25% 85%, rgba(255,255,220,0.18), transparent);
+    opacity: 0.5;
+  }
+  .map-center-btn {
+    position: absolute; bottom: 10px; right: 10px; z-index: 20;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(20,16,30,0.85); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .map-zoom-btns {
+    position: absolute; bottom: 10px; left: 10px; z-index: 20;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .map-zoom-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(20,16,30,0.85); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: var(--txt); cursor: pointer;
+    font-family: inherit; font-weight: 700;
+    -webkit-tap-highlight-color: transparent;
+  }
+
   .map-hub {
-    position: absolute; top: 38%; left: 50%; transform: translate(-50%,-50%);
+    position: absolute; top: 40%; left: 50%; transform: translate(-50%,-50%);
     text-align: center; z-index: 10; cursor: pointer;
   }
   .map-hub-ring {
-    width: 68px; height: 68px; border-radius: 50%;
+    width: 80px; height: 80px; border-radius: 50%;
     background: radial-gradient(circle, #2e2418, #1a1410);
-    border: 2.5px solid var(--gold);
+    border: 3px solid var(--gold);
     display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 0 24px rgba(212,168,67,0.2);
-    margin: 0 auto; font-size: 28px;
+    box-shadow: 0 0 30px rgba(212,168,67,0.25), 0 0 80px rgba(212,168,67,0.08);
+    margin: 0 auto; font-size: 32px;
   }
-  .map-hub-name { font-size: 8px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .map-hub-name { font-size: 9px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; }
 
   .map-zone {
     position: absolute; transform: translate(-50%,-50%);
     text-align: center; z-index: 10; cursor: pointer;
-    transition: transform 0.15s;
   }
-  .map-zone:active { transform: translate(-50%,-50%) scale(0.93); }
   .map-zone-bubble {
     width: 52px; height: 52px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
@@ -400,22 +439,54 @@
 
   .cr-recipe {
     background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r);
-    padding: 12px; margin-bottom: 8px;
-    cursor: pointer; transition: border-color 0.15s;
+    padding: 12px; margin-bottom: 10px;
+    transition: border-color 0.15s;
     -webkit-tap-highlight-color: transparent;
   }
-  .cr-recipe:active { border-color: var(--teal); }
-  .cr-recipe.cant-afford { opacity: 0.4; }
+  .cr-recipe.craftable { border-color: rgba(58,138,122,0.3); }
+  .cr-recipe.cant-afford { opacity: 0.5; }
   .cr-recipe-top {
     display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px;
   }
-  .cr-recipe-name { font-size: 13px; font-weight: 700; color: var(--txt-br); }
+  .cr-recipe-name { font-size: 14px; font-weight: 700; color: var(--txt-br); }
   .cr-recipe-time { font-size: 11px; color: var(--teal); font-weight: 600; }
   .cr-recipe-price { font-size: 10px; color: var(--gold); margin-top: 1px; }
-  .cr-recipe-cost {
-    font-size: 10px; color: var(--txt-dm); margin-top: 4px;
+  .cr-recipe-sub { font-size: 10px; color: var(--txt-dm); margin-bottom: 8px; }
+
+  /* Ingredient rows */
+  .cr-ing {
+    display: flex; align-items: center; gap: 8px;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(42,37,64,0.5);
   }
-  .cr-recipe-cost span { color: var(--txt); }
+  .cr-ing:last-child { border-bottom: none; }
+  .cr-ing-icon { font-size: 16px; width: 22px; text-align: center; flex-shrink: 0; }
+  .cr-ing-name { font-size: 12px; color: var(--txt-br); font-weight: 600; flex-shrink: 0; min-width: 70px; }
+  .cr-ing-bar-wrap {
+    flex: 1; height: 6px; border-radius: 3px; background: var(--border);
+    overflow: hidden;
+  }
+  .cr-ing-bar {
+    height: 100%; border-radius: 3px; transition: width 0.2s;
+  }
+  .cr-ing-bar.enough { background: var(--green); }
+  .cr-ing-bar.partial { background: var(--gold-dm); }
+  .cr-ing-bar.none { background: var(--red); }
+  .cr-ing-qty {
+    font-size: 11px; font-weight: 600; min-width: 55px; text-align: right; flex-shrink: 0;
+  }
+  .cr-ing-qty.has-enough { color: var(--green); }
+  .cr-ing-qty.not-enough { color: var(--red); }
+
+  .cr-recipe-result {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 6px; margin: 8px 0;
+    background: rgba(58,138,122,0.08); border-radius: 6px;
+    font-size: 11px; color: var(--teal); font-weight: 600;
+  }
+  .cr-recipe-result .result-arrow { color: var(--txt-dm); }
+
   .cr-recipe-actions {
     display: flex; gap: 6px; margin-top: 8px;
   }
@@ -573,22 +644,41 @@
   <!-- SCREENS -->
 
   <!-- MAP -->
-  <div class="screen active" id="scrMap">
-    <div class="map-world" id="mapWorld">
-      <svg class="map-route" id="mapRoutes" viewBox="0 0 400 440" preserveAspectRatio="xMidYMid meet"></svg>
-      <div class="map-hub" onclick="showScreen('bazaar')">
-        <div class="map-hub-ring">🏛️</div>
-        <div class="map-hub-name">Grand Bazaar</div>
+  <div class="screen active" id="scrMap" style="padding:0;display:flex;flex-direction:column;">
+    <div class="map-viewport" id="mapViewport">
+      <div class="map-canvas" id="mapCanvas">
+        <svg class="map-route" id="mapRoutes" viewBox="0 0 1600 1600" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="map-hub" onclick="showScreen('bazaar')">
+          <div class="map-hub-ring">🏛️</div>
+          <div class="map-hub-name">Grand Bazaar</div>
+        </div>
+        <!-- zones injected by JS -->
       </div>
-      <!-- zones injected by JS -->
+      <div class="map-center-btn" onclick="centerMap()">🏛️</div>
+      <div class="map-zoom-btns">
+        <button class="map-zoom-btn" onclick="zoomMap(1)">+</button>
+        <button class="map-zoom-btn" onclick="zoomMap(-1)">−</button>
+      </div>
     </div>
-    <div style="display:flex;gap:8px;">
-      <div class="bz-income" style="flex:1;">
+    <div style="display:flex;gap:8px;padding:8px 12px;flex-shrink:0;">
+      <div class="bz-income" style="flex:1;margin:0;">
         <div class="bz-income-label">Total Income</div>
         <div class="bz-income-val" id="mapIncome">0.0 🪙/s</div>
       </div>
-      <button style="flex-shrink:0;padding:10px 16px;background:var(--bg-card);border:1.5px solid var(--teal);border-radius:var(--r);font-size:13px;font-weight:700;color:var(--teal);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;-webkit-tap-highlight-color:transparent;" onclick="showScreen('scouting')">🧭 Scout</button>
+      <button style="flex-shrink:0;padding:10px 12px;background:var(--bg-card);border:1.5px solid var(--teal);border-radius:var(--r);font-size:12px;font-weight:700;color:var(--teal);cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;" onclick="showScreen('scouting')">🧭</button>
+      <button style="flex-shrink:0;padding:10px 12px;background:var(--bg-card);border:1.5px solid var(--gold-dm);border-radius:var(--r);font-size:12px;font-weight:700;color:var(--gold);cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;" onclick="showScreen('globalUp')">⬆️</button>
     </div>
+  </div>
+
+  <!-- GLOBAL UPGRADES -->
+  <div class="screen" id="scrGlobalUp">
+    <button class="zd-back" onclick="showScreen('map')">← Back to Map</button>
+    <div style="text-align:center;margin-bottom:14px;">
+      <div style="font-size:36px;">⬆️</div>
+      <div style="font-size:18px;font-weight:700;color:var(--txt-br);">Global Upgrades</div>
+      <div style="font-size:11px;color:var(--txt-dm);">Upgrades that apply to your entire empire</div>
+    </div>
+    <div id="globalUpContent"></div>
   </div>
 
   <!-- SCOUTING -->
@@ -690,7 +780,7 @@
 var ZONES = [
   // === STARTER ZONES (always visible, buy with Crowns) ===
   {
-    id:'forest', name:'Pădure', icon:'🌲', bg:'#1a3a1a', x:30, y:18,
+    id:'forest', name:'Pădure', icon:'🌲', bg:'#1a3a1a', x:44, y:33,
     cost:0, caravan:'🐴', startState:'unlocked',
     resources:[
       { id:'wood', name:'Wood', icon:'🪵', yield:70, baseRate:1.0, price:2 },
@@ -701,11 +791,14 @@ var ZONES = [
       speed:{ base:15, mult:1.45, perLvl:10, label:'Caravan Speed', icon:'🐴', unit:'%' },
       cargo:{ base:20, mult:1.45, perLvl:5, label:'Cargo', icon:'📦', unit:' units' },
       harvest:{ base:50, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
-      extraCaravan:{ base:200, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'🐴+', unit:'', max:4 }
+      extraCaravan:{ base:200, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'🐴+', unit:'', max:4 },
+      sellValue:{ base:30, mult:1.50, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ base:25, mult:1.45, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ base:80, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
     }
   },
   {
-    id:'farm', name:'Fermă', icon:'🌾', bg:'#3a3418', x:72, y:22,
+    id:'farm', name:'Fermă', icon:'🌾', bg:'#3a3418', x:57, y:34,
     cost:500, caravan:'🐂', startState:'discovered',
     resources:[
       { id:'food', name:'Food', icon:'🍎', yield:75, baseRate:1.2, price:3 },
@@ -716,11 +809,14 @@ var ZONES = [
       speed:{ base:35, mult:1.45, perLvl:10, label:'Caravan Speed', icon:'🐂', unit:'%' },
       cargo:{ base:45, mult:1.45, perLvl:8, label:'Cargo', icon:'📦', unit:' units' },
       harvest:{ base:120, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
-      extraCaravan:{ base:500, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'🐂+', unit:'', max:4 }
+      extraCaravan:{ base:500, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'🐂+', unit:'', max:4 },
+      sellValue:{ base:70, mult:1.50, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ base:60, mult:1.45, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ base:180, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
     }
   },
   {
-    id:'mine', name:'Mină', icon:'⛰️', bg:'#2a2a32', x:50, y:55,
+    id:'mine', name:'Mină', icon:'⛰️', bg:'#2a2a32', x:50, y:48,
     cost:2500, caravan:'🐴', startState:'discovered',
     resources:[
       { id:'stone', name:'Stone', icon:'🪨', yield:60, baseRate:0.6, price:5 },
@@ -731,12 +827,15 @@ var ZONES = [
       speed:{ base:100, mult:1.50, perLvl:10, label:'Caravan Speed', icon:'🐴', unit:'%' },
       cargo:{ base:120, mult:1.50, perLvl:10, label:'Cargo', icon:'📦', unit:' units' },
       harvest:{ base:300, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
-      extraCaravan:{ base:1200, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'🐴+', unit:'', max:4 }
+      extraCaravan:{ base:1200, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'🐴+', unit:'', max:4 },
+      sellValue:{ base:150, mult:1.50, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ base:140, mult:1.45, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ base:400, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
     }
   },
   // === SCOUTABLE ZONES (Map Lv1 discovers these) ===
   {
-    id:'athenai', name:'Athenai', icon:'🏛️', bg:'#1e2848', x:82, y:45,
+    id:'athenai', name:'Athenai', icon:'🏛️', bg:'#1e2848', x:68, y:28,
     cost:8000, caravan:'⛵', startState:'hidden', mapLevel:1,
     resources:[
       { id:'oliveOil', name:'Olive Oil', icon:'🫒', yield:65, baseRate:0.6, price:20 },
@@ -747,11 +846,14 @@ var ZONES = [
       speed:{ base:250, mult:1.50, perLvl:10, label:'Caravan Speed', icon:'⛵', unit:'%' },
       cargo:{ base:300, mult:1.50, perLvl:8, label:'Cargo', icon:'📦', unit:' units' },
       harvest:{ base:800, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
-      extraCaravan:{ base:3000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'⛵+', unit:'', max:4 }
+      extraCaravan:{ base:3000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'⛵+', unit:'', max:4 },
+      sellValue:{ base:400, mult:1.55, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ base:350, mult:1.50, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ base:1000, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
     }
   },
   {
-    id:'roma', name:'Roma', icon:'🏟️', bg:'#3a2018', x:22, y:72,
+    id:'roma', name:'Roma', icon:'🏟️', bg:'#3a2018', x:30, y:55,
     cost:25000, caravan:'🐴', startState:'hidden', mapLevel:1,
     resources:[
       { id:'wine', name:'Wine', icon:'🍷', yield:60, baseRate:0.5, price:30 },
@@ -762,11 +864,14 @@ var ZONES = [
       speed:{ base:600, mult:1.55, perLvl:10, label:'Caravan Speed', icon:'🐴', unit:'%' },
       cargo:{ base:700, mult:1.55, perLvl:10, label:'Cargo', icon:'📦', unit:' units' },
       harvest:{ base:2000, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
-      extraCaravan:{ base:8000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'🐴+', unit:'', max:4 }
+      extraCaravan:{ base:8000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'🐴+', unit:'', max:4 },
+      sellValue:{ base:900, mult:1.55, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ base:800, mult:1.50, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ base:2500, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
     }
   },
   {
-    id:'alexandria', name:'Alexandria', icon:'📜', bg:'#38341a', x:50, y:90,
+    id:'alexandria', name:'Alexandria', icon:'📜', bg:'#38341a', x:72, y:58,
     cost:60000, caravan:'⛵', startState:'hidden', mapLevel:1,
     resources:[
       { id:'papyrus', name:'Papyrus', icon:'📜', yield:60, baseRate:0.4, price:38 },
@@ -777,7 +882,10 @@ var ZONES = [
       speed:{ base:1500, mult:1.60, perLvl:10, label:'Caravan Speed', icon:'⛵', unit:'%' },
       cargo:{ base:1800, mult:1.60, perLvl:10, label:'Cargo', icon:'📦', unit:' units' },
       harvest:{ base:5000, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
-      extraCaravan:{ base:20000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'⛵+', unit:'', max:4 }
+      extraCaravan:{ base:20000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'⛵+', unit:'', max:4 },
+      sellValue:{ base:2200, mult:1.60, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ base:2000, mult:1.55, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ base:6000, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
     }
   }
 ];
@@ -810,6 +918,16 @@ var CRAFT_RECIPES = [
 ];
 
 var MAX_CRAFT_SLOTS = 3;
+
+var GLOBAL_UPGRADES = [
+  { id:'tradeRoutes',     name:'Trade Routes',      icon:'🛤️',  effect:'+10% all caravan speed',     base:500,   mult:1.6, perLvl:10 },
+  { id:'merchantGuild',   name:'Merchant Guild',     icon:'🏪',  effect:'+5% all sell prices',        base:800,   mult:1.6, perLvl:5 },
+  { id:'routeProtection', name:'Route Protection',   icon:'🛡️',  effect:'-5% caravan losses',         base:1200,  mult:1.7, perLvl:5, max:10 },
+  { id:'bazaarExpansion', name:'Bazaar Expansion',   icon:'🏗️',  effect:'+200 Bazaar storage cap',    base:600,   mult:1.5, perLvl:200 },
+  { id:'craftSpeed',      name:'Craft Speed',        icon:'⚡',  effect:'-10% craft time',            base:1500,  mult:1.8, perLvl:10, max:10 },
+  { id:'extraCraftSlot',  name:'Extra Craft Slot',   icon:'🔨',  effect:'+1 crafting slot',           base:5000,  mult:4.0, perLvl:1, max:2 },
+  { id:'autoSell',        name:'Auto-Sell',          icon:'🤖',  effect:'Auto-sell at Bazaar',        base:10000, mult:1,   perLvl:1, max:1 },
+];
 
 var PRESTIGE_MILESTONES = [
   { crowns: 25000,   seals: 1,  label: '25K' },
@@ -853,14 +971,16 @@ function createFreshState() {
     selectedResource: null,
     sellPercent: 100,
     craftSlots: [{ recipeId:null, progress:0, timeLeft:0, auto:false }],
-    craftInventory: {}
+    craftInventory: {},
+    globalUpgrades: {}
   };
+  GLOBAL_UPGRADES.forEach(function(u){ state.globalUpgrades[u.id] = 0; });
   ZONES.forEach(function(z){
     var stored = {};
     z.resources.forEach(function(r){ stored[r.id] = 0; });
     state.zones[z.id] = {
       state: z.startState || 'hidden',
-      upgrades: { production:0, speed:0, cargo:0, harvest:0, extraCaravan:0 },
+      upgrades: { production:0, speed:0, cargo:0, harvest:0, extraCaravan:0, sellValue:0, storage:0, luckyFind:0 },
       stored: stored,
       caravans: [{ progress:0, phase:'loading', cargo:{} }]
     };
@@ -882,13 +1002,15 @@ function resetForPrestige() {
   G.selectedZone = null;
   G.craftSlots = [{ recipeId:null, progress:0, timeLeft:0, auto:false }];
   G.craftInventory = {};
+  G.globalUpgrades = {};
+  GLOBAL_UPGRADES.forEach(function(u){ G.globalUpgrades[u.id] = 0; });
 
   ZONES.forEach(function(z){
     var stored = {};
     z.resources.forEach(function(r){ stored[r.id] = 0; });
     G.zones[z.id] = {
       state: z.startState || 'hidden',
-      upgrades: { production:0, speed:0, cargo:0, harvest:0, extraCaravan:0 },
+      upgrades: { production:0, speed:0, cargo:0, harvest:0, extraCaravan:0, sellValue:0, storage:0, luckyFind:0 },
       stored: stored,
       caravans: [{ progress:0, phase:'loading', cargo:{} }]
     };
@@ -922,7 +1044,8 @@ function saveGame() {
         return { recipeId:s.recipeId, progress:s.progress, timeLeft:s.timeLeft, auto:s.auto, autoRecipe:s.autoRecipe||null };
       }),
       zones: {},
-      bazaar: G.bazaar
+      bazaar: G.bazaar,
+      globalUpgrades: G.globalUpgrades
     };
     ZONES.forEach(function(z){
       var zs = G.zones[z.id];
@@ -949,6 +1072,11 @@ function loadGame() {
     state.ownedPrestige = data.ownedPrestige || {};
     state.craftInventory = data.craftInventory || {};
     state.bazaar = data.bazaar || state.bazaar;
+    if (data.globalUpgrades) {
+      GLOBAL_UPGRADES.forEach(function(u){
+        state.globalUpgrades[u.id] = data.globalUpgrades[u.id] || 0;
+      });
+    }
 
     // Restore craft slots
     if (data.craftSlots) {
@@ -964,7 +1092,11 @@ function loadGame() {
         state.zones[z.id].state = saved.state || (saved.unlocked ? 'unlocked' : 'discovered');
         state.zones[z.id].upgrades = saved.upgrades || state.zones[z.id].upgrades;
         // Ensure all upgrade keys exist
-        if (!state.zones[z.id].upgrades.extraCaravan) state.zones[z.id].upgrades.extraCaravan = 0;
+        var ups = state.zones[z.id].upgrades;
+        if (!ups.extraCaravan) ups.extraCaravan = 0;
+        if (!ups.sellValue) ups.sellValue = 0;
+        if (!ups.storage) ups.storage = 0;
+        if (!ups.luckyFind) ups.luckyFind = 0;
         state.zones[z.id].stored = saved.stored || state.zones[z.id].stored;
       }
     });
@@ -1000,10 +1132,17 @@ function getHarvestChance(zone) {
   return Math.min(zs.upgrades.harvest, zone.upgrades.harvest.max || 25) / 100;
 }
 
-function getSellMultiplier() {
+function getSellMultiplier(zone) {
   var m = 1;
   if (G.ownedPrestige.betterPrices) m *= 1.15;
   if (G.ownedPrestige.crownMagnet) m *= 1.5;
+  // Global: Merchant Guild
+  m *= 1 + (G.globalUpgrades.merchantGuild || 0) * 0.05;
+  // Per-zone: Sell Value
+  if (zone) {
+    var zs = G.zones[zone.id];
+    m *= 1 + (zs.upgrades.sellValue || 0) * 0.05;
+  }
   return m;
 }
 
@@ -1022,7 +1161,36 @@ function getCargoCapacity(zone) {
 function getCaravanSpeed(zone) {
   var zs = G.zones[zone.id];
   var base = 0.02;
-  return base * (1 + zs.upgrades.speed * 0.10);
+  var speed = base * (1 + zs.upgrades.speed * 0.10);
+  // Global: Trade Routes
+  speed *= 1 + (G.globalUpgrades.tradeRoutes || 0) * 0.10;
+  return speed;
+}
+
+function getStorageCap(zone) {
+  var zs = G.zones[zone.id];
+  var base = 100;
+  return base + (zs.upgrades.storage || 0) * zone.upgrades.storage.perLvl;
+}
+
+function getBanditLoss() {
+  // Base 10% loss, reduced by Route Protection
+  var baseLoss = 0.10;
+  var reduction = (G.globalUpgrades.routeProtection || 0) * 0.05;
+  return Math.max(0, baseLoss - reduction);
+}
+
+function getLuckyFindChance(zone) {
+  var zs = G.zones[zone.id];
+  return Math.min((zs.upgrades.luckyFind || 0) * 0.5, 5) / 100;
+}
+
+function getCraftTimeMultiplier() {
+  return 1 - (G.globalUpgrades.craftSpeed || 0) * 0.10;
+}
+
+function getActiveCraftSlots() {
+  return 1 + (G.globalUpgrades.extraCraftSlot || 0);
 }
 
 function getCaravanCount(zone) {
@@ -1046,13 +1214,12 @@ function syncCaravans(zone) {
 }
 
 function calcTotalIncome() {
-  // Estimated income: production rate × sell price, adjusted for caravan throughput
   var total = 0;
   ZONES.forEach(function(z){
-    if (!G.zones[z.id].state === 'unlocked') return;
+    if (G.zones[z.id].state !== 'unlocked') return;
     var prodMult = getZoneProductionRate(z);
     var harvestBonus = 1 + getHarvestChance(z);
-    var sellMult = getSellMultiplier();
+    var sellMult = getSellMultiplier(z);
     z.resources.forEach(function(r){
       total += r.baseRate * prodMult * harvestBonus * r.price * sellMult;
     });
@@ -1095,13 +1262,17 @@ function tick() {
     var zs = G.zones[z.id];
     if (zs.state !== 'unlocked') return;
 
-    // 1) Zone produces resources → stored locally
+    // 1) Zone produces resources → stored locally (capped by storage)
     var prodMult = getZoneProductionRate(z);
     var harvestChance = getHarvestChance(z);
+    var storageCap = getStorageCap(z);
+    var luckyChance = getLuckyFindChance(z);
     z.resources.forEach(function(r){
       var amount = r.baseRate * prodMult * 0.1; // per 100ms
       if (Math.random() < harvestChance) amount *= 2;
-      zs.stored[r.id] = (zs.stored[r.id] || 0) + amount;
+      // Lucky Find: bonus resource
+      if (Math.random() < luckyChance) amount += r.price * 0.1;
+      zs.stored[r.id] = Math.min((zs.stored[r.id] || 0) + amount, storageCap);
     });
 
     // 2) Sync caravan count with upgrade
@@ -1134,8 +1305,10 @@ function tick() {
         c.progress += speed;
         if (c.progress >= 1) {
           c.progress = 1;
+          var loss = getBanditLoss();
           Object.keys(c.cargo).forEach(function(rid){
-            G.bazaar[rid] = (G.bazaar[rid] || 0) + c.cargo[rid];
+            var delivered = c.cargo[rid] * (1 - loss);
+            G.bazaar[rid] = (G.bazaar[rid] || 0) + delivered;
           });
           c.cargo = {};
           c.phase = 'returning';
@@ -1158,6 +1331,22 @@ function tick() {
 /* ============================================================
    CRAFTING LOGIC
    ============================================================ */
+// Lookup table for resource display names
+function getResourceInfo(rid) {
+  // Check zone resources
+  for (var i = 0; i < ZONES.length; i++) {
+    for (var j = 0; j < ZONES[i].resources.length; j++) {
+      var r = ZONES[i].resources[j];
+      if (r.id === rid) return { name: r.name, icon: r.icon };
+    }
+  }
+  // Check craft recipes
+  for (var k = 0; k < CRAFT_RECIPES.length; k++) {
+    if (CRAFT_RECIPES[k].id === rid) return { name: CRAFT_RECIPES[k].name, icon: CRAFT_RECIPES[k].icon };
+  }
+  return { name: rid, icon: '📦' };
+}
+
 function getCraftResource(rid) {
   // Check bazaar (raw) and craft inventory (crafted)
   return (G.bazaar[rid] || 0) + (G.craftInventory[rid] || 0);
@@ -1194,7 +1383,7 @@ function startCraft(slotIdx, recipeId) {
   consumeCraftResources(recipe.cost);
   slot.recipeId = recipeId;
   slot.progress = 0;
-  slot.timeLeft = recipe.time;
+  slot.timeLeft = recipe.time * getCraftTimeMultiplier();
 }
 
 function toggleAutoCraft(slotIdx, recipeId) {
@@ -1211,7 +1400,33 @@ function toggleAutoCraft(slotIdx, recipeId) {
   }
 }
 
+function tickAutoSell() {
+  if (!(G.globalUpgrades.autoSell >= 1)) return;
+  var resData = {};
+  ZONES.forEach(function(z){ z.resources.forEach(function(r){ resData[r.id] = r; }); });
+  Object.keys(G.bazaar).forEach(function(rid){
+    var qty = G.bazaar[rid];
+    if (qty >= 1 && resData[rid]) {
+      var zone = ZONES.find(function(z){ return z.resources.some(function(r){ return r.id === rid; }); });
+      var sellMult = getSellMultiplier(zone);
+      var toSell = Math.floor(qty);
+      var value = toSell * resData[rid].price * sellMult;
+      G.crowns += Math.floor(value);
+      G.totalCrownsEarned += Math.floor(value);
+      G.bazaar[rid] -= toSell;
+    }
+  });
+}
+
+function syncCraftSlots() {
+  var needed = getActiveCraftSlots();
+  while (G.craftSlots.length < needed) {
+    G.craftSlots.push({ recipeId:null, progress:0, timeLeft:0, auto:false });
+  }
+}
+
 function tickCraft() {
+  syncCraftSlots();
   G.craftSlots.forEach(function(slot, idx) {
     if (!slot.recipeId) {
       // Auto-craft: try to start
@@ -1264,6 +1479,40 @@ function useScouting(mapId) {
     }
   });
   showFlash('🧭 New zones discovered!');
+}
+
+function renderGlobalUp() {
+  var h = '';
+  GLOBAL_UPGRADES.forEach(function(up){
+    var lvl = G.globalUpgrades[up.id] || 0;
+    var isMaxed = up.max && lvl >= up.max;
+    var cost = isMaxed ? 0 : Math.floor(up.base * Math.pow(up.mult, lvl));
+    var canAfford = G.crowns >= cost && !isMaxed;
+
+    h += '<div class="zd-upgrade' + (canAfford ? '' : isMaxed ? '' : ' cant-afford') + '" onclick="buyGlobalUpgrade(\'' + up.id + '\')">';
+    h += '<div class="zd-up-info">';
+    h += '<div class="zd-up-name">' + up.icon + ' ' + up.name + '</div>';
+    h += '<div class="zd-up-stat">';
+    if (isMaxed) {
+      h += 'MAX (Lv.' + lvl + ')';
+    } else {
+      h += 'Lv.' + lvl + ' \u2022 ' + up.effect;
+    }
+    h += '</div></div>';
+    h += '<div class="zd-up-cost' + (isMaxed ? ' maxed' : '') + '">' + (isMaxed ? 'MAX' : '\u{1FA99} ' + formatNum(cost)) + '</div>';
+    h += '</div>';
+  });
+
+  // Show active effects summary
+  var banditLoss = getBanditLoss();
+  if (banditLoss > 0) {
+    h += '<div style="margin-top:12px;padding:10px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);font-size:11px;color:var(--txt-dm);text-align:center;">🛡️ Bandit loss: <span style="color:var(--red);">' + (banditLoss * 100).toFixed(0) + '%</span> of cargo per delivery</div>';
+  }
+  if (G.globalUpgrades.autoSell >= 1) {
+    h += '<div style="margin-top:6px;padding:10px;background:var(--bg-card);border:1px solid var(--green);border-radius:var(--r);font-size:11px;color:var(--green);text-align:center;">🤖 Auto-Sell is ACTIVE</div>';
+  }
+
+  document.getElementById('globalUpContent').innerHTML = h;
 }
 
 function renderScouting() {
@@ -1430,6 +1679,19 @@ function unlockZone(zoneId) {
   }
 }
 
+function buyGlobalUpgrade(upId) {
+  var up = GLOBAL_UPGRADES.find(function(u){ return u.id === upId; });
+  if (!up) return;
+  var lvl = G.globalUpgrades[upId] || 0;
+  if (up.max && lvl >= up.max) return;
+  var cost = Math.floor(up.base * Math.pow(up.mult, lvl));
+  if (G.crowns >= cost) {
+    G.crowns -= cost;
+    G.globalUpgrades[upId] = lvl + 1;
+    showFlash(up.icon + ' ' + up.name + ' Lv.' + (lvl + 1));
+  }
+}
+
 function buyPrestigeUpgrade(upId) {
   var up = PRESTIGE_UPGRADES.find(function(u){ return u.id === upId; });
   if (G.ownedPrestige[upId]) return;
@@ -1443,12 +1705,28 @@ function doPrestige() {
   var highest = getHighestMilestone();
   if (!highest) return;
   resetForPrestige();
-  // flash
+
+  // Invalidate ALL render caches so UI rebuilds fresh
+  zdBuiltFor = null;
+  bzBuiltSel = undefined;
+  prBuilt = false;
+  lastCaravanPhases = {};
+
+  // Clear bazaar selection
+  G.selectedResource = null;
+  G.sellPercent = 100;
+
+  // Force immediate save with clean state
+  saveGame();
+
+  // Flash effect
   var el = document.createElement('div');
   el.className = 'prestige-flash';
   document.body.appendChild(el);
   setTimeout(function(){ el.remove(); }, 1200);
+
   showScreen('map');
+  setTimeout(centerMap, 100);
 }
 
 /* ============================================================
@@ -1463,9 +1741,13 @@ function showScreen(id) {
   if (id === 'zone') zdBuiltFor = null;
   if (id === 'bazaar') bzBuiltSel = undefined;
   if (id === 'prestige' || id === 'prestShop') prBuilt = false;
+  if (id === 'map') setTimeout(applyMapTransform, 10);
 
   if (id === 'zone') {
     document.getElementById('scrZone').classList.add('active');
+  } else if (id === 'globalUp') {
+    document.getElementById('scrGlobalUp').classList.add('active');
+    document.querySelectorAll('.nav-item')[0].classList.add('active');
   } else if (id === 'scouting') {
     document.getElementById('scrScouting').classList.add('active');
     document.querySelectorAll('.nav-item')[0].classList.add('active');
@@ -1614,10 +1896,11 @@ function buildZoneDetail() {
   });
   h += '</tbody></table>';
 
-  var upKeys = ['production','speed','cargo','harvest','extraCaravan'];
+  var upKeys = ['production','speed','cargo','harvest','extraCaravan','sellValue','storage','luckyFind'];
   upKeys.forEach(function(key){
     var up = zone.upgrades[key];
-    var costClass = (key === 'harvest' || key === 'extraCaravan') ? 'zd-up-cost gold-border' : 'zd-up-cost';
+    var isSpecial = key === 'harvest' || key === 'extraCaravan' || key === 'sellValue' || key === 'storage' || key === 'luckyFind';
+    var costClass = isSpecial ? 'zd-up-cost gold-border' : 'zd-up-cost';
     h += '<div class="zd-upgrade" id="zd-up-' + key + '" onclick="buyUpgrade(\'' + zone.id + '\',\'' + key + '\')">';
     h += '<div class="zd-up-info"><div class="zd-up-name">' + up.icon + ' ' + up.label + '</div>';
     h += '<div class="zd-up-stat" id="zd-upstat-' + key + '"></div></div>';
@@ -1658,7 +1941,7 @@ function renderZoneDetail() {
     setText(document.getElementById('zd-bazaar-' + r.id), String(Math.floor(G.bazaar[r.id] || 0)));
   });
 
-  var upKeys = ['production','speed','cargo','harvest','extraCaravan'];
+  var upKeys = ['production','speed','cargo','harvest','extraCaravan','sellValue','storage','luckyFind'];
   upKeys.forEach(function(key){
     var up = zone.upgrades[key];
     var lvl = zs.upgrades[key];
@@ -1672,6 +1955,9 @@ function renderZoneDetail() {
     else if (key === 'cargo') statText = 'Lv.' + lvl + ' \u2022 +' + (lvl * up.perLvl) + ' units';
     else if (key === 'harvest') statText = 'Lv.' + lvl + '/' + (up.max||25) + ' \u2022 ' + lvl + '% chance';
     else if (key === 'extraCaravan') statText = 'Lv.' + lvl + '/' + (up.max||4) + ' \u2022 ' + (1 + lvl) + ' caravans';
+    else if (key === 'sellValue') statText = 'Lv.' + lvl + ' \u2022 +' + (lvl * 5) + '% sell price';
+    else if (key === 'storage') statText = 'Lv.' + lvl + ' \u2022 cap ' + (100 + lvl * 50);
+    else if (key === 'luckyFind') statText = 'Lv.' + lvl + '/' + (up.max||10) + ' \u2022 ' + (lvl * 0.5).toFixed(1) + '% chance';
 
     setText(document.getElementById('zd-upstat-' + key), statText);
     var costEl = document.getElementById('zd-upcost-' + key);
@@ -1683,7 +1969,8 @@ function renderZoneDetail() {
       costEl.className = 'zd-up-cost maxed';
     } else {
       upEl.className = canAfford ? 'zd-upgrade' : 'zd-upgrade cant-afford';
-      costEl.className = (key === 'harvest' || key === 'extraCaravan') ? 'zd-up-cost gold-border' : 'zd-up-cost';
+      var isSpec = key === 'harvest' || key === 'extraCaravan' || key === 'sellValue' || key === 'storage' || key === 'luckyFind';
+      costEl.className = isSpec ? 'zd-up-cost gold-border' : 'zd-up-cost';
     }
   });
 }
@@ -1900,7 +2187,7 @@ function renderCraft() {
   CRAFT_RECIPES.forEach(function(recipe) {
     // Skip locked recipes
     if (recipe.locked) {
-      rh += '<div class="cr-recipe" style="opacity:0.2;cursor:default;"><div class="cr-recipe-top"><div><div class="cr-recipe-name">🔒 ' + recipe.name + '</div><div class="cr-recipe-price" style="color:var(--txt-dm);">Coming soon</div></div><div class="cr-recipe-time">⏱ ' + recipe.time + 's</div></div></div>';
+      rh += '<div class="cr-recipe" style="opacity:0.15;cursor:default;"><div class="cr-recipe-top"><div><div class="cr-recipe-name">🔒 ' + recipe.name + '</div><div class="cr-recipe-price" style="color:var(--txt-dm);">Coming soon</div></div><div class="cr-recipe-time">⏱ ' + recipe.time + 's</div></div></div>';
       return;
     }
 
@@ -1912,7 +2199,9 @@ function renderCraft() {
     var autoSlotIdx = -1;
     G.craftSlots.forEach(function(sl, si){ if (sl.auto && sl.autoRecipe === recipe.id) autoSlotIdx = si; });
 
-    rh += '<div class="cr-recipe' + (affordable ? '' : ' cant-afford') + '">';
+    rh += '<div class="cr-recipe' + (affordable ? ' craftable' : ' cant-afford') + '">';
+
+    // Header: name + time
     rh += '<div class="cr-recipe-top">';
     rh += '<div><div class="cr-recipe-name">' + recipe.icon + ' ' + recipe.name + '</div>';
     if (recipe.type === 'map') {
@@ -1924,16 +2213,35 @@ function renderCraft() {
     rh += '<div class="cr-recipe-time">⏱ ' + recipe.time + 's</div>';
     rh += '</div>';
 
-    rh += '<div class="cr-recipe-cost">';
-    Object.keys(recipe.cost).forEach(function(rid, i) {
-      var have = getCraftResource(rid);
+    // Sub label
+    rh += '<div class="cr-recipe-sub">Requires:</div>';
+
+    // Ingredients — each on its own row with progress bar
+    var costKeys = Object.keys(recipe.cost);
+    costKeys.forEach(function(rid) {
+      var info = getResourceInfo(rid);
+      var have = Math.floor(getCraftResource(rid));
       var need = recipe.cost[rid];
-      var color = have >= need ? 'color:var(--green)' : 'color:var(--red)';
-      if (i > 0) rh += ' + ';
-      rh += '<span style="' + color + '">' + need + ' ' + rid + ' (' + Math.floor(have) + ')</span>';
+      var pct = Math.min(100, (have / need) * 100);
+      var barClass = have >= need ? 'enough' : have > 0 ? 'partial' : 'none';
+      var qtyClass = have >= need ? 'has-enough' : 'not-enough';
+
+      rh += '<div class="cr-ing">';
+      rh += '<div class="cr-ing-icon">' + info.icon + '</div>';
+      rh += '<div class="cr-ing-name">' + info.name + '</div>';
+      rh += '<div class="cr-ing-bar-wrap"><div class="cr-ing-bar ' + barClass + '" style="width:' + pct.toFixed(0) + '%"></div></div>';
+      rh += '<div class="cr-ing-qty ' + qtyClass + '">' + have + ' / ' + need + '</div>';
+      rh += '</div>';
     });
+
+    // Result preview
+    var owned = G.craftInventory[recipe.id] || 0;
+    rh += '<div class="cr-recipe-result">';
+    rh += '<span class="result-arrow">→</span> ' + recipe.icon + ' ' + recipe.name;
+    if (owned > 0) rh += ' <span style="color:var(--txt-dm);">(have ' + owned + ')</span>';
     rh += '</div>';
 
+    // Buttons
     rh += '<div class="cr-recipe-actions">';
     rh += '<button class="cr-btn cr-btn-craft" onclick="startCraft(' + (freeSlot >= 0 ? freeSlot : 0) + ',\'' + recipe.id + '\')"' + (canStart ? '' : ' disabled') + '>Craft 1</button>';
     rh += '<button class="cr-btn cr-btn-auto' + (autoOn ? ' on' : '') + '" onclick="toggleAutoCraft(' + (autoSlotIdx >= 0 ? autoSlotIdx : (freeSlot >= 0 ? freeSlot : 0)) + ',\'' + recipe.id + '\')">' + (autoOn ? '⏹ Stop Auto' : '🔄 Auto-Craft') + '</button>';
@@ -1979,24 +2287,147 @@ function renderPrestShop() {
 /* ============================================================
    MAP SETUP (once)
    ============================================================ */
-var hubX = 50, hubY = 38;
-var caravanEls = {}; // zoneId -> [dom elements]
+var hubX = 50, hubY = 40;
+var CANVAS_SIZE = 1600;
+var caravanEls = {};
 var MAX_VISUAL_CARAVANS = 5;
 
+/* ---- Map pan/zoom state ---- */
+var mapState = { x: 0, y: 0, zoom: 0.3, minZoom: 0.2, maxZoom: 1.0 };
+var mapDrag = { active: false, startX: 0, startY: 0, startMapX: 0, startMapY: 0 };
+var mapPinch = { active: false, startDist: 0, startZoom: 0 };
+
+function applyMapTransform() {
+  var canvas = document.getElementById('mapCanvas');
+  if (!canvas) return;
+  canvas.style.transform = 'translate(' + mapState.x + 'px,' + mapState.y + 'px) scale(' + mapState.zoom + ')';
+}
+
+function centerMap() {
+  var vp = document.getElementById('mapViewport');
+  if (!vp) return;
+  var vpW = vp.clientWidth, vpH = vp.clientHeight;
+  // Center on Grand Bazaar (hubX%, hubY% of canvas)
+  var hubPxX = hubX / 100 * CANVAS_SIZE;
+  var hubPxY = hubY / 100 * CANVAS_SIZE;
+  mapState.x = vpW / 2 - hubPxX * mapState.zoom;
+  mapState.y = vpH / 2 - hubPxY * mapState.zoom;
+  applyMapTransform();
+}
+
+function zoomMap(dir) {
+  var vp = document.getElementById('mapViewport');
+  var vpW = vp.clientWidth, vpH = vp.clientHeight;
+  // Zoom toward center of viewport
+  var cx = vpW / 2, cy = vpH / 2;
+  var worldX = (cx - mapState.x) / mapState.zoom;
+  var worldY = (cy - mapState.y) / mapState.zoom;
+
+  mapState.zoom *= dir > 0 ? 1.3 : 0.77;
+  mapState.zoom = Math.max(mapState.minZoom, Math.min(mapState.maxZoom, mapState.zoom));
+
+  mapState.x = cx - worldX * mapState.zoom;
+  mapState.y = cy - worldY * mapState.zoom;
+  applyMapTransform();
+}
+
+function initMapControls() {
+  var vp = document.getElementById('mapViewport');
+
+  // Mouse drag
+  vp.addEventListener('mousedown', function(e) {
+    if (e.target.closest('.map-zone, .map-hub, .map-center-btn, .map-zoom-btn')) return;
+    mapDrag.active = true;
+    mapDrag.startX = e.clientX; mapDrag.startY = e.clientY;
+    mapDrag.startMapX = mapState.x; mapDrag.startMapY = mapState.y;
+  });
+  window.addEventListener('mousemove', function(e) {
+    if (!mapDrag.active) return;
+    mapState.x = mapDrag.startMapX + (e.clientX - mapDrag.startX);
+    mapState.y = mapDrag.startMapY + (e.clientY - mapDrag.startY);
+    applyMapTransform();
+  });
+  window.addEventListener('mouseup', function() { mapDrag.active = false; });
+
+  // Mouse wheel zoom
+  vp.addEventListener('wheel', function(e) {
+    e.preventDefault();
+    var rect = vp.getBoundingClientRect();
+    var cx = e.clientX - rect.left, cy = e.clientY - rect.top;
+    var worldX = (cx - mapState.x) / mapState.zoom;
+    var worldY = (cy - mapState.y) / mapState.zoom;
+
+    mapState.zoom *= e.deltaY < 0 ? 1.15 : 0.87;
+    mapState.zoom = Math.max(mapState.minZoom, Math.min(mapState.maxZoom, mapState.zoom));
+
+    mapState.x = cx - worldX * mapState.zoom;
+    mapState.y = cy - worldY * mapState.zoom;
+    applyMapTransform();
+  }, { passive: false });
+
+  // Touch drag + pinch
+  var touches = {};
+  vp.addEventListener('touchstart', function(e) {
+    if (e.target.closest('.map-zone, .map-hub, .map-center-btn, .map-zoom-btn')) return;
+    for (var i = 0; i < e.changedTouches.length; i++) {
+      touches[e.changedTouches[i].identifier] = { x: e.changedTouches[i].clientX, y: e.changedTouches[i].clientY };
+    }
+    var ids = Object.keys(touches);
+    if (ids.length === 1) {
+      mapDrag.active = true;
+      mapDrag.startX = touches[ids[0]].x; mapDrag.startY = touches[ids[0]].y;
+      mapDrag.startMapX = mapState.x; mapDrag.startMapY = mapState.y;
+    } else if (ids.length >= 2) {
+      mapDrag.active = false;
+      var t0 = touches[ids[0]], t1 = touches[ids[1]];
+      mapPinch.startDist = Math.hypot(t1.x - t0.x, t1.y - t0.y);
+      mapPinch.startZoom = mapState.zoom;
+      mapPinch.active = true;
+    }
+  }, { passive: false });
+
+  vp.addEventListener('touchmove', function(e) {
+    e.preventDefault();
+    for (var i = 0; i < e.changedTouches.length; i++) {
+      touches[e.changedTouches[i].identifier] = { x: e.changedTouches[i].clientX, y: e.changedTouches[i].clientY };
+    }
+    var ids = Object.keys(touches);
+    if (mapPinch.active && ids.length >= 2) {
+      var t0 = touches[ids[0]], t1 = touches[ids[1]];
+      var dist = Math.hypot(t1.x - t0.x, t1.y - t0.y);
+      mapState.zoom = mapPinch.startZoom * (dist / mapPinch.startDist);
+      mapState.zoom = Math.max(mapState.minZoom, Math.min(mapState.maxZoom, mapState.zoom));
+      applyMapTransform();
+    } else if (mapDrag.active && ids.length === 1) {
+      mapState.x = mapDrag.startMapX + (touches[ids[0]].x - mapDrag.startX);
+      mapState.y = mapDrag.startMapY + (touches[ids[0]].y - mapDrag.startY);
+      applyMapTransform();
+    }
+  }, { passive: false });
+
+  vp.addEventListener('touchend', function(e) {
+    for (var i = 0; i < e.changedTouches.length; i++) {
+      delete touches[e.changedTouches[i].identifier];
+    }
+    if (Object.keys(touches).length < 2) mapPinch.active = false;
+    if (Object.keys(touches).length === 0) mapDrag.active = false;
+  });
+}
+
 function setupMap() {
-  var world = document.getElementById('mapWorld');
+  var canvas = document.getElementById('mapCanvas');
   var svg = document.getElementById('mapRoutes');
 
   ZONES.forEach(function(z){
     // Route
     var line = document.createElementNS('http://www.w3.org/2000/svg','line');
-    line.setAttribute('x1', z.x / 100 * 400);
-    line.setAttribute('y1', z.y / 100 * 440);
-    line.setAttribute('x2', hubX / 100 * 400);
-    line.setAttribute('y2', hubY / 100 * 440);
+    line.setAttribute('x1', z.x / 100 * CANVAS_SIZE);
+    line.setAttribute('y1', z.y / 100 * CANVAS_SIZE);
+    line.setAttribute('x2', hubX / 100 * CANVAS_SIZE);
+    line.setAttribute('y2', hubY / 100 * CANVAS_SIZE);
     line.setAttribute('stroke', 'rgba(212,168,67,0.15)');
-    line.setAttribute('stroke-width', '1.5');
-    line.setAttribute('stroke-dasharray', '4 4');
+    line.setAttribute('stroke-width', '2');
+    line.setAttribute('stroke-dasharray', '6 6');
     line.id = 'route-' + z.id;
     svg.appendChild(line);
 
@@ -2007,19 +2438,23 @@ function setupMap() {
     node.style.left = z.x + '%';
     node.style.top = z.y + '%';
     node.onclick = function(){ openZone(z.id); };
-    world.appendChild(node);
+    canvas.appendChild(node);
 
-    // Pre-create max caravan elements (hidden by default)
+    // Pre-create max caravan elements
     caravanEls[z.id] = [];
     for (var i = 0; i < MAX_VISUAL_CARAVANS; i++) {
       var cEl = document.createElement('div');
       cEl.className = 'caravan-dot';
       cEl.textContent = z.caravan;
       cEl.style.opacity = '0';
-      world.appendChild(cEl);
+      canvas.appendChild(cEl);
       caravanEls[z.id].push(cEl);
     }
   });
+
+  initMapControls();
+  // Center on load after a tick to let layout settle
+  setTimeout(centerMap, 50);
 }
 
 function updateMapNodes() {
@@ -2106,7 +2541,7 @@ function updateCaravans() {
 
 function spawnParticle(zone) {
   if (G.currentScreen !== 'map') return;
-  var world = document.getElementById('mapWorld');
+  var canvas = document.getElementById('mapCanvas');
   var icons = zone.resources.map(function(r){ return r.icon; });
   var icon = icons[Math.floor(Math.random() * icons.length)];
 
@@ -2114,9 +2549,9 @@ function spawnParticle(zone) {
   p.className = 'res-particle';
   p.textContent = icon;
   p.style.left = hubX + '%';
-  p.style.top = (hubY - 5) + '%';
+  p.style.top = (hubY - 3) + '%';
   p.style.transform = 'translate(-50%,-50%)';
-  world.appendChild(p);
+  canvas.appendChild(p);
   setTimeout(function(){ p.remove(); }, 2000);
 }
 
@@ -2127,12 +2562,13 @@ setupMap();
 updateMapNodes();
 
 // Production tick — 100ms (game logic only, no DOM)
-setInterval(function(){ tick(); tickCraft(); }, 100);
+setInterval(function(){ tick(); tickCraft(); tickAutoSell(); }, 100);
 
 // UI render — 250ms (values update, no DOM rebuild)
 setInterval(function(){
   renderHUD();
   if (G.currentScreen === 'map') { renderMap(); updateMapNodes(); }
+  else if (G.currentScreen === 'globalUp') { renderGlobalUp(); }
   else if (G.currentScreen === 'scouting') { renderScouting(); }
   else if (G.currentScreen === 'zone') { renderZoneDetail(); }
   else if (G.currentScreen === 'bazaar') { renderBazaar(); }
@@ -2164,6 +2600,7 @@ window.sellSelected = sellSelected;
 window.startCraft = startCraft;
 window.toggleAutoCraft = toggleAutoCraft;
 window.wipeSave = wipeSave;
+window.buyGlobalUpgrade = buyGlobalUpgrade;
 window.useScouting = useScouting;
 window.doPrestige = doPrestige;
 window.buyPrestigeUpgrade = buyPrestigeUpgrade;
