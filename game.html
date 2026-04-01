@@ -174,6 +174,16 @@
   .hud-prog-seals {
     font-size: 9px; color: var(--purple-lt); font-weight: 700; white-space: nowrap;
   }
+  .god-indicator {
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    font-size: 8px; font-weight: 800; color: var(--gold);
+    text-transform: uppercase; letter-spacing: 2px;
+    background: rgba(212,168,67,0.1); padding: 1px 12px; border-radius: 0 0 8px 8px;
+    border: 1px solid rgba(212,168,67,0.2); border-top: none;
+    animation: godPulse 1s ease-in-out infinite;
+    z-index: 20;
+  }
+  @keyframes godPulse { 0%,100% { opacity: 0.7; } 50% { opacity: 1; } }
 
   /* ===== SCREENS ===== */
   .screen {
@@ -913,6 +923,14 @@
 
     <div style="text-align:center;margin-top:16px;padding-top:12px;border-top:1px solid var(--border);">
       <button style="background:none;border:1px solid var(--border);border-radius:6px;padding:6px 16px;font-size:10px;color:var(--txt-dm);cursor:pointer;font-family:inherit;" onclick="if(confirm('Delete ALL progress? This cannot be undone!'))wipeSave()">🗑️ Wipe Save</button>
+      <button id="godModeBtn" style="background:none;border:1px solid var(--border);border-radius:6px;padding:6px 16px;font-size:10px;color:var(--txt-dm);cursor:pointer;font-family:inherit;margin-left:6px;" onclick="toggleGodMode()">⚡ God Mode</button>
+    </div>
+    <div id="godPanel" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;">
+      <button style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:10px;color:var(--gold);cursor:pointer;font-family:inherit;" onclick="godGiveCrowns()">+100K 🪙</button>
+      <button style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:10px;color:var(--purple-lt);cursor:pointer;font-family:inherit;" onclick="godGiveSeals()">+50 🎖️</button>
+      <button style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:10px;color:var(--teal);cursor:pointer;font-family:inherit;" onclick="godGiveResources()">+Resources</button>
+      <button style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:10px;color:var(--txt);cursor:pointer;font-family:inherit;" onclick="godDiscoverAll()">🧭 Discover All</button>
+      <button style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:10px;color:var(--green);cursor:pointer;font-family:inherit;" onclick="godUnlockAll()">🔓 Unlock All</button>
     </div>
 
     <button class="pr-shop-btn" onclick="showScreen('prestShop')" style="margin-top:14px;">
@@ -1085,6 +1103,11 @@ var CRAFT_RECIPES = [
   { id:'scrolls',    name:'Scrolls',      icon:'📖',  time:25,  sellPrice:65,  cost:{ papyrus:8, tools:2 } },
   { id:'spicedWine', name:'Spiced Wine',  icon:'🍷',  time:22,  sellPrice:75,  cost:{ wine:5, spices:3 } },
   { id:'warGear',    name:'War Gear',     icon:'🛡️',  time:35,  sellPrice:120, cost:{ weapons:3, steelBar:5 } },
+  // Tier 3 crafts (require tier 2 crafted items)
+  { id:'luxuryGoods', name:'Luxury Goods', icon:'💎', time:45, sellPrice:200, cost:{ spicedWine:3, scrolls:2, olivePress:3 } },
+  { id:'tradeContract', name:'Trade Contract', icon:'📋', time:40, sellPrice:180, cost:{ scrolls:3, tools:5 } },
+  { id:'royalArmor', name:'Royal Armor',   icon:'👑', time:50, sellPrice:280, cost:{ warGear:3, steelBar:8, olivePress:2 } },
+  { id:'merchantFleet', name:'Merchant Fleet', icon:'🚢', time:60, sellPrice:350, cost:{ tradeContract:2, luxuryGoods:2, planks:20 } },
 ];
 
 var MAX_CRAFT_SLOTS = 3;
@@ -1119,6 +1142,11 @@ var PRESTIGE_UPGRADES = [
   { id:'zoneRush',      name:'Zone Rush',             effect:'-30% zone unlock costs',     desc:'Reach later zones faster', cost:5 },
   { id:'legacyTrader',  name:'Legacy Trader',         effect:'+1 bonus Seal per prestige', desc:'Accelerates future gains', cost:8 },
   { id:'grandMerchant', name:'Grand Merchant',        effect:'Start with 3 zones unlocked', desc:'Begin at Mină', cost:10 },
+  { id:'masterCrafter', name:'Master Crafter',        effect:'-25% all craft times',       desc:'Stacks with Craft Speed', cost:6 },
+  { id:'caravanMaster', name:'Caravan Master',         effect:'+1 starting caravan per zone', desc:'All zones begin with 2 caravans', cost:7 },
+  { id:'fortuneSeeker', name:'Fortune Seeker',         effect:'2x Lucky Find chance',       desc:'Double rare resource drops', cost:4 },
+  { id:'diplomaticImmunity', name:'Diplomatic Immunity', effect:'-50% zone diplomacy costs', desc:'Discover zones cost less', cost:8 },
+  { id:'ancientKnowledge', name:'Ancient Knowledge',   effect:'Start with Map Lv1 crafted', desc:'Skip early scouting grind', cost:12 },
 ];
 
 /* ============================================================
@@ -1142,7 +1170,8 @@ function createFreshState() {
     sellPercent: 100,
     craftSlots: [{ recipeId:null, progress:0, timeLeft:0, auto:false }],
     craftInventory: {},
-    globalUpgrades: {}
+    globalUpgrades: {},
+    godMode: false
   };
   GLOBAL_UPGRADES.forEach(function(u){ state.globalUpgrades[u.id] = 0; });
   ZONES.forEach(function(z){
@@ -1196,6 +1225,15 @@ function resetForPrestige() {
   if (G.ownedPrestige.startCrowns) { G.crowns = 1000; }
   if (G.ownedPrestige.quickStart) { G.zones.farm.state = 'unlocked'; }
   if (G.ownedPrestige.grandMerchant) { G.zones.farm.state = 'unlocked'; G.zones.mine.state = 'unlocked'; }
+  if (G.ownedPrestige.ancientKnowledge) { G.craftInventory.mapLv1 = (G.craftInventory.mapLv1||0) + 1; }
+  if (G.ownedPrestige.caravanMaster) {
+    ZONES.forEach(function(z){
+      var zs = G.zones[z.id];
+      if (zs.state === 'unlocked') {
+        zs.caravans.push({ progress:0.5, phase:'returning', cargo:{} });
+      }
+    });
+  }
 }
 
 /* ============================================================
@@ -1319,6 +1357,7 @@ function getSellMultiplier(zone) {
 function getZoneUnlockCost(zone) {
   var cost = zone.cost;
   if (G.ownedPrestige.zoneRush) cost = Math.floor(cost * 0.7);
+  if (G.ownedPrestige.diplomaticImmunity) cost = Math.floor(cost * 0.5);
   return cost;
 }
 
@@ -1352,11 +1391,15 @@ function getBanditLoss() {
 
 function getLuckyFindChance(zone) {
   var zs = G.zones[zone.id];
-  return Math.min((zs.upgrades.luckyFind || 0) * 0.5, 5) / 100;
+  var chance = Math.min((zs.upgrades.luckyFind || 0) * 0.5, 5) / 100;
+  if (G.ownedPrestige.fortuneSeeker) chance *= 2;
+  return chance;
 }
 
 function getCraftTimeMultiplier() {
-  return 1 - (G.globalUpgrades.craftSpeed || 0) * 0.10;
+  var m = 1 - (G.globalUpgrades.craftSpeed || 0) * 0.10;
+  if (G.ownedPrestige.masterCrafter) m *= 0.75;
+  return Math.max(0.1, m);
 }
 
 function getActiveCraftSlots() {
@@ -2014,6 +2057,18 @@ function renderHUD() {
   setText($hudCrowns, formatNum(G.crowns));
   setText($hudSeals, String(G.legacySeals));
 
+  // God mode indicator
+  var godInd = document.getElementById('godIndicator');
+  if (G.godMode && !godInd) {
+    godInd = document.createElement('div');
+    godInd.className = 'god-indicator';
+    godInd.id = 'godIndicator';
+    godInd.textContent = '⚡ GOD MODE ⚡';
+    document.querySelector('.phone').appendChild(godInd);
+  } else if (!G.godMode && godInd) {
+    godInd.remove();
+  }
+
   // Progress bar toward next milestone
   var next = getNextMilestone();
   var highest = getHighestMilestone();
@@ -2658,9 +2713,12 @@ function updateMapNodes() {
   });
 }
 
-var lastCaravanPhases = {}; // zoneId -> [phases]
+var lastCaravanPhases = {};
+var caravanVisual = {}; // smooth interpolated positions
 
 function updateCaravans() {
+  var lerp = 0.18; // interpolation speed (higher = snappier)
+
   ZONES.forEach(function(z){
     var els = caravanEls[z.id];
     var zs = G.zones[z.id];
@@ -2670,41 +2728,58 @@ function updateCaravans() {
       return;
     }
 
-    // Track phase changes for particles
     if (!lastCaravanPhases[z.id]) lastCaravanPhases[z.id] = [];
+    if (!caravanVisual[z.id]) caravanVisual[z.id] = [];
 
     zs.caravans.forEach(function(gc, i) {
       var el = els[i];
       if (!el) return;
 
-      // Spawn particle when caravan arrives at hub
+      // Spawn particle when caravan arrives
       if (lastCaravanPhases[z.id][i] === 'toHub' && gc.phase === 'returning') {
         spawnParticle(z);
       }
       lastCaravanPhases[z.id][i] = gc.phase;
 
-      var t, opacity;
+      // Target position from game state
+      var targetT, targetOpacity;
       if (gc.phase === 'loading') {
-        t = 0; opacity = '0.3';
+        targetT = 0; targetOpacity = 0.25;
       } else if (gc.phase === 'toHub') {
-        t = gc.progress; opacity = '1';
+        targetT = gc.progress; targetOpacity = 1;
       } else {
-        t = gc.progress; opacity = '0.4';
+        targetT = gc.progress; targetOpacity = 0.35;
       }
 
-      var x = z.x + (hubX - z.x) * t;
-      var y = z.y + (hubY - z.y) * t;
+      // Initialize or interpolate visual position
+      if (!caravanVisual[z.id][i]) {
+        caravanVisual[z.id][i] = { t: targetT, opacity: targetOpacity };
+      }
+      var cv = caravanVisual[z.id][i];
+
+      // Phase change = snap (don't interpolate across phase boundaries)
+      if (gc.phase === 'loading' && cv.t > 0.05) {
+        cv.t = 0;
+      } else {
+        cv.t += (targetT - cv.t) * lerp;
+      }
+      cv.opacity += (targetOpacity - cv.opacity) * lerp;
+
+      var x = z.x + (hubX - z.x) * cv.t;
+      var y = z.y + (hubY - z.y) * cv.t;
+
+      el.style.transform = 'translate(-50%,-50%) translate(' + (x * 16) + 'px,' + (y * 16) + 'px)';
+      el.style.left = '0';
+      el.style.top = '0';
+      // Actually use percentages for proper scaling
       el.style.left = x + '%';
       el.style.top = y + '%';
       el.style.transform = 'translate(-50%,-50%)';
-      el.style.opacity = opacity;
-      el.classList.add('active');
+      el.style.opacity = cv.opacity.toFixed(2);
     });
 
-    // Hide unused caravan elements
     for (var j = zs.caravans.length; j < els.length; j++) {
       els[j].style.opacity = '0';
-      els[j].classList.remove('active');
     }
   });
 }
@@ -2732,7 +2807,10 @@ setupMap();
 updateMapNodes();
 
 // Production tick — 100ms (game logic only, no DOM)
-setInterval(function(){ tick(); tickCraft(); tickAutoSell(); }, 100);
+setInterval(function(){
+  var loops = G.godMode ? 10 : 1;
+  for (var i = 0; i < loops; i++) { tick(); tickCraft(); tickAutoSell(); }
+}, 100);
 
 // UI render — 250ms (values update, no DOM rebuild)
 setInterval(function(){
@@ -2758,6 +2836,36 @@ setInterval(saveGame, 5000);
 
 // Save on page close/refresh
 window.addEventListener('beforeunload', saveGame);
+
+// God Mode
+function toggleGodMode() {
+  G.godMode = !G.godMode;
+  document.getElementById('godModeBtn').textContent = G.godMode ? '⚡ GOD MODE ON' : '⚡ God Mode';
+  document.getElementById('godModeBtn').style.borderColor = G.godMode ? 'var(--gold)' : 'var(--border)';
+  document.getElementById('godModeBtn').style.color = G.godMode ? 'var(--gold)' : 'var(--txt-dm)';
+  if (G.godMode) showFlash('⚡ GOD MODE');
+}
+function godGiveCrowns() { G.crowns += 100000; G.totalCrownsEarned += 100000; showFlash('+100K 🪙'); }
+function godGiveSeals() { G.legacySeals += 50; showFlash('+50 🎖️'); }
+function godGiveResources() {
+  ZONES.forEach(function(z){ z.resources.forEach(function(r){ G.bazaar[r.id] = (G.bazaar[r.id]||0) + 500; }); });
+  CRAFT_RECIPES.forEach(function(r){ if (!r.locked) G.craftInventory[r.id] = (G.craftInventory[r.id]||0) + 20; });
+  showFlash('+500 all resources');
+}
+function godDiscoverAll() {
+  ZONES.forEach(function(z){ if (G.zones[z.id].state === 'hidden') G.zones[z.id].state = 'discovered'; });
+  showFlash('🧭 All zones discovered');
+}
+function godUnlockAll() {
+  ZONES.forEach(function(z){ G.zones[z.id].state = 'unlocked'; });
+  showFlash('🔓 All zones unlocked');
+}
+window.toggleGodMode = toggleGodMode;
+window.godGiveCrowns = godGiveCrowns;
+window.godGiveSeals = godGiveSeals;
+window.godGiveResources = godGiveResources;
+window.godDiscoverAll = godDiscoverAll;
+window.godUnlockAll = godUnlockAll;
 
 // Theme toggle
 function toggleTheme() {
