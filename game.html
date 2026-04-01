@@ -812,6 +812,50 @@
     color: var(--txt-dm); margin-bottom: 10px; padding-left: 2px;
     font-weight: 600;
   }
+
+  /* ===== COLLAPSIBLE SECTIONS ===== */
+  .collapse-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 12px; margin-bottom: 6px;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r);
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+    transition: border-color 0.15s;
+  }
+  .collapse-header:active { border-color: var(--txt-dm); }
+  .collapse-title {
+    font-size: 12px; font-weight: 700; color: var(--txt-br);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .collapse-count { font-size: 10px; color: var(--txt-dm); font-weight: 500; }
+  .collapse-arrow {
+    font-size: 12px; color: var(--txt-dm);
+    transition: transform 0.2s;
+  }
+  .collapse-arrow.open { transform: rotate(180deg); }
+  .collapse-body {
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  .collapse-body.open { max-height: 9999px; }
+
+  /* ===== MINI TABS ===== */
+  .mini-tabs {
+    display: flex; gap: 4px; margin-bottom: 10px;
+    overflow-x: auto; flex-shrink: 0;
+    padding-bottom: 2px;
+  }
+  .mini-tabs::-webkit-scrollbar { height: 0; }
+  .mini-tab {
+    padding: 6px 14px; font-size: 11px; font-weight: 600;
+    color: var(--txt-dm); background: var(--bg-card);
+    border: 1px solid var(--border); border-radius: 20px;
+    cursor: pointer; white-space: nowrap;
+    font-family: inherit; -webkit-tap-highlight-color: transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .mini-tab.active { color: var(--gold); border-color: var(--border-gold); }
+  .mini-tab-content { display: none; }
+  .mini-tab-content.active { display: block; }
 </style>
 </head>
 <body>
@@ -903,7 +947,11 @@
         ontouchstart="startLongPress()" ontouchend="endLongPress()" ontouchcancel="endLongPress()"
         onclick="if(!longPressTriggered)sellAll()">💰</button>
     </div>
-    <div class="section-label">Tap a resource to sell</div>
+    <div class="mini-tabs" id="bzTabs">
+      <button class="mini-tab active" onclick="switchBzTab('raw')">Raw</button>
+      <button class="mini-tab" onclick="switchBzTab('crafted')">Crafted</button>
+      <button class="mini-tab" onclick="switchBzTab('all')">All</button>
+    </div>
     <div id="bzResources"></div>
   </div>
 
@@ -911,10 +959,16 @@
   <div class="screen" id="scrCraft">
     <div class="section-label">Craft Slots</div>
     <div id="crSlots"></div>
-    <div class="section-label" style="margin-top:14px;">Recipes</div>
-    <div id="crRecipes"></div>
-    <div class="section-label" style="margin-top:14px;">Crafted Inventory</div>
-    <div class="cr-inventory" id="crInventory"></div>
+    <div class="mini-tabs" id="crTabs" style="margin-top:12px;">
+      <button class="mini-tab active" onclick="switchCrTab('recipes')">Recipes</button>
+      <button class="mini-tab" onclick="switchCrTab('inventory')">Inventory</button>
+    </div>
+    <div id="crRecipesWrap">
+      <div id="crRecipes"></div>
+    </div>
+    <div id="crInventoryWrap" style="display:none;">
+      <div class="cr-inventory" id="crInventory"></div>
+    </div>
   </div>
 
   <!-- PRESTIGE: Milestones -->
@@ -2318,17 +2372,32 @@ function buildZoneDetail() {
   });
   h += '</tbody></table>';
 
-  var upKeys = ['production','speed','cargo','harvest','extraCaravan','sellValue','storage','luckyFind'];
-  upKeys.forEach(function(key){
+  // Core upgrades (always visible)
+  h += '<div class="section-label" style="margin-top:12px;">Core Upgrades</div>';
+  ['production','speed','cargo'].forEach(function(key){
     var up = zone.upgrades[key];
-    var isSpecial = key === 'harvest' || key === 'extraCaravan' || key === 'sellValue' || key === 'storage' || key === 'luckyFind';
-    var costClass = isSpecial ? 'zd-up-cost gold-border' : 'zd-up-cost';
     h += '<div class="zd-upgrade" id="zd-up-' + key + '" onclick="buyUpgrade(\'' + zone.id + '\',\'' + key + '\')">';
     h += '<div class="zd-up-info"><div class="zd-up-name">' + up.icon + ' ' + up.label + '</div>';
     h += '<div class="zd-up-stat" id="zd-upstat-' + key + '"></div></div>';
-    h += '<div class="' + costClass + '" id="zd-upcost-' + key + '"></div>';
+    h += '<div class="zd-up-cost" id="zd-upcost-' + key + '"></div>';
     h += '</div>';
   });
+
+  // Special upgrades (collapsible)
+  h += '<div class="collapse-header" onclick="toggleCollapse(\'zdSpecial\')">';
+  h += '<div class="collapse-title">✨ Special Upgrades <span class="collapse-count">(5)</span></div>';
+  h += '<div class="collapse-arrow" id="zdSpecialArrow">▼</div>';
+  h += '</div>';
+  h += '<div class="collapse-body" id="zdSpecial">';
+  ['harvest','extraCaravan','sellValue','storage','luckyFind'].forEach(function(key){
+    var up = zone.upgrades[key];
+    h += '<div class="zd-upgrade" id="zd-up-' + key + '" onclick="buyUpgrade(\'' + zone.id + '\',\'' + key + '\')">';
+    h += '<div class="zd-up-info"><div class="zd-up-name">' + up.icon + ' ' + up.label + '</div>';
+    h += '<div class="zd-up-stat" id="zd-upstat-' + key + '"></div></div>';
+    h += '<div class="zd-up-cost gold-border" id="zd-upcost-' + key + '"></div>';
+    h += '</div>';
+  });
+  h += '</div>';
 
   $zoneDetail.innerHTML = h;
 }
@@ -2408,6 +2477,9 @@ function buildBazaar() {
 
   Object.keys(resData).forEach(function(rid){
     var r = resData[rid];
+    // Filter by tab
+    if (bzTabFilter === 'raw' && r.crafted) return;
+    if (bzTabFilter === 'crafted' && !r.crafted) return;
     h += '<div class="bz-res-card" id="bzcard-' + rid + '" onclick="selectResource(\'' + rid + '\')">';
     h += '<div class="bz-res-top">';
     h += '<div class="bz-res-info"><span class="bz-res-icon">' + r.icon + '</span><div><div class="bz-res-name">' + r.name + '</div><div class="bz-res-qty" id="bzqty-' + rid + '"></div></div></div>';
@@ -2606,7 +2678,24 @@ function renderCraft() {
     if (!G.craftSlots[s].recipeId) { freeSlot = s; break; }
   }
 
-  CRAFT_RECIPES.forEach(function(recipe) {
+  var craftTiers = [
+    { name:'⚒️ Basic', ids:['planks','bricks','tools','provisions','scoutKit','steelBar'] },
+    { name:'🗺️ Maps', ids:['mapLv1','mapLv2','mapLv3','mapLv4'] },
+    { name:'🏺 Advanced', ids:['olivePress','scrolls','spicedWine','warGear'] },
+    { name:'💎 Premium', ids:['luxuryGoods','tradeContract','royalArmor','merchantFleet'] },
+    { name:'🐉 Exotic', ids:['silkRobe','crystalLens','ivoryStatue','spicedTea','fineCloth','dragonAmulet','imperialCrown'] }
+  ];
+
+  craftTiers.forEach(function(tier){
+    var recipes = tier.ids.map(function(id){ return CRAFT_RECIPES.find(function(r){ return r.id === id; }); }).filter(Boolean);
+    if (!recipes.length) return;
+    var tierId = 'crT' + tier.name.replace(/[^a-zA-Z]/g,'');
+    rh += '<div class="collapse-header" onclick="toggleCollapse(\'' + tierId + '\')">';
+    rh += '<div class="collapse-title">' + tier.name + ' <span class="collapse-count">(' + recipes.length + ')</span></div>';
+    rh += '<div class="collapse-arrow" id="' + tierId + 'Arrow">▼</div></div>';
+    rh += '<div class="collapse-body" id="' + tierId + '">';
+
+    recipes.forEach(function(recipe) {
     // Skip locked recipes
     if (recipe.locked) {
       rh += '<div class="cr-recipe" style="opacity:0.15;cursor:default;"><div class="cr-recipe-top"><div><div class="cr-recipe-name">🔒 ' + recipe.name + '</div><div class="cr-recipe-price" style="color:var(--txt-dm);">Coming soon</div></div><div class="cr-recipe-time">⏱ ' + recipe.time + 's</div></div></div>';
@@ -2669,7 +2758,9 @@ function renderCraft() {
     rh += '<button class="cr-btn cr-btn-auto' + (autoOn ? ' on' : '') + '" onclick="toggleAutoCraft(' + (autoSlotIdx >= 0 ? autoSlotIdx : (freeSlot >= 0 ? freeSlot : 0)) + ',\'' + recipe.id + '\')">' + (autoOn ? '⏹ Stop Auto' : '🔄 Auto-Craft') + '</button>';
     rh += '</div>';
     rh += '</div>';
-  });
+  }); // end recipes.forEach
+  rh += '</div>'; // close collapse-body
+  }); // end craftTiers.forEach
   document.getElementById('crRecipes').innerHTML = rh;
 
   // Inventory
@@ -3034,6 +3125,41 @@ setInterval(saveGame, 5000);
 
 // Save on page close/refresh
 window.addEventListener('beforeunload', saveGame);
+
+// Collapsible sections
+function toggleCollapse(id) {
+  var body = document.getElementById(id);
+  var arrow = document.getElementById(id + 'Arrow');
+  if (body.classList.contains('open')) {
+    body.classList.remove('open');
+    if (arrow) arrow.classList.remove('open');
+  } else {
+    body.classList.add('open');
+    if (arrow) arrow.classList.add('open');
+  }
+}
+window.toggleCollapse = toggleCollapse;
+
+// Bazaar tabs
+var bzTabFilter = 'raw';
+function switchBzTab(tab) {
+  bzTabFilter = tab;
+  bzBuiltSel = undefined; // force rebuild
+  document.querySelectorAll('#bzTabs .mini-tab').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelector('#bzTabs .mini-tab[onclick*="' + tab + '"]').classList.add('active');
+}
+window.switchBzTab = switchBzTab;
+
+// Craft tabs
+var crTab = 'recipes';
+function switchCrTab(tab) {
+  crTab = tab;
+  document.querySelectorAll('#crTabs .mini-tab').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelector('#crTabs .mini-tab[onclick*="' + tab + '"]').classList.add('active');
+  document.getElementById('crRecipesWrap').style.display = tab === 'recipes' ? '' : 'none';
+  document.getElementById('crInventoryWrap').style.display = tab === 'inventory' ? '' : 'none';
+}
+window.switchCrTab = switchCrTab;
 
 // Sell All FAB — tap = sell once, long press = toggle continuous auto-sell
 var longPressTimer = null;
