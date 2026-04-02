@@ -1782,13 +1782,13 @@ var PRESTIGE_UPGRADES = [
   { id:'startCrowns',   name:'Starting Crowns',      effect:'+1,000 starting Crowns',     desc:'Skip early grind', cost:1 },
   { id:'prodBoost',     name:'Production Boost',      effect:'+25% all production',        desc:'Flat multiplier all zones', cost:2 },
   { id:'betterPrices',  name:'Better Prices',         effect:'+15% all sell prices',       desc:'Permanent sell bonus', cost:2 },
-  { id:'quickStart',    name:'Quick Start',           effect:'Start with Fermă unlocked',  desc:'Begin with 2 zones', cost:3 },
+  { id:'quickStart',    name:'Quick Start',           effect:'Start with Sunfield unlocked',  desc:'Begin with 2 zones', cost:3 },
   { id:'offlineBoost',  name:'Offline Boost',         effect:'2x offline earnings',        desc:'Double idle gains', cost:3 },
   { id:'autoSellPerm',  name:'Auto-Sell Permanent',   effect:'Auto-sell persists on reset', desc:'Never re-buy auto-sell', cost:4 },
   { id:'crownMagnet',   name:'Crown Magnet',          effect:'+50% Crowns from sales',     desc:'Major income boost', cost:5 },
   { id:'zoneRush',      name:'Zone Rush',             effect:'-30% zone unlock costs',     desc:'Reach later zones faster', cost:5 },
   { id:'legacyTrader',  name:'Legacy Trader',         effect:'+1 bonus Seal per prestige', desc:'Accelerates future gains', cost:8 },
-  { id:'grandMerchant', name:'Grand Merchant',        effect:'Start with 3 zones unlocked', desc:'Begin at Mină', cost:10 },
+  { id:'grandMerchant', name:'Grand Merchant',        effect:'Start with 4 starter zones', desc:'Begin at Stonehaven', cost:10 },
   { id:'masterCrafter', name:'Master Crafter',        effect:'-25% all craft times',       desc:'Stacks with Craft Speed', cost:6 },
   { id:'caravanMaster', name:'Caravan Master',         effect:'+1 starting caravan per zone', desc:'All zones begin with 2 caravans', cost:7 },
   { id:'fortuneSeeker', name:'Fortune Seeker',         effect:'2x Lucky Find chance',       desc:'Double rare resource drops', cost:4 },
@@ -1905,8 +1905,16 @@ function resetForPrestige() {
 
   // Apply prestige effects
   if (G.ownedPrestige.startCrowns) { G.crowns = 1000; }
-  if (G.ownedPrestige.quickStart) { G.zones.farm.state = 'unlocked'; }
-  if (G.ownedPrestige.grandMerchant) { G.zones.farm.state = 'unlocked'; G.zones.mine.state = 'unlocked'; }
+  if (G.ownedPrestige.quickStart) {
+    // Unlock second zone (Sunfield)
+    if (G.zones.sunfield) G.zones.sunfield.state = 'unlocked';
+  }
+  if (G.ownedPrestige.grandMerchant) {
+    // Unlock first 3 starter zones
+    if (G.zones.sunfield) G.zones.sunfield.state = 'unlocked';
+    if (G.zones.claymouth) G.zones.claymouth.state = 'unlocked';
+    if (G.zones.stonehaven) G.zones.stonehaven.state = 'unlocked';
+  }
   if (G.ownedPrestige.ancientKnowledge) { G.craftInventory.mapLv1 = (G.craftInventory.mapLv1||0) + 1; }
   if (G.ownedPrestige.caravanMaster) {
     ZONES.forEach(function(z){
@@ -2736,7 +2744,15 @@ function doPrestige() {
   bzBuiltSel = undefined;
   prBuilt = false;
   lastCaravanPhases = {};
-  zoneConnectionsDrawn = false; // #23 redraw connections
+  caravanVisual = {};
+  if (typeof zoneConnectionsDrawn !== 'undefined') zoneConnectionsDrawn = false;
+  if (typeof prevBazaarQtys !== 'undefined') prevBazaarQtys = {};
+  if (typeof trendDirection !== 'undefined') trendDirection = {};
+
+  // Reset continuous sell
+  continuousSell = false;
+  var fab = document.getElementById('sellAllFab');
+  if (fab) { fab.classList.remove('auto-on'); fab.textContent = '💰'; }
 
   // Clear bazaar selection
   G.selectedResource = null;
