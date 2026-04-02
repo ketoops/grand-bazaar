@@ -373,20 +373,36 @@
   /* ===== CARAVANS ON MAP ===== */
   .caravan-dot {
     position: absolute;
-    width: 26px; height: 26px;
-    font-size: 17px;
+    width: 32px; height: 32px;
+    font-size: 16px;
     z-index: 8;
     pointer-events: none;
-    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.7));
     display: flex; align-items: center; justify-content: center;
     opacity: 0;
     transition: opacity 0.3s;
   }
-  .caravan-dot.active {
-    animation: caravanPulse 2s ease-in-out infinite;
+  .caravan-bg {
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(20,16,32,0.8) 40%, rgba(20,16,32,0.3) 100%);
+    border: 1.5px solid rgba(218,180,74,0.2);
   }
-  @keyframes caravanPulse {
-    0%, 100% { opacity: 0.75; } 50% { opacity: 1; }
+  .caravan-emoji { position: relative; z-index: 1; }
+  .caravan-dot.traveling .caravan-bg {
+    border-color: rgba(218,180,74,0.5);
+    box-shadow: 0 0 10px rgba(218,180,74,0.3), 0 0 20px rgba(218,180,74,0.1);
+    animation: caravanGlow 1.5s ease-in-out infinite;
+  }
+  .caravan-dot.traveling .caravan-emoji {
+    filter: drop-shadow(0 0 4px rgba(218,180,74,0.4));
+  }
+  .caravan-dot.returning .caravan-bg {
+    border-color: rgba(255,255,255,0.08);
+    opacity: 0.5;
+  }
+  @keyframes caravanGlow {
+    0%, 100% { box-shadow: 0 0 8px rgba(218,180,74,0.25), 0 0 16px rgba(218,180,74,0.08); }
+    50% { box-shadow: 0 0 14px rgba(218,180,74,0.4), 0 0 28px rgba(218,180,74,0.15); }
   }
 
   /* Resource float particles */
@@ -1135,8 +1151,8 @@ window.addEventListener('load', fixVh);
 <div class="profile-overlay" id="profileOverlay">
   <div class="profile-box">
     <div style="font-size:40px;margin-bottom:8px;">🏛️</div>
-    <h1>Grand Bazaar</h1>
-    <div class="sub">Choose your trader profile</div>
+    <h1 data-i18n="hud_title">Grand Bazaar</h1>
+    <div class="sub" data-i18n="profile_title">Choose your trader profile</div>
     <div class="profile-list" id="profileList"></div>
     <div class="profile-new-row">
       <input class="profile-input" id="profileInput" type="text" placeholder="Enter your name..." maxlength="20">
@@ -1155,6 +1171,7 @@ window.addEventListener('load', fixVh);
     <div style="display:flex;align-items:center;gap:8px;">
       <div class="hud-title">Grand Bazaar</div>
       <button onclick="switchProfile()" style="background:none;border:1px solid var(--border);border-radius:10px;padding:2px 8px;cursor:pointer;font-size:9px;color:var(--txt-dm);font-family:inherit;-webkit-tap-highlight-color:transparent;" id="hudProfileName"></button>
+      <button onclick="toggleLang()" style="background:none;border:1px solid var(--border);border-radius:14px;padding:2px 7px;cursor:pointer;font-size:9px;font-weight:700;color:var(--txt-dm);font-family:inherit;-webkit-tap-highlight-color:transparent;" id="langBtn">EN</button>
       <button onclick="toggleTheme()" style="background:none;border:1px solid var(--border);border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;padding:0;" id="themeBtn">🌙</button>
     </div>
   </div>
@@ -1365,16 +1382,192 @@ window.addEventListener('load', fixVh);
 
   <!-- NAV -->
   <div class="nav">
-    <button class="nav-item active" onclick="showScreen('map')"><span class="ni">🗺️</span>Map</button>
-    <button class="nav-item" onclick="showScreen('bazaar')"><span class="ni">🏛️</span>Bazaar</button>
-    <button class="nav-item" onclick="showScreen('craft')"><span class="ni">⚒️</span>Craft</button>
-    <button class="nav-item" onclick="showScreen('leaderboard')"><span class="ni">🏆</span>Board</button>
-    <button class="nav-item" onclick="showScreen('prestige')"><span class="ni">🎖️</span>Prestige</button>
+    <button class="nav-item active" onclick="showScreen('map')"><span class="ni">🗺️</span><span data-i18n="nav_map">Map</span></button>
+    <button class="nav-item" onclick="showScreen('bazaar')"><span class="ni">🏛️</span><span data-i18n="nav_bazaar">Bazaar</span></button>
+    <button class="nav-item" onclick="showScreen('craft')"><span class="ni">⚒️</span><span data-i18n="nav_craft">Craft</span></button>
+    <button class="nav-item" onclick="showScreen('leaderboard')"><span class="ni">🏆</span><span data-i18n="nav_board">Board</span></button>
+    <button class="nav-item" onclick="showScreen('prestige')"><span class="ni">🎖️</span><span data-i18n="nav_prestige">Prestige</span></button>
   </div>
 </div>
 
 <script>
 (function(){
+/* ============================================================
+   TRANSLATION SYSTEM
+   ============================================================ */
+var STRINGS = {
+  en: {
+    nav_map:'Map', nav_bazaar:'Bazaar', nav_craft:'Craft', nav_board:'Board', nav_prestige:'Prestige',
+    hud_title:'Grand Bazaar',
+    total_income:'Total Income', tap_sell:'Tap a resource to sell',
+    raw:'Raw', crafted:'Crafted', all:'All',
+    sell:'Sell', sell_all:'Sell All', auto_sell:'Auto-Sell',
+    craft_slots:'Craft Slots', recipes:'Recipes', inventory:'Inventory', favorites:'Favorites',
+    craft_btn:'Craft 1', auto_craft:'Auto', queued:'Queued',
+    upgrade:'Upgrade', production_rate:'Production Rate', caravan_speed:'Caravan Speed',
+    cargo:'Cargo', multi_harvest:'Multi-Harvest', extra_caravan:'Extra Caravan',
+    sell_value:'Sell Value', storage:'Storage', lucky_find:'Lucky Find',
+    core_upgrades:'Core Upgrades', special_upgrades:'Special Upgrades',
+    back_map:'\u2190 Back to Map', back_prestige:'\u2190 Back to Prestige', back_milestones:'\u2190 Back to Milestones',
+    milestones:'Milestones', reset_world:'\uD83D\uDD04 Reset World',
+    prestige_shop:'Prestige Upgrades Shop', legacy_seals:'Legacy Seals',
+    global_upgrades:'Global Upgrades', global_sub:'Upgrades for your entire empire',
+    scouting:'Scouting', scouting_sub:'Use Maps to discover new trade zones',
+    use_map:'Use Map', discovered:'Discovered', locked:'Locked',
+    leaderboard:'Leaderboard', lb_sub:'Updates every minute',
+    achievements:'Achievements', run_stats:'Run Stats', statistics:'Statistics',
+    wipe_save:'Wipe Save', wipe_confirm:'Delete ALL progress? This cannot be undone!',
+    reset_progress:'Progress reset!',
+    profile_title:'Choose your trader profile', profile_placeholder:'Enter your name...', profile_play:'Play',
+    profile_delete:'Delete profile "$1" and all progress?', profile_new:'New game',
+    // Tutorial
+    tut_1:'Welcome! This is your Grand Bazaar \u2014 all caravans bring goods here to sell.',
+    tut_2:'Tap a zone to see its resources. Greenwood is already producing!',
+    tut_3:'Buy upgrades to boost production, speed, and cargo capacity.',
+    tut_4:'Go to the Bazaar to sell your resources for Crowns \uD83E\uDE99',
+    tut_5:'Tap Sell All to cash in! Use Crowns to buy more upgrades and unlock new zones.',
+    tut_next:'Next', tut_skip:'Skip', tut_done:'Got it!', tut_step:'Step'
+  },
+  ro: {
+    nav_map:'Hart\u0103', nav_bazaar:'Bazar', nav_craft:'Atelier', nav_board:'Clasament', nav_prestige:'Prestigiu',
+    hud_title:'Marele Bazar',
+    total_income:'Venit Total', tap_sell:'Atinge o resurs\u0103 pentru a vinde',
+    raw:'Brute', crafted:'Procesate', all:'Toate',
+    sell:'Vinde', sell_all:'Vinde Tot', auto_sell:'Auto-Vânzare',
+    craft_slots:'Sloturi', recipes:'Re\u021Bete', inventory:'Inventar', favorites:'Favorite',
+    craft_btn:'Creeaz\u0103 1', auto_craft:'Auto', queued:'\u00CEn coad\u0103',
+    upgrade:'Upgrade', production_rate:'Rata Produc\u021Biei', caravan_speed:'Viteza Caravanei',
+    cargo:'Marfa', multi_harvest:'Recolt\u0103 Multipl\u0103', extra_caravan:'Caravan\u0103 Extra',
+    sell_value:'Pre\u021B Vânzare', storage:'Depozit', lucky_find:'Noroc',
+    core_upgrades:'Upgrade-uri de Baz\u0103', special_upgrades:'Upgrade-uri Speciale',
+    back_map:'\u2190 \u00CEnapoi la Hart\u0103', back_prestige:'\u2190 \u00CEnapoi la Prestigiu', back_milestones:'\u2190 \u00CEnapoi la Borne',
+    milestones:'Borne', reset_world:'\uD83D\uDD04 Reseteaz\u0103 Lumea',
+    prestige_shop:'Magazin Upgrade Prestigiu', legacy_seals:'Sigilii Mo\u0219tenire',
+    global_upgrades:'Upgrade-uri Globale', global_sub:'Upgrade-uri pentru \u00EEntregul imperiu',
+    scouting:'Cercetare', scouting_sub:'Folose\u0219te H\u0103r\u021Bi pentru a descoperi zone noi',
+    use_map:'Folose\u0219te Harta', discovered:'Descoperit', locked:'Blocat',
+    leaderboard:'Clasament', lb_sub:'Se actualizeaz\u0103 la fiecare minut',
+    achievements:'Realiz\u0103ri', run_stats:'Statistici Run', statistics:'Statistici',
+    wipe_save:'\u0218terge Progresul', wipe_confirm:'\u0218tergi TOT progresul? Nu se poate anula!',
+    reset_progress:'Progres resetat!',
+    profile_title:'Alege profilul t\u0103u de comerciant', profile_placeholder:'Scrie numele t\u0103u...', profile_play:'Joac\u0103',
+    profile_delete:'\u0218tergi profilul "$1" \u0219i tot progresul?', profile_new:'Joc nou',
+    tut_1:'Bine ai venit! Acesta e Marele Bazar \u2014 toate caravanele aduc bunuri aici.',
+    tut_2:'Atinge o zon\u0103 pentru a vedea resursele. Greenwood deja produce!',
+    tut_3:'Cump\u0103r\u0103 upgrade-uri pentru produc\u021Bie, vitez\u0103 \u0219i capacitate.',
+    tut_4:'Mergi la Bazar pentru a vinde resursele pe Coroane \uD83E\uDE99',
+    tut_5:'Apas\u0103 Vinde Tot! Folose\u0219te Coroanele pentru upgrade-uri \u0219i zone noi.',
+    tut_next:'Urm\u0103torul', tut_skip:'S\u0103ri', tut_done:'Am \u00EEn\u021Beles!', tut_step:'Pasul'
+  }
+};
+var currentLang = 'en';
+function T(key) { return (STRINGS[currentLang] && STRINGS[currentLang][key]) || STRINGS.en[key] || key; }
+function applyLang() {
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    el.textContent = T(el.dataset.i18n);
+  });
+  // Force rebuild dynamic screens
+  zdBuiltFor = null; bzBuiltSel = undefined; prBuilt = false;
+}
+function toggleLang() {
+  currentLang = currentLang === 'en' ? 'ro' : 'en';
+  document.getElementById('langBtn').textContent = currentLang.toUpperCase();
+  try { localStorage.setItem('grandBazaarLang', currentLang); } catch(e){}
+  applyLang();
+}
+window.toggleLang = toggleLang;
+// Load saved language
+(function(){
+  try {
+    var l = localStorage.getItem('grandBazaarLang');
+    if (l === 'ro' || l === 'en') currentLang = l;
+  } catch(e){}
+})();
+
+/* ============================================================
+   TUTORIAL SYSTEM
+   ============================================================ */
+var TUTORIAL_STEPS = [
+  { target:'.map-hub', pos:'below' , key:'tut_1' },
+  { target:'#mapzone-greenwood', pos:'below', key:'tut_2' },
+  { target:'.nav-item:nth-child(2)', pos:'above', key:'tut_4' },
+  { target:'.nav-item:nth-child(5)', pos:'above', key:'tut_5' }
+];
+var tutStep = 0;
+var tutActive = false;
+
+function startTutorial() {
+  tutStep = 0; tutActive = true;
+  showTutorialStep();
+}
+function showTutorialStep() {
+  // Remove old
+  var old = document.getElementById('tutOverlay');
+  if (old) old.remove();
+  if (tutStep >= TUTORIAL_STEPS.length) { endTutorial(); return; }
+
+  var step = TUTORIAL_STEPS[tutStep];
+  var el = document.querySelector(step.target);
+  if (!el) { tutStep++; showTutorialStep(); return; }
+
+  var overlay = document.createElement('div');
+  overlay.id = 'tutOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9000;';
+
+  // Darken background
+  var bg = document.createElement('div');
+  bg.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,0.7);';
+  bg.onclick = function(e){ e.stopPropagation(); };
+  overlay.appendChild(bg);
+
+  // Get target position
+  var rect = el.getBoundingClientRect();
+
+  // Cutout highlight
+  var hl = document.createElement('div');
+  hl.style.cssText = 'position:absolute;border-radius:12px;box-shadow:0 0 0 4000px rgba(0,0,0,0.7);z-index:9001;pointer-events:none;border:2px solid var(--gold);';
+  hl.style.left = (rect.left - 6) + 'px';
+  hl.style.top = (rect.top - 6) + 'px';
+  hl.style.width = (rect.width + 12) + 'px';
+  hl.style.height = (rect.height + 12) + 'px';
+  overlay.appendChild(hl);
+
+  // Tooltip
+  var tip = document.createElement('div');
+  tip.style.cssText = 'position:absolute;z-index:9002;background:var(--bg-card);border:2px solid var(--gold);border-radius:12px;padding:14px 18px;max-width:260px;color:var(--txt-br);font-size:13px;line-height:1.5;box-shadow:0 4px 24px rgba(0,0,0,0.4),0 0 30px rgba(218,180,74,0.15);';
+
+  if (step.pos === 'above') {
+    tip.style.left = Math.max(10, rect.left) + 'px';
+    tip.style.bottom = (window.innerHeight - rect.top + 12) + 'px';
+  } else {
+    tip.style.left = Math.max(10, rect.left) + 'px';
+    tip.style.top = (rect.bottom + 12) + 'px';
+  }
+
+  var stepLabel = T('tut_step') + ' ' + (tutStep + 1) + '/' + TUTORIAL_STEPS.length;
+  tip.innerHTML = '<div style="font-size:10px;color:var(--txt-dm);margin-bottom:6px;">' + stepLabel + '</div>'
+    + '<div>' + T(step.key) + '</div>'
+    + '<div style="margin-top:12px;display:flex;gap:8px;align-items:center;">'
+    + '<button onclick="nextTutorialStep()" style="background:var(--gold);color:#0e0a18;border:none;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer;font-family:inherit;font-size:12px;">' + (tutStep < TUTORIAL_STEPS.length - 1 ? T('tut_next') : T('tut_done')) + '</button>'
+    + '<button onclick="skipTutorial()" style="background:none;border:none;color:var(--txt-dm);cursor:pointer;font-size:11px;font-family:inherit;">' + T('tut_skip') + '</button>'
+    + '</div>';
+  overlay.appendChild(tip);
+
+  document.body.appendChild(overlay);
+}
+function nextTutorialStep() { tutStep++; showTutorialStep(); }
+function skipTutorial() { endTutorial(); }
+function endTutorial() {
+  tutActive = false;
+  var ol = document.getElementById('tutOverlay');
+  if (ol) ol.remove();
+  if (activeProfile) {
+    try { localStorage.setItem('grandBazaarTutDone_' + activeProfile, '1'); } catch(e){}
+  }
+}
+window.nextTutorialStep = nextTutorialStep;
+window.skipTutorial = skipTutorial;
+
 /* ============================================================
    GAME DATA
    ============================================================ */
@@ -1931,9 +2124,15 @@ function selectProfile(name) {
   G = loadGame() || createFreshState();
   document.getElementById('profileOverlay').style.display = 'none';
   document.getElementById('gameUI').style.display = '';
-  // Update profile indicator in HUD
   var pn = document.getElementById('hudProfileName');
   if (pn) pn.textContent = name;
+  // Apply language
+  document.getElementById('langBtn').textContent = currentLang.toUpperCase();
+  applyLang();
+  // Tutorial for new players
+  if (!localStorage.getItem('grandBazaarTutDone_' + name)) {
+    setTimeout(startTutorial, 800);
+  }
 }
 function createProfile() {
   var input = document.getElementById('profileInput');
@@ -4259,7 +4458,7 @@ function setupMap() {
     for (var i = 0; i < MAX_VISUAL_CARAVANS; i++) {
       var cEl = document.createElement('div');
       cEl.className = 'caravan-dot';
-      cEl.textContent = z.caravan;
+      cEl.innerHTML = '<span class="caravan-bg"></span><span class="caravan-emoji">' + z.caravan + '</span>';
       cEl.style.opacity = '0';
       canvas.appendChild(cEl);
       caravanEls[z.id].push(cEl);
@@ -4401,6 +4600,17 @@ function updateCaravans() {
       el.style.top = y + '%';
       el.style.transform = 'translate(-50%,-50%)';
       el.style.opacity = cv.opacity.toFixed(2);
+
+      // Caravan phase classes
+      if (gc.phase === 'toHub') {
+        el.classList.add('traveling');
+        el.classList.remove('returning');
+      } else if (gc.phase === 'returning') {
+        el.classList.remove('traveling');
+        el.classList.add('returning');
+      } else {
+        el.classList.remove('traveling', 'returning');
+      }
 
       // #16 Cargo indicator
       var cargoEl = el.querySelector('.caravan-cargo');
