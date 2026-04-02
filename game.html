@@ -1422,6 +1422,7 @@ function createFreshState() {
     craftSlots: [{ recipeId:null, progress:0, timeLeft:0, auto:false }],
     craftInventory: {},
     globalUpgrades: {},
+    specialUpgrades: {},
     godMode: false
   };
   GLOBAL_UPGRADES.forEach(function(u){ state.globalUpgrades[u.id] = 0; });
@@ -1444,7 +1445,7 @@ function createFreshState() {
 function resetForPrestige() {
   var seals = calcPrestigeSeals();
   G.legacySeals += seals;
-  var kept = { legacySeals: G.legacySeals, ownedPrestige: Object.assign({}, G.ownedPrestige) };
+  var kept = { legacySeals: G.legacySeals, ownedPrestige: Object.assign({}, G.ownedPrestige), specialUpgrades: Object.assign({}, G.specialUpgrades || {}) };
 
   G.crowns = 0;
   G.totalCrownsEarned = 0;
@@ -1471,6 +1472,7 @@ function resetForPrestige() {
 
   G.legacySeals = kept.legacySeals;
   G.ownedPrestige = kept.ownedPrestige;
+  G.specialUpgrades = kept.specialUpgrades;
 
   // Apply prestige effects
   if (G.ownedPrestige.startCrowns) { G.crowns = 1000; }
@@ -1504,7 +1506,8 @@ function saveGame() {
       }),
       zones: {},
       bazaar: G.bazaar,
-      globalUpgrades: G.globalUpgrades
+      globalUpgrades: G.globalUpgrades,
+      specialUpgrades: G.specialUpgrades || {}
     };
     ZONES.forEach(function(z){
       var zs = G.zones[z.id];
@@ -1536,6 +1539,7 @@ function loadGame() {
         state.globalUpgrades[u.id] = data.globalUpgrades[u.id] || 0;
       });
     }
+    state.specialUpgrades = data.specialUpgrades || {};
 
     // Restore craft slots
     if (data.craftSlots) {
@@ -1587,8 +1591,8 @@ function getZoneProductionRate(zone) {
 }
 
 function getHarvestChance(zone) {
-  var zs = G.zones[zone.id];
-  return Math.min(zs.upgrades.harvest, zone.upgrades.harvest.max || 25) / 100;
+  var lvl = getUpgradeLevel(zone.id, 'harvest');
+  return Math.min(lvl, zone.upgrades.harvest.max || 25) / 100;
 }
 
 function getSellMultiplier(zone) {
@@ -1599,8 +1603,7 @@ function getSellMultiplier(zone) {
   m *= 1 + (G.globalUpgrades.merchantGuild || 0) * 0.05;
   // Per-zone: Sell Value
   if (zone) {
-    var zs = G.zones[zone.id];
-    m *= 1 + (zs.upgrades.sellValue || 0) * 0.05;
+    m *= 1 + getUpgradeLevel(zone.id, 'sellValue') * 0.05;
   }
   return m;
 }
@@ -1628,9 +1631,8 @@ function getCaravanSpeed(zone) {
 }
 
 function getStorageCap(zone) {
-  var zs = G.zones[zone.id];
   var base = 100;
-  return base + (zs.upgrades.storage || 0) * zone.upgrades.storage.perLvl;
+  return base + getUpgradeLevel(zone.id, 'storage') * zone.upgrades.storage.perLvl;
 }
 
 function getBanditLoss() {
@@ -1641,8 +1643,8 @@ function getBanditLoss() {
 }
 
 function getLuckyFindChance(zone) {
-  var zs = G.zones[zone.id];
-  var chance = Math.min((zs.upgrades.luckyFind || 0) * 0.5, 5) / 100;
+  var lvl = getUpgradeLevel(zone.id, 'luckyFind');
+  var chance = Math.min(lvl * 0.5, 5) / 100;
   if (G.ownedPrestige.fortuneSeeker) chance *= 2;
   return chance;
 }
@@ -1658,8 +1660,7 @@ function getActiveCraftSlots() {
 }
 
 function getCaravanCount(zone) {
-  var zs = G.zones[zone.id];
-  return 1 + zs.upgrades.extraCaravan;
+  return 1 + getUpgradeLevel(zone.id, 'extraCaravan');
 }
 
 function syncCaravans(zone) {
@@ -2121,16 +2122,61 @@ function sellAll() {
   }
 }
 
+var SPECIAL_UPGRADES = ['harvest','extraCaravan','sellValue','storage','luckyFind'];
+
+function isSpecialUpgrade(key) {
+  return SPECIAL_UPGRADES.indexOf(key) >= 0;
+}
+
+function getSpecialUpgradeLevel(zoneId, upKey) {
+  if (!G.specialUpgrades) G.specialUpgrades = {};
+  var k = zoneId + '_' + upKey;
+  return G.specialUpgrades[k] || 0;
+}
+
+function setSpecialUpgradeLevel(zoneId, upKey, lvl) {
+  if (!G.specialUpgrades) G.specialUpgrades = {};
+  G.specialUpgrades[zoneId + '_' + upKey] = lvl;
+}
+
+function getUpgradeLevel(zoneId, upKey) {
+  if (isSpecialUpgrade(upKey)) return getSpecialUpgradeLevel(zoneId, upKey);
+  return G.zones[zoneId].upgrades[upKey] || 0;
+}
+
+function getSpecialSealCost(zone, upKey) {
+  var up = zone.upgrades[upKey];
+  var lvl = getSpecialUpgradeLevel(zone.id, upKey);
+  // Cost in Legacy Seals — much smaller numbers
+  var baseSeal = Math.max(1, Math.floor(up.base / 200));
+  return Math.floor(baseSeal * Math.pow(1.5, lvl));
+}
+
 function buyUpgrade(zoneId, upKey) {
   var zone = ZONES.find(function(z){ return z.id === zoneId; });
   var up = zone.upgrades[upKey];
-  var zs = G.zones[zoneId];
-  if (up.max && zs.upgrades[upKey] >= up.max) return;
-  var cost = upgradeCost(up.base, up.mult, zs.upgrades[upKey]);
-  if (G.crowns >= cost) {
-    G.crowns -= cost;
-    zs.upgrades[upKey]++;
-    showFlash(up.icon + ' Lv.' + zs.upgrades[upKey]);
+
+  if (isSpecialUpgrade(upKey)) {
+    // Special upgrade — costs Legacy Seals, persists on prestige
+    var lvl = getSpecialUpgradeLevel(zoneId, upKey);
+    if (up.max && lvl >= up.max) return;
+    var sealCost = getSpecialSealCost(zone, upKey);
+    if (G.legacySeals >= sealCost) {
+      G.legacySeals -= sealCost;
+      setSpecialUpgradeLevel(zoneId, upKey, lvl + 1);
+      showFlash(up.icon + ' Lv.' + (lvl + 1) + ' 🎖️');
+    }
+  } else {
+    // Core upgrade — costs Crowns, resets on prestige
+    var zs = G.zones[zoneId];
+    var lvl2 = zs.upgrades[upKey];
+    if (up.max && lvl2 >= up.max) return;
+    var cost = upgradeCost(up.base, up.mult, lvl2);
+    if (G.crowns >= cost) {
+      G.crowns -= cost;
+      zs.upgrades[upKey]++;
+      showFlash(up.icon + ' Lv.' + zs.upgrades[upKey]);
+    }
   }
 }
 
@@ -2385,7 +2431,7 @@ function buildZoneDetail() {
 
   // Special upgrades (collapsible)
   h += '<div class="collapse-header" onclick="toggleCollapse(\'zdSpecial\')">';
-  h += '<div class="collapse-title">✨ Special Upgrades <span class="collapse-count">(5)</span></div>';
+  h += '<div class="collapse-title">✨ Special Upgrades <span class="collapse-count">(5 · 🎖️ Seals · Permanent)</span></div>';
   h += '<div class="collapse-arrow" id="zdSpecialArrow">▼</div>';
   h += '</div>';
   h += '<div class="collapse-body" id="zdSpecial">';
@@ -2436,10 +2482,20 @@ function renderZoneDetail() {
   var upKeys = ['production','speed','cargo','harvest','extraCaravan','sellValue','storage','luckyFind'];
   upKeys.forEach(function(key){
     var up = zone.upgrades[key];
-    var lvl = zs.upgrades[key];
+    var isSpec = isSpecialUpgrade(key);
+    var lvl = isSpec ? getSpecialUpgradeLevel(zone.id, key) : zs.upgrades[key];
     var isMaxed = up.max && lvl >= up.max;
-    var cost = isMaxed ? 0 : upgradeCost(up.base, up.mult, lvl);
-    var canAfford = G.crowns >= cost && !isMaxed;
+
+    var cost, canAfford, costText;
+    if (isSpec) {
+      cost = isMaxed ? 0 : getSpecialSealCost(zone, key);
+      canAfford = G.legacySeals >= cost && !isMaxed;
+      costText = isMaxed ? 'MAX' : cost + ' \u{1F396}';
+    } else {
+      cost = isMaxed ? 0 : upgradeCost(up.base, up.mult, lvl);
+      canAfford = G.crowns >= cost && !isMaxed;
+      costText = isMaxed ? 'MAX' : '\u{1FA99} ' + formatNum(cost);
+    }
 
     var statText = '';
     if (key === 'production') statText = 'Lv.' + lvl + ' \u2022 ' + (1 + lvl * up.perLvl).toFixed(2) + 'x';
@@ -2453,7 +2509,7 @@ function renderZoneDetail() {
 
     setText(document.getElementById('zd-upstat-' + key), statText);
     var costEl = document.getElementById('zd-upcost-' + key);
-    setText(costEl, isMaxed ? 'MAX' : '\u{1FA99} ' + formatNum(cost));
+    setText(costEl, costText);
 
     var upEl = document.getElementById('zd-up-' + key);
     if (isMaxed) {
@@ -2461,7 +2517,6 @@ function renderZoneDetail() {
       costEl.className = 'zd-up-cost maxed';
     } else {
       upEl.className = canAfford ? 'zd-upgrade' : 'zd-upgrade cant-afford';
-      var isSpec = key === 'harvest' || key === 'extraCaravan' || key === 'sellValue' || key === 'storage' || key === 'luckyFind';
       costEl.className = isSpec ? 'zd-up-cost gold-border' : 'zd-up-cost';
     }
   });
