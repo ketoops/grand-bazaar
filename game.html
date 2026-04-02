@@ -1171,7 +1171,7 @@ window.addEventListener('load', fixVh);
     <div class="map-viewport" id="mapViewport">
       <div class="map-canvas" id="mapCanvas">
         <svg class="map-route" id="mapRoutes" viewBox="0 0 500 500" preserveAspectRatio="xMidYMid meet"></svg>
-        <div class="map-hub" onclick="showScreen('bazaar')">
+        <div class="map-hub" onclick="if(!hasTouchSupport)showScreen('bazaar')">
           <div class="map-hub-ring">🏛️</div>
           <div class="map-hub-name">Grand Bazaar</div>
         </div>
@@ -4145,10 +4145,14 @@ function initMapControls() {
     applyMapTransform();
   }, { passive: false });
 
-  // Touch drag + pinch
+  // Touch drag + pinch (works even when touching zones)
   var touches = {};
+  var touchMoved = false;
+  var touchStartTarget = null;
   vp.addEventListener('touchstart', function(e) {
-    if (e.target.closest('.map-zone, .map-hub, .map-center-btn, .map-zoom-btn')) return;
+    if (e.target.closest('.map-center-btn, .map-zoom-btn')) return;
+    touchMoved = false;
+    touchStartTarget = e.target.closest('.map-zone, .map-hub');
     for (var i = 0; i < e.changedTouches.length; i++) {
       touches[e.changedTouches[i].identifier] = { x: e.changedTouches[i].clientX, y: e.changedTouches[i].clientY };
     }
@@ -4173,14 +4177,18 @@ function initMapControls() {
     }
     var ids = Object.keys(touches);
     if (mapPinch.active && ids.length >= 2) {
+      touchMoved = true;
       var t0 = touches[ids[0]], t1 = touches[ids[1]];
       var dist = Math.hypot(t1.x - t0.x, t1.y - t0.y);
       mapState.zoom = mapPinch.startZoom * (dist / mapPinch.startDist);
       mapState.zoom = Math.max(mapState.minZoom, Math.min(mapState.maxZoom, mapState.zoom));
       applyMapTransform();
     } else if (mapDrag.active && ids.length === 1) {
-      mapState.x = mapDrag.startMapX + (touches[ids[0]].x - mapDrag.startX);
-      mapState.y = mapDrag.startMapY + (touches[ids[0]].y - mapDrag.startY);
+      var dx = touches[ids[0]].x - mapDrag.startX;
+      var dy = touches[ids[0]].y - mapDrag.startY;
+      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) touchMoved = true;
+      mapState.x = mapDrag.startMapX + dx;
+      mapState.y = mapDrag.startMapY + dy;
       applyMapTransform();
     }
   }, { passive: false });
@@ -4189,11 +4197,25 @@ function initMapControls() {
     for (var i = 0; i < e.changedTouches.length; i++) {
       delete touches[e.changedTouches[i].identifier];
     }
+    // Only trigger zone click if it was a tap (no drag/pinch)
+    if (!touchMoved && touchStartTarget && Object.keys(touches).length === 0) {
+      var zoneEl = touchStartTarget.closest('.map-zone');
+      var hubEl = touchStartTarget.closest('.map-hub');
+      if (zoneEl && zoneEl.id) {
+        var zid = zoneEl.id.replace('mapzone-', '');
+        openZone(zid);
+      } else if (hubEl) {
+        showScreen('bazaar');
+      }
+    }
     if (Object.keys(touches).length < 2) mapPinch.active = false;
     if (Object.keys(touches).length === 0) mapDrag.active = false;
+    touchStartTarget = null;
   });
 }
 
+var hasTouchSupport = 'ontouchstart' in window;
+window.hasTouchSupport = hasTouchSupport;
 function setupMap() {
   var canvas = document.getElementById('mapCanvas');
   var svg = document.getElementById('mapRoutes');
@@ -4220,7 +4242,7 @@ function setupMap() {
     node.id = 'mapzone-' + z.id;
     node.style.left = z.x + '%';
     node.style.top = z.y + '%';
-    node.onclick = function(){ openZone(z.id); };
+    node.onclick = function(){ if (!hasTouchSupport) openZone(z.id); };
     canvas.appendChild(node);
 
     // Pre-create max caravan elements
