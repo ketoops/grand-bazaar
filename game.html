@@ -7,31 +7,31 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg:         #080610;
-    --bg-panel:   #0e0b18;
-    --bg-card:    #161224;
-    --bg-card-h:  #1c1630;
-    --border:     #241e3a;
-    --border-gold:#6b5c3e;
-    --gold:       #d4a843;
+    --bg:         #0e0a18;
+    --bg-panel:   #141020;
+    --bg-card:    #1c1730;
+    --bg-card-h:  #231d3a;
+    --border:     #2e2848;
+    --border-gold:#7a6a48;
+    --gold:       #dab44a;
     --gold-lt:    #f0d078;
-    --gold-dm:    #917633;
-    --txt:        #c8bfb2;
-    --txt-dm:     #706860;
-    --txt-br:     #f0e8d8;
-    --teal:       #3a9a88;
-    --teal-lt:    #5ac8b0;
-    --purple:     #7b5ea7;
-    --purple-lt:  #a888d0;
-    --red:        #c85050;
-    --green:      #4aaa5a;
+    --gold-dm:    #a08030;
+    --txt:        #d5ccc0;
+    --txt-dm:     #8a8078;
+    --txt-br:     #f4ece0;
+    --teal:       #42a894;
+    --teal-lt:    #60d0b8;
+    --purple:     #8a6cb8;
+    --purple-lt:  #b090d8;
+    --red:        #d05858;
+    --green:      #52b862;
     --r:          12px;
     --r-sm:       8px;
     --shadow:     0 2px 12px rgba(0,0,0,0.3);
     --shadow-lg:  0 4px 24px rgba(0,0,0,0.4);
-    --glow-gold:  0 0 20px rgba(212,168,67,0.15);
-    --glow-teal:  0 0 16px rgba(58,154,136,0.12);
-    --glow-purple:0 0 16px rgba(123,94,167,0.12);
+    --glow-gold:  0 0 20px rgba(218,180,74,0.18);
+    --glow-teal:  0 0 16px rgba(66,168,148,0.15);
+    --glow-purple:0 0 16px rgba(138,108,184,0.15);
   }
   :root[data-theme="light"] {
     --bg:         #f2ede6;
@@ -232,42 +232,56 @@
     border-radius: var(--r);
     overflow: hidden;
     touch-action: none;
-    background: #060410;
+    background:
+      radial-gradient(ellipse at 50% 40%, #1e2850 0%, #142040 30%, #0e1830 55%, #0a1225 100%);
     min-height: 250px;
   }
   .map-canvas {
     position: absolute;
-    width: 1600px; height: 1600px;
-    background:
-      radial-gradient(ellipse at 50% 40%, #18122a 0%, #0c0816 45%, #050310 75%, #020208 100%);
+    width: 500px; height: 500px;
+    background: none;
     transform-origin: 0 0;
     will-change: transform;
   }
-  .map-canvas::before {
+  .map-viewport::before {
     content: '';
-    position: absolute; inset: 0;
+    position: absolute; inset: 0; z-index: 0;
     background:
-      radial-gradient(1.5px 1.5px at 12% 8%, rgba(255,255,220,0.3), transparent),
-      radial-gradient(1px 1px at 78% 15%, rgba(255,255,220,0.2), transparent),
-      radial-gradient(1px 1px at 35% 55%, rgba(255,255,220,0.15), transparent),
-      radial-gradient(1.5px 1.5px at 88% 72%, rgba(255,255,220,0.12), transparent),
-      radial-gradient(1px 1px at 22% 82%, rgba(255,255,220,0.2), transparent),
-      radial-gradient(1px 1px at 60% 30%, rgba(255,255,220,0.1), transparent),
-      radial-gradient(1px 1px at 45% 88%, rgba(255,255,220,0.15), transparent),
-      radial-gradient(1.5px 1.5px at 92% 42%, rgba(255,255,220,0.1), transparent);
-    opacity: 0.6;
+      radial-gradient(2px 2px at 12% 8%, rgba(200,220,255,0.5), transparent),
+      radial-gradient(1.5px 1.5px at 78% 15%, rgba(200,220,255,0.4), transparent),
+      radial-gradient(1.5px 1.5px at 35% 55%, rgba(200,220,255,0.35), transparent),
+      radial-gradient(2px 2px at 88% 72%, rgba(200,220,255,0.3), transparent),
+      radial-gradient(1.5px 1.5px at 22% 82%, rgba(200,220,255,0.4), transparent),
+      radial-gradient(1px 1px at 60% 30%, rgba(200,220,255,0.25), transparent),
+      radial-gradient(1.5px 1.5px at 45% 88%, rgba(200,220,255,0.35), transparent),
+      radial-gradient(2px 2px at 92% 42%, rgba(200,220,255,0.3), transparent),
+      radial-gradient(1px 1px at 5% 45%, rgba(200,220,255,0.3), transparent),
+      radial-gradient(1.5px 1.5px at 50% 70%, rgba(200,220,255,0.25), transparent),
+      radial-gradient(1px 1px at 70% 90%, rgba(200,220,255,0.3), transparent),
+      radial-gradient(2px 2px at 30% 20%, rgba(200,220,255,0.2), transparent),
+      radial-gradient(1px 1px at 15% 35%, rgba(255,200,150,0.2), transparent),
+      radial-gradient(1px 1px at 85% 55%, rgba(150,200,255,0.2), transparent),
+      radial-gradient(1.5px 1.5px at 65% 12%, rgba(200,220,255,0.35), transparent),
+      radial-gradient(1px 1px at 40% 95%, rgba(200,220,255,0.25), transparent);
+    opacity: 0.8;
+    pointer-events: none;
   }
-  .map-canvas::after {
+  .map-viewport::after {
     content: '';
-    position: absolute; inset: 0;
-    background: radial-gradient(ellipse at 50% 40%, rgba(40,30,20,0.2) 0%, transparent 50%);
+    position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse at 50% 40%, rgba(60,80,180,0.2) 0%, transparent 35%),
+      radial-gradient(ellipse at 15% 65%, rgba(80,40,160,0.15) 0%, transparent 28%),
+      radial-gradient(ellipse at 80% 25%, rgba(30,120,140,0.12) 0%, transparent 25%),
+      radial-gradient(ellipse at 70% 75%, rgba(120,50,80,0.08) 0%, transparent 22%);
+    pointer-events: none;
   }
   .map-center-btn {
     position: absolute; bottom: 10px; right: 10px; z-index: 20;
     width: 36px; height: 36px; border-radius: 50%;
-    background: rgba(20,16,30,0.85); border: 1px solid var(--border);
+    background: rgba(20,16,32,0.88); border: 1px solid var(--border);
     display: flex; align-items: center; justify-content: center;
-    font-size: 16px; cursor: pointer;
+    font-size: 16px; cursor: pointer; color: var(--txt);
     -webkit-tap-highlight-color: transparent;
   }
   .map-zoom-btns {
@@ -276,9 +290,9 @@
   }
   .map-zoom-btn {
     width: 36px; height: 36px; border-radius: 50%;
-    background: rgba(20,16,30,0.85); border: 1px solid var(--border);
+    background: rgba(20,16,32,0.88); border: 1px solid var(--border);
     display: flex; align-items: center; justify-content: center;
-    font-size: 18px; color: var(--txt); cursor: pointer;
+    font-size: 18px; color: var(--txt); cursor: pointer; backdrop-filter: blur(4px);
     font-family: inherit; font-weight: 700;
     -webkit-tap-highlight-color: transparent;
   }
@@ -288,26 +302,27 @@
     text-align: center; z-index: 10; cursor: pointer;
   }
   .map-hub-ring {
-    width: 86px; height: 86px; border-radius: 50%;
-    background: radial-gradient(circle at 40% 35%, #3a2e1e, #1a1410 70%);
+    width: 70px; height: 70px; border-radius: 50%;
+    background: radial-gradient(circle at 38% 32%, #4a3a20, #2a1e10 60%, #1a1408 100%);
     border: 3px solid var(--gold);
     display: flex; align-items: center; justify-content: center;
     box-shadow:
-      0 0 30px rgba(212,168,67,0.3),
-      0 0 60px rgba(212,168,67,0.1),
-      inset 0 -4px 12px rgba(0,0,0,0.3),
-      inset 0 2px 8px rgba(240,208,120,0.08);
-    margin: 0 auto; font-size: 34px;
+      0 0 35px rgba(218,180,74,0.35),
+      0 0 70px rgba(218,180,74,0.12),
+      0 0 120px rgba(218,180,74,0.05),
+      inset 0 -5px 14px rgba(0,0,0,0.35),
+      inset 0 3px 10px rgba(240,210,120,0.1);
+    margin: 0 auto; font-size: 28px;
     animation: hubPulse 3s ease-in-out infinite;
   }
   @keyframes hubPulse {
-    0%, 100% { box-shadow: 0 0 30px rgba(212,168,67,0.3), 0 0 60px rgba(212,168,67,0.1), inset 0 -4px 12px rgba(0,0,0,0.3); }
-    50% { box-shadow: 0 0 40px rgba(212,168,67,0.4), 0 0 80px rgba(212,168,67,0.15), inset 0 -4px 12px rgba(0,0,0,0.3); }
+    0%, 100% { box-shadow: 0 0 35px rgba(218,180,74,0.35), 0 0 70px rgba(218,180,74,0.12), inset 0 -5px 14px rgba(0,0,0,0.35); }
+    50% { box-shadow: 0 0 50px rgba(218,180,74,0.45), 0 0 100px rgba(218,180,74,0.18), inset 0 -5px 14px rgba(0,0,0,0.35); }
   }
   .map-hub-name {
     font-size: 9px; font-weight: 700; color: var(--gold);
     text-transform: uppercase; letter-spacing: 2px; margin-top: 5px;
-    text-shadow: 0 1px 8px rgba(212,168,67,0.4);
+    text-shadow: 0 1px 10px rgba(218,180,74,0.5);
   }
 
   .map-zone {
@@ -315,30 +330,33 @@
     text-align: center; z-index: 10; cursor: pointer;
   }
   .map-zone-bubble {
-    width: 58px; height: 58px; border-radius: 50%;
+    width: 56px; height: 56px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 24px; margin: 0 auto;
+    font-size: 26px; margin: 0 auto;
     transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
   }
   .mz-unlocked {
-    border: 2px solid rgba(255,255,255,0.18);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.5), 0 0 20px rgba(212,168,67,0.08);
+    border: 2px solid rgba(255,255,255,0.2);
+    box-shadow:
+      0 4px 18px rgba(0,0,0,0.5),
+      0 0 24px rgba(218,180,74,0.1),
+      inset 0 -3px 8px rgba(0,0,0,0.25),
+      inset 0 2px 6px rgba(255,255,255,0.06);
   }
   .mz-locked {
-    border: 2px solid rgba(255,255,255,0.05);
-    filter: brightness(0.3) saturate(0.12);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    border: 2px solid rgba(255,255,255,0.1);
+    filter: brightness(0.55) saturate(0.4);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.4);
   }
   .map-zone-name {
-    font-size: 8px; font-weight: 700; color: rgba(240,232,216,0.9);
-    text-transform: uppercase; margin-top: 3px; letter-spacing: 0.5px;
-    text-shadow: 0 1px 8px rgba(0,0,0,0.9);
+    font-size: 9px; font-weight: 700; color: rgba(244,236,224,0.95);
+    text-transform: uppercase; margin-top: 4px; letter-spacing: 0.6px;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.9), 0 0 2px rgba(0,0,0,0.7);
   }
   .map-zone-price {
     font-size: 9px; font-weight: 700; color: var(--gold-lt);
-    background: rgba(8,6,16,0.88); padding: 2px 9px; border-radius: 10px;
-    border: 1px solid rgba(212,168,67,0.25); margin-top: 2px; display: inline-block;
-    backdrop-filter: blur(4px);
+    background: rgba(10,14,30,0.9); padding: 2px 8px; border-radius: 10px;
+    border: 1px solid rgba(218,180,74,0.35); margin-top: 2px; display: inline-block;
     text-shadow: 0 1px 3px rgba(0,0,0,0.5);
   }
   .map-route {
@@ -349,11 +367,11 @@
   /* ===== CARAVANS ON MAP ===== */
   .caravan-dot {
     position: absolute;
-    width: 22px; height: 22px;
-    font-size: 15px;
+    width: 26px; height: 26px;
+    font-size: 17px;
     z-index: 8;
     pointer-events: none;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.7));
     display: flex; align-items: center; justify-content: center;
     opacity: 0;
     transition: opacity 0.3s;
@@ -362,7 +380,7 @@
     animation: caravanPulse 2s ease-in-out infinite;
   }
   @keyframes caravanPulse {
-    0%, 100% { opacity: 0.7; } 50% { opacity: 1; }
+    0%, 100% { opacity: 0.75; } 50% { opacity: 1; }
   }
 
   /* Resource float particles */
@@ -402,8 +420,8 @@
   }
 
   /* Zone unlocked glow */
-  .mz-unlocked { border: 2px solid rgba(255,255,255,0.15); transition: box-shadow 0.3s; }
-  .mz-unlocked:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.4), 0 0 12px rgba(212,168,67,0.15); }
+  .mz-unlocked { transition: box-shadow 0.3s, transform 0.2s; }
+  .mz-unlocked:hover { box-shadow: 0 4px 18px rgba(0,0,0,0.5), 0 0 20px rgba(218,180,74,0.2); transform: scale(1.08); }
 
   /* ===== ZONE DETAIL SCREEN ===== */
   .zd-header { text-align: center; margin-bottom: 16px; }
@@ -882,7 +900,7 @@
 
   /* ===== #15 ZONE PREVIEW (hidden zones as ?) ===== */
   .mz-hidden .map-zone-bubble {
-    opacity: 0.15; filter: blur(1px) saturate(0);
+    opacity: 0.12; filter: blur(2px) saturate(0);
   }
   .mz-hidden .map-zone-name { display: none; }
   .mz-hidden .map-zone-price { display: none; }
@@ -918,17 +936,7 @@
   .cr-fav-btn.active { filter: saturate(1) brightness(1); }
 
   /* ===== #22 FOG OF WAR ===== */
-  .map-fog {
-    position: absolute; border-radius: 50%;
-    background: radial-gradient(circle, rgba(30,25,50,0.6) 0%, transparent 70%);
-    pointer-events: none; z-index: 2;
-    filter: blur(8px);
-    width: 80px; height: 80px;
-    transform: translate(-50%,-50%);
-  }
-  :root[data-theme="light"] .map-fog {
-    background: radial-gradient(circle, rgba(180,170,150,0.5) 0%, transparent 70%);
-  }
+  .map-fog { display: none; }
 
   /* ===== #23 ZONE CONNECTIONS ===== */
   /* Rendered via SVG in mapRoutes */
@@ -1065,7 +1073,7 @@
   <div class="screen screen-flex active" id="scrMap" style="padding:0;flex-direction:column;">
     <div class="map-viewport" id="mapViewport">
       <div class="map-canvas" id="mapCanvas">
-        <svg class="map-route" id="mapRoutes" viewBox="0 0 1600 1600" preserveAspectRatio="xMidYMid meet"></svg>
+        <svg class="map-route" id="mapRoutes" viewBox="0 0 500 500" preserveAspectRatio="xMidYMid meet"></svg>
         <div class="map-hub" onclick="showScreen('bazaar')">
           <div class="map-hub-ring">🏛️</div>
           <div class="map-hub-name">Grand Bazaar</div>
@@ -1175,16 +1183,17 @@
     </button>
     <div style="text-align:center;font-size:10px;color:var(--txt-dm);margin-top:6px;" id="prResetSub"></div>
 
-    <div style="text-align:center;margin-top:16px;padding-top:12px;border-top:1px solid var(--border);">
+    <div id="devTools" style="display:none;text-align:center;margin-top:16px;padding-top:12px;border-top:1px solid var(--border);">
       <button style="background:none;border:1px solid var(--border);border-radius:6px;padding:6px 16px;font-size:10px;color:var(--txt-dm);cursor:pointer;font-family:inherit;" onclick="if(confirm('Delete ALL progress? This cannot be undone!'))wipeSave()">🗑️ Wipe Save</button>
       <button id="godModeBtn" style="background:none;border:1px solid var(--border);border-radius:6px;padding:6px 16px;font-size:10px;color:var(--txt-dm);cursor:pointer;font-family:inherit;margin-left:6px;" onclick="toggleGodMode()">⚡ God Mode</button>
-    </div>
-    <div id="godPanel" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;">
-      <button style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:10px;color:var(--gold);cursor:pointer;font-family:inherit;" onclick="godGiveCrowns()">+100K 🪙</button>
-      <button style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:10px;color:var(--purple-lt);cursor:pointer;font-family:inherit;" onclick="godGiveSeals()">+50 🎖️</button>
-      <button style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:10px;color:var(--teal);cursor:pointer;font-family:inherit;" onclick="godGiveResources()">+Resources</button>
-      <button style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:10px;color:var(--txt);cursor:pointer;font-family:inherit;" onclick="godDiscoverAll()">🧭 Discover All</button>
-      <button style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:10px;color:var(--green);cursor:pointer;font-family:inherit;" onclick="godUnlockAll()">🔓 Unlock All</button>
+      <div id="godPanel" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;">
+        <button id="godSpeed1" style="background:var(--bg-card);border:1px solid var(--gold);border-radius:6px;padding:6px 12px;font-size:10px;color:var(--gold);cursor:pointer;font-family:inherit;" onclick="setGodSpeed(1)">x1</button>
+        <button id="godSpeed2" style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:10px;color:var(--txt-dm);cursor:pointer;font-family:inherit;" onclick="setGodSpeed(2)">x2</button>
+        <button id="godSpeed3" style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:10px;color:var(--txt-dm);cursor:pointer;font-family:inherit;" onclick="setGodSpeed(3)">x3</button>
+        <button id="godSpeed4" style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:10px;color:var(--txt-dm);cursor:pointer;font-family:inherit;" onclick="setGodSpeed(4)">x4</button>
+        <button style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:10px;color:var(--txt);cursor:pointer;font-family:inherit;" onclick="godDiscoverAll()">🧭 Discover</button>
+        <button style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:10px;color:var(--green);cursor:pointer;font-family:inherit;" onclick="godUnlockAll()">🔓 Unlock</button>
+      </div>
     </div>
 
     <div style="display:flex;gap:8px;margin-top:14px;">
@@ -1265,7 +1274,7 @@
 var ZONES = [
   // === STARTER ZONES (Ring 1 — near hub) ===
   {
-    id:'greenwood', name:'Greenwood', icon:'🌲', bg:'#1a3a1a', x:44, y:33,
+    id:'greenwood', name:'Greenwood', icon:'🌲', bg:'#2a6a2a', x:35, y:24,
     cost:100, caravan:'🐴', startState:'unlocked',
     lore:'Ancient woodlands where the first traders gathered timber and wild fruit.',
     discoveryMsg:'The familiar scent of pine greets you as the forest reveals its bounty.',
@@ -1286,7 +1295,7 @@ var ZONES = [
     }
   },
   {
-    id:'sunfield', name:'Sunfield', icon:'🌾', bg:'#3a3418', x:57, y:34,
+    id:'sunfield', name:'Sunfield', icon:'🌾', bg:'#6a6028', x:65, y:24,
     cost:200, caravan:'🐂', startState:'discovered',
     lore:'Golden fields stretching to the horizon, tended by generations of farmers.',
     discoveryMsg:'Wheat sways in the breeze — the farmlands promise steady sustenance.',
@@ -1307,7 +1316,7 @@ var ZONES = [
     }
   },
   {
-    id:'claymouth', name:'Claymouth', icon:'⛰️', bg:'#2a2a32', x:50, y:48,
+    id:'claymouth', name:'Claymouth', icon:'⛰️', bg:'#4a4a5a', x:68, y:46,
     cost:500, caravan:'🐴', startState:'discovered',
     lore:'A valley rich in clay deposits, where potters and builders find their calling.',
     discoveryMsg:'The red clay valley opens before you, ready to be shaped.',
@@ -1328,7 +1337,7 @@ var ZONES = [
     }
   },
   {
-    id:'stonehaven', name:'Stonehaven', icon:'🏘️', bg:'#2e2820', x:38, y:45,
+    id:'stonehaven', name:'Stonehaven', icon:'🏘️', bg:'#5a4830', x:32, y:46,
     cost:1250, caravan:'🐴', startState:'discovered',
     lore:'A bustling trade town at the crossroads, where merchants gather from afar.',
     discoveryMsg:'The market bells of Stonehaven ring out, welcoming new traders!',
@@ -1350,7 +1359,7 @@ var ZONES = [
   },
   // === MAP LV1 ZONES (Ring 2) ===
   {
-    id:'athenai', name:'Athenai', icon:'🏛️', bg:'#1e2848', x:68, y:28,
+    id:'athenai', name:'Athenai', icon:'🏛️', bg:'#304878', x:80, y:22,
     cost:5000, caravan:'⛵', startState:'hidden', mapLevel:1,
     lore:'City of philosophers and artisans, where olive groves meet marble temples.',
     discoveryMsg:'Columns of white marble rise above the olive groves — Athenai awaits!',
@@ -1371,7 +1380,7 @@ var ZONES = [
     }
   },
   {
-    id:'sparta', name:'Sparta', icon:'⚔️', bg:'#3a1818', x:30, y:28,
+    id:'sparta', name:'Sparta', icon:'⚔️', bg:'#6a2828', x:20, y:22,
     cost:9000, caravan:'🐴', startState:'hidden', mapLevel:1,
     lore:'A fortress city of warriors, where discipline forges the finest weapons.',
     discoveryMsg:'The war drums of Sparta echo — their armories now open to trade!',
@@ -1392,7 +1401,7 @@ var ZONES = [
     }
   },
   {
-    id:'roma', name:'Roma', icon:'🏟️', bg:'#3a2018', x:30, y:55,
+    id:'roma', name:'Roma', icon:'🏟️', bg:'#6a3828', x:18, y:52,
     cost:15000, caravan:'🐴', startState:'hidden', mapLevel:1,
     lore:'The Eternal City — its legions forge weapons and its vineyards produce the finest wine.',
     discoveryMsg:'Roads lead to Roma, where gladiators clash and merchants thrive!',
@@ -1413,7 +1422,7 @@ var ZONES = [
     }
   },
   {
-    id:'alexandria', name:'Alexandria', icon:'📜', bg:'#38341a', x:72, y:58,
+    id:'alexandria', name:'Alexandria', icon:'📜', bg:'#68602a', x:82, y:52,
     cost:25000, caravan:'⛵', startState:'hidden', mapLevel:1,
     lore:'The great library holds scrolls of forgotten knowledge, and the spice markets overflow.',
     discoveryMsg:'The lighthouse of Alexandria guides your ships to a city of learning and spice!',
@@ -1435,7 +1444,7 @@ var ZONES = [
   },
   // === MAP LV2 ZONES (Ring 3) ===
   {
-    id:'carthage', name:'Carthage', icon:'🏺', bg:'#382818', x:50, y:12,
+    id:'carthage', name:'Carthage', icon:'🏺', bg:'#685028', x:50, y:6,
     cost:40000, caravan:'⛵', startState:'hidden', mapLevel:2,
     lore:'Once rival to Rome, Carthage now trades in vibrant dyes and rare ivory.',
     discoveryMsg:'The harbor of Carthage welcomes your fleet with exotic treasures!',
@@ -1456,7 +1465,7 @@ var ZONES = [
     }
   },
   {
-    id:'byzantium', name:'Byzantium', icon:'🕌', bg:'#2e1838', x:18, y:18,
+    id:'byzantium', name:'Byzantium', icon:'🕌', bg:'#583068', x:8, y:30,
     cost:75000, caravan:'🐪', startState:'hidden', mapLevel:2,
     lore:'The gateway between East and West, where gold and silk flow through grand bazaars.',
     discoveryMsg:'Golden domes gleam in the sun — Byzantium opens its gates!',
@@ -1477,7 +1486,7 @@ var ZONES = [
     }
   },
   {
-    id:'constantinople', name:'Constantinople', icon:'🕌', bg:'#2a1838', x:85, y:15,
+    id:'constantinople', name:'Constantinople', icon:'🕌', bg:'#503068', x:92, y:30,
     cost:150000, caravan:'🐪', startState:'hidden', mapLevel:2,
     lore:'Crossroads of East and West, where silk meets jewels in grand bazaars.',
     discoveryMsg:'Minarets pierce the sky — Constantinople, jewel of empires, is found!',
@@ -1498,7 +1507,7 @@ var ZONES = [
     }
   },
   {
-    id:'venetia', name:'Venetia', icon:'⛵', bg:'#142838', x:68, y:65,
+    id:'venetia', name:'Venetia', icon:'⛵', bg:'#285070', x:82, y:66,
     cost:250000, caravan:'⛵', startState:'hidden', mapLevel:2,
     lore:'A city of canals and glass-blowers, where merchants rule from gilded palaces.',
     discoveryMsg:'Gondolas glide through canals — Venetia opens its ports to your caravans!',
@@ -1520,7 +1529,7 @@ var ZONES = [
   },
   // === MAP LV3 ZONES (Ring 4) ===
   {
-    id:'cordoba', name:'Cordoba', icon:'🕌', bg:'#302020', x:12, y:80,
+    id:'cordoba', name:'Cordoba', icon:'🕌', bg:'#5a3838', x:8, y:66,
     cost:400000, caravan:'🐪', startState:'hidden', mapLevel:3,
     lore:'A center of learning and craft, where scholars and artisans create wonders.',
     discoveryMsg:'The great mosque of Cordoba rises — a city of knowledge and craft awaits!',
@@ -1541,7 +1550,7 @@ var ZONES = [
     }
   },
   {
-    id:'bruges', name:'Bruges', icon:'🏘️', bg:'#382810', x:88, y:78,
+    id:'bruges', name:'Bruges', icon:'🏘️', bg:'#685020', x:92, y:56,
     cost:800000, caravan:'🐴', startState:'hidden', mapLevel:3,
     lore:'A market town of Flanders, famous for its cloth trade and banking houses.',
     discoveryMsg:'The bell tower of Bruges chimes — the cloth market is open for business!',
@@ -1562,7 +1571,7 @@ var ZONES = [
     }
   },
   {
-    id:'lisbon', name:'Lisbon', icon:'⛵', bg:'#1a2838', x:50, y:75,
+    id:'lisbon', name:'Lisbon', icon:'⛵', bg:'#2a4868', x:50, y:78,
     cost:1500000, caravan:'⛵', startState:'hidden', mapLevel:3,
     lore:'An oceanic port from which explorers set sail to discover new worlds.',
     discoveryMsg:'The harbor of Lisbon beckons — ships laden with spices dock at your port!',
@@ -1583,7 +1592,7 @@ var ZONES = [
     }
   },
   {
-    id:'amsterdam', name:'Amsterdam', icon:'🏦', bg:'#1a2a30', x:32, y:72,
+    id:'amsterdam', name:'Amsterdam', icon:'🏦', bg:'#305060', x:22, y:76,
     cost:3000000, caravan:'⛵', startState:'hidden', mapLevel:3,
     lore:'The financial hub of Europe, where banks and trading companies shape the world.',
     discoveryMsg:'The stock exchange of Amsterdam opens — fortunes await the bold!',
@@ -1605,7 +1614,7 @@ var ZONES = [
   },
   // === MAP LV4 ZONES (Ring 5 — edge of the world) ===
   {
-    id:'london', name:'London', icon:'🏭', bg:'#2a2a32', x:15, y:90,
+    id:'london', name:'London', icon:'🏭', bg:'#4a4a58', x:8, y:88,
     cost:6000000, caravan:'🐴', startState:'hidden', mapLevel:4,
     lore:'The industrial heart of the world, where factories and innovation drive progress.',
     discoveryMsg:'Smokestacks and grand bridges — London industrializes before your eyes!',
@@ -1626,7 +1635,7 @@ var ZONES = [
     }
   },
   {
-    id:'manchester', name:'Manchester', icon:'🏭', bg:'#2e2828', x:85, y:88,
+    id:'manchester', name:'Manchester', icon:'🏭', bg:'#584848', x:92, y:88,
     cost:12000000, caravan:'🐴', startState:'hidden', mapLevel:4,
     lore:'The workshop of the world, where cotton mills and railroads revolutionize trade.',
     discoveryMsg:'Steam engines roar — Manchester offers untold manufacturing power!',
@@ -1647,7 +1656,7 @@ var ZONES = [
     }
   },
   {
-    id:'newyork', name:'New York Harbor', icon:'🗽', bg:'#1a2030', x:50, y:95,
+    id:'newyork', name:'New York Harbor', icon:'🗽', bg:'#304060', x:50, y:94,
     cost:25000000, caravan:'⛵', startState:'hidden', mapLevel:4,
     lore:'The golden door to a new world, where fortunes are made in a single day.',
     discoveryMsg:'The Statue of Liberty rises from the harbor — New York welcomes you!',
@@ -1668,7 +1677,7 @@ var ZONES = [
     }
   },
   {
-    id:'worldcrown', name:'World Crown', icon:'👑', bg:'#2a1020', x:50, y:40,
+    id:'worldcrown', name:'World Crown', icon:'👑', bg:'#5a2040', x:35, y:92,
     cost:50000000, caravan:'🐪', startState:'hidden', mapLevel:4,
     lore:'The ultimate marketplace — where all the riches of the world converge.',
     discoveryMsg:'The World Crown gleams with the wealth of nations — the ultimate prize!',
@@ -1820,6 +1829,7 @@ function createFreshState() {
     globalUpgrades: {},
     specialUpgrades: {},
     godMode: false,
+    godSpeed: 1,
     achievements: {},
     stats: { craftsDone:0, runStartTime:Date.now(), prestigeCount:0, totalSells:0, bestSingleSell:0, peakIncome:0, demandsFulfilled:0, lastPrestigeTime:0, prestigeStreak:0 },
     zoneMastery: {},
@@ -2019,15 +2029,21 @@ function loadGame() {
 }
 
 function wipeSave() {
+  isWiping = true;
+  clearInterval(autoSaveInterval);
   localStorage.removeItem(SAVE_KEY);
+  localStorage.removeItem('grandBazaarTheme');
   location.reload();
 }
 
 /* ============================================================
    CALCULATIONS
    ============================================================ */
-function upgradeCost(unlockCost, ignored, level) {
-  return Math.floor((unlockCost / 20) * Math.pow(1.3, level));
+function upgradeCost(unlockCost, upKey, level) {
+  var typeMult = 1;
+  if (upKey === 'speed') typeMult = 1.5;
+  else if (upKey === 'cargo') typeMult = 2;
+  return Math.floor((unlockCost / 10) * typeMult * Math.pow(1.3, level));
 }
 
 /* #2 Zone Specialization bonus calculator */
@@ -2691,7 +2707,7 @@ function buyUpgrade(zoneId, upKey) {
     var zs = G.zones[zoneId];
     var lvl2 = zs.upgrades[upKey];
     if (up.max && lvl2 >= up.max) return;
-    var cost = upgradeCost(zone.cost, null, lvl2);
+    var cost = upgradeCost(zone.cost, upKey, lvl2);
     if (G.crowns >= cost) {
       G.crowns -= cost;
       zs.upgrades[upKey]++;
@@ -3108,8 +3124,10 @@ function renderHUD() {
     godInd = document.createElement('div');
     godInd.className = 'god-indicator';
     godInd.id = 'godIndicator';
-    godInd.textContent = '⚡ GOD MODE ⚡';
+    godInd.textContent = '⚡ GOD x' + (G.godSpeed || 1) + ' ⚡';
     document.querySelector('.phone').appendChild(godInd);
+  } else if (G.godMode && godInd) {
+    godInd.textContent = '⚡ GOD x' + (G.godSpeed || 1) + ' ⚡';
   } else if (!G.godMode && godInd) {
     godInd.remove();
   }
@@ -3225,7 +3243,7 @@ function renderZoneDetail() {
   ['production','speed','cargo'].forEach(function(key){
     var up = zone.upgrades[key];
     for (var i = 0; i < zs.upgrades[key]; i++) {
-      totalUpgCost += upgradeCost(zone.cost, null, i);
+      totalUpgCost += upgradeCost(zone.cost, key, i);
     }
   });
   var zoneIncome = 0;
@@ -3264,7 +3282,7 @@ function renderZoneDetail() {
       canAfford = G.legacySeals >= cost && !isMaxed;
       costText = isMaxed ? 'MAX' : cost + ' \u{1F396}';
     } else {
-      cost = isMaxed ? 0 : upgradeCost(zone.cost, null, lvl);
+      cost = isMaxed ? 0 : upgradeCost(zone.cost, key, lvl);
       canAfford = G.crowns >= cost && !isMaxed;
       costText = isMaxed ? 'MAX' : '\u{1FA99} ' + formatNum(cost);
     }
@@ -3851,12 +3869,12 @@ function drawZoneConnections() {
    MAP SETUP (once)
    ============================================================ */
 var hubX = 50, hubY = 40;
-var CANVAS_SIZE = 1600;
+var CANVAS_SIZE = 500;
 var caravanEls = {};
 var MAX_VISUAL_CARAVANS = 5;
 
 /* ---- Map pan/zoom state ---- */
-var mapState = { x: 0, y: 0, zoom: 0.3, minZoom: 0.2, maxZoom: 1.0 };
+var mapState = { x: 0, y: 0, zoom: 1.0, minZoom: 0.6, maxZoom: 2.5 };
 var mapDrag = { active: false, startX: 0, startY: 0, startMapX: 0, startMapY: 0 };
 var mapPinch = { active: false, startDist: 0, startZoom: 0 };
 
@@ -3988,9 +4006,12 @@ function setupMap() {
     line.setAttribute('y1', z.y / 100 * CANVAS_SIZE);
     line.setAttribute('x2', hubX / 100 * CANVAS_SIZE);
     line.setAttribute('y2', hubY / 100 * CANVAS_SIZE);
-    line.setAttribute('stroke', 'rgba(212,168,67,0.15)');
+    // Route color based on map level
+    var ringColors = ['rgba(218,180,74,0.45)','rgba(60,180,160,0.45)','rgba(200,80,80,0.45)','rgba(100,140,220,0.45)','rgba(180,100,200,0.45)'];
+    var rc = ringColors[z.mapLevel || 0] || ringColors[0];
+    line.setAttribute('stroke', rc);
     line.setAttribute('stroke-width', '2');
-    line.setAttribute('stroke-dasharray', '6 6');
+    line.setAttribute('stroke-linecap', 'round');
     line.id = 'route-' + z.id;
     svg.appendChild(line);
 
@@ -4059,8 +4080,8 @@ function updateMapNodes() {
 
     var bubbleClass = isUnlocked ? 'mz-unlocked' : 'mz-locked';
     // #17 Zone glow for unlocked zones
-    var glowStyle = isUnlocked ? 'box-shadow: 0 4px 16px rgba(0,0,0,0.5), 0 0 20px ' + z.bg + '80;' : '';
-    var h = '<div class="map-zone-bubble ' + bubbleClass + '" style="background:' + z.bg + ';' + glowStyle + '">' + z.icon + '</div>';
+    var glowStyle = isUnlocked ? 'box-shadow: 0 4px 14px rgba(0,0,0,0.4), 0 0 24px ' + z.bg + 'aa, 0 0 48px ' + z.bg + '44;' : '';
+    var h = '<div class="map-zone-bubble ' + bubbleClass + '" style="background: radial-gradient(circle at 35% 30%, ' + z.bg + 'ee, ' + z.bg + ' 70%);' + glowStyle + '">' + z.icon + '</div>';
     // #14 Mastery badge
     var masteryMark = (G.zoneMastery && G.zoneMastery[z.id]) ? '<span class="mastery-badge">⭐</span>' : '';
     h += '<div class="map-zone-name">' + z.name + masteryMark + '</div>';
@@ -4072,7 +4093,15 @@ function updateMapNodes() {
     }
 
     node.innerHTML = h;
-    route.setAttribute('stroke', isUnlocked ? 'rgba(212,168,67,0.35)' : isDiscovered ? 'rgba(212,168,67,0.12)' : 'transparent');
+    if (isUnlocked) {
+      route.setAttribute('stroke-opacity', '0.7');
+      route.setAttribute('stroke-width', '2.5');
+    } else if (isDiscovered) {
+      route.setAttribute('stroke-opacity', '0.3');
+      route.setAttribute('stroke-width', '2');
+    } else {
+      route.setAttribute('stroke-opacity', '0');
+    }
   });
 }
 
@@ -4169,7 +4198,7 @@ function updateCaravans() {
   // #9 Batched caravan arrival toast
   caravanToastTimer++;
   if (caravanToastTimer >= 60 && caravanArrivals > 0) { // ~1s at 60fps
-    showToast(caravanArrivals + ' caravan' + (caravanArrivals > 1 ? 's' : '') + ' arrived at bazaar');
+    // Toast disabled — too frequent
     caravanArrivals = 0;
     caravanToastTimer = 0;
   }
@@ -4200,7 +4229,7 @@ updateMapNodes();
 
 // Production tick — 100ms (game logic only, no DOM)
 setInterval(function(){
-  var loops = G.godMode ? 10 : 1;
+  var loops = G.godMode ? (G.godSpeed || 1) : 1;
   for (var i = 0; i < loops; i++) { tick(); tickCraft(); tickAutoSell(); }
   tickContinuousSell();
   tickDemandEvent(); // #3
@@ -4233,10 +4262,11 @@ setInterval(function(){
 })();
 
 // Auto-save every 5 seconds
-setInterval(saveGame, 5000);
+var autoSaveInterval = setInterval(saveGame, 5000);
 
-// Save on page close/refresh
-window.addEventListener('beforeunload', saveGame);
+// Save on page close/refresh (skip if wiping)
+var isWiping = false;
+window.addEventListener('beforeunload', function(){ if (!isWiping) saveGame(); });
 
 // Collapsible sections — track open state globally
 var openSections = {};
@@ -4335,12 +4365,16 @@ function toggleGodMode() {
   document.getElementById('godModeBtn').style.color = G.godMode ? 'var(--gold)' : 'var(--txt-dm)';
   if (G.godMode) showFlash('⚡ GOD MODE');
 }
-function godGiveCrowns() { G.crowns += 100000; G.totalCrownsEarned += 100000; showFlash('+100K 🪙'); }
-function godGiveSeals() { G.legacySeals += 50; showFlash('+50 🎖️'); }
-function godGiveResources() {
-  ZONES.forEach(function(z){ z.resources.forEach(function(r){ G.bazaar[r.id] = (G.bazaar[r.id]||0) + 500; }); });
-  CRAFT_RECIPES.forEach(function(r){ if (!r.locked) G.craftInventory[r.id] = (G.craftInventory[r.id]||0) + 20; });
-  showFlash('+500 all resources');
+function setGodSpeed(mult) {
+  G.godSpeed = mult;
+  [1,2,3,4].forEach(function(n){
+    var btn = document.getElementById('godSpeed' + n);
+    if (btn) {
+      btn.style.borderColor = n === mult ? 'var(--gold)' : 'var(--border)';
+      btn.style.color = n === mult ? 'var(--gold)' : 'var(--txt-dm)';
+    }
+  });
+  showFlash('⚡ x' + mult + ' income');
 }
 function godDiscoverAll() {
   ZONES.forEach(function(z){ if (G.zones[z.id].state === 'hidden') G.zones[z.id].state = 'discovered'; });
@@ -4351,11 +4385,29 @@ function godUnlockAll() {
   showFlash('🔓 All zones unlocked');
 }
 window.toggleGodMode = toggleGodMode;
-window.godGiveCrowns = godGiveCrowns;
-window.godGiveSeals = godGiveSeals;
-window.godGiveResources = godGiveResources;
+window.setGodSpeed = setGodSpeed;
 window.godDiscoverAll = godDiscoverAll;
 window.godUnlockAll = godUnlockAll;
+
+// Secret dev tools: 5 taps on HUD title
+var devTaps = 0;
+var devTapTimer = null;
+var hudTitleEl = document.querySelector('.hud-title');
+if (hudTitleEl) {
+  hudTitleEl.addEventListener('click', function(){
+    devTaps++;
+    clearTimeout(devTapTimer);
+    devTapTimer = setTimeout(function(){ devTaps = 0; }, 1500);
+    if (devTaps >= 5) {
+      devTaps = 0;
+      var dt = document.getElementById('devTools');
+      if (dt) {
+        dt.style.display = dt.style.display === 'none' ? '' : 'none';
+        showFlash('🔧 Dev Tools ' + (dt.style.display === 'none' ? 'OFF' : 'ON'));
+      }
+    }
+  });
+}
 
 // Theme toggle
 function toggleTheme() {
