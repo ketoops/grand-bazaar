@@ -1045,6 +1045,36 @@
     background: var(--border); border: 1px solid var(--txt-dm);
   }
   .cr-queue-pip.filled { background: var(--teal); border-color: var(--teal); }
+  /* ===== LEADERBOARD ===== */
+  .lb-header { text-align: center; margin-bottom: 12px; }
+  .lb-header h3 { font-size: 16px; color: var(--gold); }
+  .lb-header .lb-sub { font-size: 10px; color: var(--txt-dm); margin-top: 2px; }
+  .lb-card {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r);
+    padding: 10px 14px; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .lb-card.lb-self { border-color: var(--gold); box-shadow: var(--glow-gold); }
+  .lb-rank {
+    font-size: 18px; font-weight: 700; color: var(--txt-dm); min-width: 28px; text-align: center;
+  }
+  .lb-rank.lb-r1 { color: #ffd700; }
+  .lb-rank.lb-r2 { color: #c0c0c0; }
+  .lb-rank.lb-r3 { color: #cd7f32; }
+  .lb-info { flex: 1; min-width: 0; }
+  .lb-name { font-size: 14px; font-weight: 700; color: var(--txt-br); }
+  .lb-stats { font-size: 10px; color: var(--txt-dm); margin-top: 2px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .lb-zones { display: flex; gap: 3px; margin-top: 4px; flex-wrap: wrap; }
+  .lb-zone-dot {
+    width: 20px; height: 20px; border-radius: 50%; font-size: 10px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .lb-zone-dot.locked { opacity: 0.15; filter: saturate(0); }
+  .lb-crowns { font-size: 14px; font-weight: 700; color: var(--gold); text-align: right; white-space: nowrap; }
+  .lb-offline { font-size: 9px; color: var(--txt-dm); text-align: right; }
+  .lb-empty { text-align: center; color: var(--txt-dm); font-size: 12px; padding: 30px 0; }
+
   /* ===== PROFILE SCREEN ===== */
   .profile-overlay {
     position: fixed; inset: 0; z-index: 9999;
@@ -1309,11 +1339,21 @@
     <div class="stats-panel" id="runStatsContent"></div>
   </div>
 
+  <!-- LEADERBOARD -->
+  <div class="screen" id="scrLeaderboard" style="padding-bottom:12px;">
+    <div class="lb-header">
+      <h3>🏆 Leaderboard</h3>
+      <div class="lb-sub">Updates every minute • <span id="lbLastUpdate">—</span></div>
+    </div>
+    <div id="lbList"><div class="lb-empty">Connecting...</div></div>
+  </div>
+
   <!-- NAV -->
   <div class="nav">
     <button class="nav-item active" onclick="showScreen('map')"><span class="ni">🗺️</span>Map</button>
     <button class="nav-item" onclick="showScreen('bazaar')"><span class="ni">🏛️</span>Bazaar</button>
     <button class="nav-item" onclick="showScreen('craft')"><span class="ni">⚒️</span>Craft</button>
+    <button class="nav-item" onclick="showScreen('leaderboard')"><span class="ni">🏆</span>Board</button>
     <button class="nav-item" onclick="showScreen('prestige')"><span class="ni">🎖️</span>Prestige</button>
   </div>
 </div>
@@ -3147,18 +3187,23 @@ function showScreen(id) {
   } else if (id === 'stats') {
     document.getElementById('scrStats').classList.add('active');
     document.querySelectorAll('.nav-item')[0].classList.add('active');
+  } else if (id === 'leaderboard') {
+    document.getElementById('scrLeaderboard').classList.add('active');
+    document.querySelectorAll('.nav-item')[3].classList.add('active');
+    pushLeaderboard();
+    fetchLeaderboard();
   } else if (id === 'prestShop') {
     document.getElementById('scrPrestShop').classList.add('active');
-    document.querySelectorAll('.nav-item')[3].classList.add('active');
+    document.querySelectorAll('.nav-item')[4].classList.add('active');
   } else if (id === 'achievements') {
     document.getElementById('scrAchievements').classList.add('active');
-    document.querySelectorAll('.nav-item')[3].classList.add('active');
+    document.querySelectorAll('.nav-item')[4].classList.add('active');
   } else if (id === 'runStats') {
     document.getElementById('scrRunStats').classList.add('active');
-    document.querySelectorAll('.nav-item')[3].classList.add('active');
+    document.querySelectorAll('.nav-item')[4].classList.add('active');
   } else {
     document.getElementById('scr' + id.charAt(0).toUpperCase() + id.slice(1)).classList.add('active');
-    var navIdx = id === 'map' ? 0 : id === 'bazaar' ? 1 : id === 'craft' ? 2 : 3;
+    var navIdx = id === 'map' ? 0 : id === 'bazaar' ? 1 : id === 'craft' ? 2 : id === 'leaderboard' ? 3 : 4;
     document.querySelectorAll('.nav-item')[navIdx].classList.add('active');
   }
 }
@@ -4358,6 +4403,115 @@ function spawnParticle(zone) {
   canvas.appendChild(p);
   setTimeout(function(){ p.remove(); }, 2000);
 }
+
+/* ============================================================
+   LEADERBOARD (Firebase Realtime Database)
+   ============================================================ */
+var FIREBASE_URL = 'https://grand-bazaar-e5e59-default-rtdb.europe-west1.firebasedatabase.app';
+
+function pushLeaderboard() {
+  if (!activeProfile || !FIREBASE_URL) return;
+  var zonesUnlocked = 0;
+  var zoneIcons = [];
+  ZONES.forEach(function(z){
+    var unlocked = G.zones[z.id].state === 'unlocked';
+    if (unlocked) zonesUnlocked++;
+    zoneIcons.push({ id: z.id, icon: z.icon, name: z.name, unlocked: unlocked });
+  });
+  var data = {
+    name: activeProfile,
+    crowns: Math.floor(G.crowns),
+    totalCrownsEarned: Math.floor(G.totalCrownsEarned),
+    seals: G.legacySeals,
+    zonesUnlocked: zonesUnlocked,
+    income: Math.floor(calcTotalIncome()),
+    zones: zoneIcons,
+    lastSeen: Date.now()
+  };
+  try {
+    fetch(FIREBASE_URL + '/leaderboard/' + encodeURIComponent(activeProfile) + '.json', {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+  } catch(e){}
+}
+
+function fetchLeaderboard() {
+  if (!FIREBASE_URL) return;
+  fetch(FIREBASE_URL + '/leaderboard.json')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      renderLeaderboard(data);
+    })
+    .catch(function(){
+      var list = document.getElementById('lbList');
+      if (list) list.innerHTML = '<div class="lb-empty">Could not connect</div>';
+    });
+}
+
+function renderLeaderboard(data) {
+  var list = document.getElementById('lbList');
+  if (!list || !data) {
+    if (list) list.innerHTML = '<div class="lb-empty">No players yet</div>';
+    return;
+  }
+  // Convert to array and sort by totalCrownsEarned
+  var players = [];
+  Object.keys(data).forEach(function(key){
+    if (data[key] && data[key].name) players.push(data[key]);
+  });
+  players.sort(function(a, b){ return (b.totalCrownsEarned || 0) - (a.totalCrownsEarned || 0); });
+
+  if (players.length === 0) {
+    list.innerHTML = '<div class="lb-empty">No players yet</div>';
+    return;
+  }
+
+  var html = '';
+  players.forEach(function(p, i) {
+    var isSelf = activeProfile && p.name === activeProfile;
+    var rankClass = i === 0 ? 'lb-r1' : i === 1 ? 'lb-r2' : i === 2 ? 'lb-r3' : '';
+    var rankText = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+
+    // Time since last seen
+    var ago = '';
+    if (p.lastSeen) {
+      var mins = Math.floor((Date.now() - p.lastSeen) / 60000);
+      if (mins < 1) ago = 'online now';
+      else if (mins < 60) ago = mins + 'm ago';
+      else if (mins < 1440) ago = Math.floor(mins / 60) + 'h ago';
+      else ago = Math.floor(mins / 1440) + 'd ago';
+    }
+
+    // Zone dots
+    var dots = '';
+    if (p.zones) {
+      p.zones.forEach(function(z) {
+        dots += '<div class="lb-zone-dot ' + (z.unlocked ? '' : 'locked') + '" title="' + z.name + '">' + z.icon + '</div>';
+      });
+    }
+
+    html += '<div class="lb-card ' + (isSelf ? 'lb-self' : '') + '">';
+    html += '<div class="lb-rank ' + rankClass + '">' + rankText + '</div>';
+    html += '<div class="lb-info">';
+    html += '<div class="lb-name">' + p.name + '</div>';
+    html += '<div class="lb-stats"><span>🎖️ ' + (p.seals || 0) + '</span><span>🗺️ ' + (p.zonesUnlocked || 0) + '/20</span><span>💰 ' + formatNum(p.income || 0) + '/s</span></div>';
+    html += '<div class="lb-zones">' + dots + '</div>';
+    html += '</div>';
+    html += '<div><div class="lb-crowns">🪙 ' + formatNum(p.totalCrownsEarned || 0) + '</div><div class="lb-offline">' + ago + '</div></div>';
+    html += '</div>';
+  });
+
+  list.innerHTML = html;
+  var ts = document.getElementById('lbLastUpdate');
+  if (ts) ts.textContent = new Date().toLocaleTimeString();
+}
+
+// Push every 60s, fetch every 60s (offset by 30s)
+setInterval(pushLeaderboard, 60000);
+setInterval(fetchLeaderboard, 60000);
+// Initial push/fetch after profile is loaded
+setTimeout(function(){ pushLeaderboard(); fetchLeaderboard(); }, 2000);
 
 /* ============================================================
    MAIN LOOP
