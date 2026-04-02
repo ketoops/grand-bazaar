@@ -4197,8 +4197,9 @@ function initMapControls() {
     for (var i = 0; i < e.changedTouches.length; i++) {
       delete touches[e.changedTouches[i].identifier];
     }
+    var remaining = Object.keys(touches);
     // Only trigger zone click if it was a tap (no drag/pinch)
-    if (!touchMoved && touchStartTarget && Object.keys(touches).length === 0) {
+    if (!touchMoved && touchStartTarget && remaining.length === 0) {
       var zoneEl = touchStartTarget.closest('.map-zone');
       var hubEl = touchStartTarget.closest('.map-hub');
       if (zoneEl && zoneEl.id) {
@@ -4208,8 +4209,16 @@ function initMapControls() {
         showScreen('bazaar');
       }
     }
-    if (Object.keys(touches).length < 2) mapPinch.active = false;
-    if (Object.keys(touches).length === 0) mapDrag.active = false;
+    if (remaining.length < 2) mapPinch.active = false;
+    // After pinch ends with 1 finger remaining, restart drag from that finger
+    if (remaining.length === 1 && !mapDrag.active) {
+      mapDrag.active = true;
+      mapDrag.startX = touches[remaining[0]].x;
+      mapDrag.startY = touches[remaining[0]].y;
+      mapDrag.startMapX = mapState.x;
+      mapDrag.startMapY = mapState.y;
+    }
+    if (remaining.length === 0) mapDrag.active = false;
     touchStartTarget = null;
   });
 }
