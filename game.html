@@ -1263,349 +1263,454 @@
    GAME DATA
    ============================================================ */
 var ZONES = [
-  // === STARTER ZONES (always visible, buy with Crowns) ===
+  // === STARTER ZONES (Ring 1 — near hub) ===
   {
-    id:'forest', name:'Pădure', icon:'🌲', bg:'#1a3a1a', x:44, y:33,
-    cost:0, caravan:'🐴', startState:'unlocked',
+    id:'greenwood', name:'Greenwood', icon:'🌲', bg:'#1a3a1a', x:44, y:33,
+    cost:100, caravan:'🐴', startState:'unlocked',
     lore:'Ancient woodlands where the first traders gathered timber and wild fruit.',
     discoveryMsg:'The familiar scent of pine greets you as the forest reveals its bounty.',
     bonus:{ desc:'+5% all production', type:'prodAll', value:0.05 },
     resources:[
-      { id:'wood', name:'Wood', icon:'🪵', yield:70, baseRate:1.0, price:2 },
-      { id:'food', name:'Food', icon:'🍎', yield:30, baseRate:0.4, price:3 }
+      { id:'wood', name:'Wood', icon:'🪵', yield:60, baseRate:2.40, price:1 },
+      { id:'food', name:'Food', icon:'🍎', yield:40, baseRate:1.60, price:1 }
     ],
     upgrades:{
-      production:{ base:10, mult:1.45, perLvl:0.15, label:'Production Rate', icon:'⛏', unit:'/s' },
-      speed:{ base:15, mult:1.45, perLvl:10, label:'Caravan Speed', icon:'🐴', unit:'%' },
-      cargo:{ base:20, mult:1.45, perLvl:5, label:'Cargo', icon:'📦', unit:' units' },
-      harvest:{ base:50, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
-      extraCaravan:{ base:200, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'🐴+', unit:'', max:4 },
-      sellValue:{ base:30, mult:1.50, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
-      storage:{ base:25, mult:1.45, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
-      luckyFind:{ base:80, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+      production:{ perLvl:1, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ perLvl:1, label:'Caravan Speed', icon:'🐴', unit:'%' },
+      cargo:{ perLvl:1, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ perLvl:1, label:'Extra Caravan', icon:'🐴+', unit:'', max:4 },
+      sellValue:{ perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
     }
   },
   {
-    id:'farm', name:'Fermă', icon:'🌾', bg:'#3a3418', x:57, y:34,
-    cost:500, caravan:'🐂', startState:'discovered',
+    id:'sunfield', name:'Sunfield', icon:'🌾', bg:'#3a3418', x:57, y:34,
+    cost:200, caravan:'🐂', startState:'discovered',
     lore:'Golden fields stretching to the horizon, tended by generations of farmers.',
     discoveryMsg:'Wheat sways in the breeze — the farmlands promise steady sustenance.',
     bonus:{ desc:'+5% all sell prices', type:'sellAll', value:0.05 },
     resources:[
-      { id:'food', name:'Food', icon:'🍎', yield:75, baseRate:1.2, price:3 },
-      { id:'wood', name:'Wood', icon:'🪵', yield:25, baseRate:0.3, price:2 }
+      { id:'grain', name:'Grain', icon:'🌾', yield:60, baseRate:2.78, price:1.35 },
+      { id:'food', name:'Food', icon:'🍎', yield:40, baseRate:1.86, price:1.35 }
     ],
     upgrades:{
-      production:{ base:25, mult:1.45, perLvl:0.18, label:'Production Rate', icon:'⛏', unit:'/s' },
-      speed:{ base:35, mult:1.45, perLvl:10, label:'Caravan Speed', icon:'🐂', unit:'%' },
-      cargo:{ base:45, mult:1.45, perLvl:8, label:'Cargo', icon:'📦', unit:' units' },
-      harvest:{ base:120, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
-      extraCaravan:{ base:500, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'🐂+', unit:'', max:4 },
-      sellValue:{ base:70, mult:1.50, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
-      storage:{ base:60, mult:1.45, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
-      luckyFind:{ base:180, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+      production:{ perLvl:1, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ perLvl:1, label:'Caravan Speed', icon:'🐂', unit:'%' },
+      cargo:{ perLvl:1, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ perLvl:1, label:'Extra Caravan', icon:'🐂+', unit:'', max:4 },
+      sellValue:{ perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
     }
   },
   {
-    id:'mine', name:'Mină', icon:'⛰️', bg:'#2a2a32', x:50, y:48,
-    cost:2500, caravan:'🐴', startState:'discovered',
-    lore:'Deep tunnels carved into the mountains, rich with ore and precious stone.',
-    discoveryMsg:'The ring of pickaxes echoes from the dark mine shafts.',
+    id:'claymouth', name:'Claymouth', icon:'⛰️', bg:'#2a2a32', x:50, y:48,
+    cost:500, caravan:'🐴', startState:'discovered',
+    lore:'A valley rich in clay deposits, where potters and builders find their calling.',
+    discoveryMsg:'The red clay valley opens before you, ready to be shaped.',
     bonus:{ desc:'+5% caravan speed', type:'speedAll', value:0.05 },
     resources:[
-      { id:'stone', name:'Stone', icon:'🪨', yield:60, baseRate:0.6, price:5 },
-      { id:'iron', name:'Iron', icon:'⚙️', yield:40, baseRate:0.3, price:10 }
+      { id:'clay', name:'Clay', icon:'🪨', yield:60, baseRate:3.23, price:1.80 },
+      { id:'stone', name:'Stone', icon:'⛰️', yield:40, baseRate:2.15, price:1.80 }
     ],
     upgrades:{
-      production:{ base:80, mult:1.50, perLvl:0.12, label:'Production Rate', icon:'⛏', unit:'/s' },
-      speed:{ base:100, mult:1.50, perLvl:10, label:'Caravan Speed', icon:'🐴', unit:'%' },
-      cargo:{ base:120, mult:1.50, perLvl:10, label:'Cargo', icon:'📦', unit:' units' },
-      harvest:{ base:300, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
-      extraCaravan:{ base:1200, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'🐴+', unit:'', max:4 },
-      sellValue:{ base:150, mult:1.50, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
-      storage:{ base:140, mult:1.45, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
-      luckyFind:{ base:400, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+      production:{ perLvl:1, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ perLvl:1, label:'Caravan Speed', icon:'🐴', unit:'%' },
+      cargo:{ perLvl:1, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ perLvl:1, label:'Extra Caravan', icon:'🐴+', unit:'', max:4 },
+      sellValue:{ perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
     }
   },
-  // === SCOUTABLE ZONES (Map Lv1 discovers these) ===
   {
-    id:'athenai', name:'Athenai', icon:'🏛️', bg:'#1e2848', x:68, y:28,
-    cost:8000, caravan:'⛵', startState:'hidden', mapLevel:1,
-    lore:'City of philosophers and artisans, where olive groves meet marble temples.',
-    discoveryMsg:'Columns of white marble rise above the olive groves — Athenai awaits!',
+    id:'stonehaven', name:'Stonehaven', icon:'🏘️', bg:'#2e2820', x:38, y:45,
+    cost:1250, caravan:'🐴', startState:'discovered',
+    lore:'A bustling trade town at the crossroads, where merchants gather from afar.',
+    discoveryMsg:'The market bells of Stonehaven ring out, welcoming new traders!',
     bonus:{ desc:'-3% craft time', type:'craftSpeed', value:0.03 },
     resources:[
-      { id:'oliveOil', name:'Olive Oil', icon:'🫒', yield:65, baseRate:0.6, price:20 },
-      { id:'pottery', name:'Pottery', icon:'🏺', yield:35, baseRate:0.3, price:28 }
+      { id:'iron', name:'Iron', icon:'⚙️', yield:60, baseRate:3.74, price:2.40 },
+      { id:'stone', name:'Stone', icon:'⛰️', yield:40, baseRate:2.50, price:2.40 }
     ],
     upgrades:{
-      production:{ base:200, mult:1.50, perLvl:0.12, label:'Production Rate', icon:'⛏', unit:'/s' },
-      speed:{ base:250, mult:1.50, perLvl:10, label:'Caravan Speed', icon:'⛵', unit:'%' },
-      cargo:{ base:300, mult:1.50, perLvl:8, label:'Cargo', icon:'📦', unit:' units' },
-      harvest:{ base:800, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
-      extraCaravan:{ base:3000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'⛵+', unit:'', max:4 },
-      sellValue:{ base:400, mult:1.55, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
-      storage:{ base:350, mult:1.50, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
-      luckyFind:{ base:1000, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+      production:{ perLvl:1, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ perLvl:1, label:'Caravan Speed', icon:'🐴', unit:'%' },
+      cargo:{ perLvl:1, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ perLvl:1, label:'Extra Caravan', icon:'🐴+', unit:'', max:4 },
+      sellValue:{ perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+    }
+  },
+  // === MAP LV1 ZONES (Ring 2) ===
+  {
+    id:'athenai', name:'Athenai', icon:'🏛️', bg:'#1e2848', x:68, y:28,
+    cost:5000, caravan:'⛵', startState:'hidden', mapLevel:1,
+    lore:'City of philosophers and artisans, where olive groves meet marble temples.',
+    discoveryMsg:'Columns of white marble rise above the olive groves — Athenai awaits!',
+    bonus:{ desc:'+5% all production', type:'prodAll', value:0.05 },
+    resources:[
+      { id:'oliveOil', name:'Olive Oil', icon:'🫒', yield:60, baseRate:4.34, price:3.10 },
+      { id:'pottery', name:'Pottery', icon:'🏺', yield:40, baseRate:2.90, price:3.10 }
+    ],
+    upgrades:{
+      production:{ perLvl:1, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ perLvl:1, label:'Caravan Speed', icon:'⛵', unit:'%' },
+      cargo:{ perLvl:1, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ perLvl:1, label:'Extra Caravan', icon:'⛵+', unit:'', max:4 },
+      sellValue:{ perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+    }
+  },
+  {
+    id:'sparta', name:'Sparta', icon:'⚔️', bg:'#3a1818', x:30, y:28,
+    cost:9000, caravan:'🐴', startState:'hidden', mapLevel:1,
+    lore:'A fortress city of warriors, where discipline forges the finest weapons.',
+    discoveryMsg:'The war drums of Sparta echo — their armories now open to trade!',
+    bonus:{ desc:'+5% all sell prices', type:'sellAll', value:0.05 },
+    resources:[
+      { id:'weapons', name:'Weapons', icon:'⚔️', yield:60, baseRate:5.04, price:4.00 },
+      { id:'armor', name:'Armor', icon:'🛡️', yield:40, baseRate:3.36, price:4.00 }
+    ],
+    upgrades:{
+      production:{ perLvl:1, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ perLvl:1, label:'Caravan Speed', icon:'🐴', unit:'%' },
+      cargo:{ perLvl:1, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ perLvl:1, label:'Extra Caravan', icon:'🐴+', unit:'', max:4 },
+      sellValue:{ perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
     }
   },
   {
     id:'roma', name:'Roma', icon:'🏟️', bg:'#3a2018', x:30, y:55,
-    cost:25000, caravan:'🐴', startState:'hidden', mapLevel:1,
+    cost:15000, caravan:'🐴', startState:'hidden', mapLevel:1,
     lore:'The Eternal City — its legions forge weapons and its vineyards produce the finest wine.',
     discoveryMsg:'Roads lead to Roma, where gladiators clash and merchants thrive!',
-    bonus:{ desc:'+5% all production', type:'prodAll', value:0.05 },
+    bonus:{ desc:'+5% caravan speed', type:'speedAll', value:0.05 },
     resources:[
-      { id:'wine', name:'Wine', icon:'🍷', yield:60, baseRate:0.5, price:30 },
-      { id:'weapons', name:'Weapons', icon:'⚔️', yield:40, baseRate:0.2, price:55 }
+      { id:'wine', name:'Wine', icon:'🍷', yield:60, baseRate:5.84, price:5.10 },
+      { id:'marble', name:'Marble', icon:'🏛️', yield:40, baseRate:3.90, price:5.10 }
     ],
     upgrades:{
-      production:{ base:500, mult:1.55, perLvl:0.10, label:'Production Rate', icon:'⛏', unit:'/s' },
-      speed:{ base:600, mult:1.55, perLvl:10, label:'Caravan Speed', icon:'🐴', unit:'%' },
-      cargo:{ base:700, mult:1.55, perLvl:10, label:'Cargo', icon:'📦', unit:' units' },
-      harvest:{ base:2000, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
-      extraCaravan:{ base:8000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'🐴+', unit:'', max:4 },
-      sellValue:{ base:900, mult:1.55, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
-      storage:{ base:800, mult:1.50, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
-      luckyFind:{ base:2500, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+      production:{ perLvl:1, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ perLvl:1, label:'Caravan Speed', icon:'🐴', unit:'%' },
+      cargo:{ perLvl:1, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ perLvl:1, label:'Extra Caravan', icon:'🐴+', unit:'', max:4 },
+      sellValue:{ perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
     }
   },
   {
     id:'alexandria', name:'Alexandria', icon:'📜', bg:'#38341a', x:72, y:58,
-    cost:60000, caravan:'⛵', startState:'hidden', mapLevel:1,
+    cost:25000, caravan:'⛵', startState:'hidden', mapLevel:1,
     lore:'The great library holds scrolls of forgotten knowledge, and the spice markets overflow.',
     discoveryMsg:'The lighthouse of Alexandria guides your ships to a city of learning and spice!',
-    bonus:{ desc:'+5% all sell prices', type:'sellAll', value:0.05 },
+    bonus:{ desc:'-3% craft time', type:'craftSpeed', value:0.03 },
     resources:[
-      { id:'papyrus', name:'Papyrus', icon:'📜', yield:60, baseRate:0.4, price:38 },
-      { id:'spices', name:'Spices', icon:'🌶️', yield:40, baseRate:0.15, price:70 }
+      { id:'papyrus', name:'Papyrus', icon:'📜', yield:60, baseRate:6.78, price:6.40 },
+      { id:'spices', name:'Spices', icon:'🌶️', yield:40, baseRate:4.52, price:6.40 }
     ],
     upgrades:{
-      production:{ base:1200, mult:1.60, perLvl:0.08, label:'Production Rate', icon:'⛏', unit:'/s' },
-      speed:{ base:1500, mult:1.60, perLvl:10, label:'Caravan Speed', icon:'⛵', unit:'%' },
-      cargo:{ base:1800, mult:1.60, perLvl:10, label:'Cargo', icon:'📦', unit:' units' },
-      harvest:{ base:5000, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
-      extraCaravan:{ base:20000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'⛵+', unit:'', max:4 },
-      sellValue:{ base:2200, mult:1.60, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
-      storage:{ base:2000, mult:1.55, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
-      luckyFind:{ base:6000, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+      production:{ perLvl:1, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ perLvl:1, label:'Caravan Speed', icon:'⛵', unit:'%' },
+      cargo:{ perLvl:1, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ perLvl:1, label:'Extra Caravan', icon:'⛵+', unit:'', max:4 },
+      sellValue:{ perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
     }
   },
-  // === MAP LV2 ZONES (Ring 3 — further out) ===
+  // === MAP LV2 ZONES (Ring 3) ===
   {
-    id:'constantinople', name:'Constantinople', icon:'🕌', bg:'#2e1838', x:18, y:18,
+    id:'carthage', name:'Carthage', icon:'🏺', bg:'#382818', x:50, y:12,
+    cost:40000, caravan:'⛵', startState:'hidden', mapLevel:2,
+    lore:'Once rival to Rome, Carthage now trades in vibrant dyes and rare ivory.',
+    discoveryMsg:'The harbor of Carthage welcomes your fleet with exotic treasures!',
+    bonus:{ desc:'+5% all production', type:'prodAll', value:0.05 },
+    resources:[
+      { id:'dyes', name:'Dyes', icon:'🎨', yield:60, baseRate:7.87, price:8.00 },
+      { id:'ivory', name:'Ivory', icon:'🦷', yield:40, baseRate:5.24, price:8.00 }
+    ],
+    upgrades:{
+      production:{ perLvl:1, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ perLvl:1, label:'Caravan Speed', icon:'⛵', unit:'%' },
+      cargo:{ perLvl:1, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ perLvl:1, label:'Extra Caravan', icon:'⛵+', unit:'', max:4 },
+      sellValue:{ perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+    }
+  },
+  {
+    id:'byzantium', name:'Byzantium', icon:'🕌', bg:'#2e1838', x:18, y:18,
+    cost:75000, caravan:'🐪', startState:'hidden', mapLevel:2,
+    lore:'The gateway between East and West, where gold and silk flow through grand bazaars.',
+    discoveryMsg:'Golden domes gleam in the sun — Byzantium opens its gates!',
+    bonus:{ desc:'+5% all sell prices', type:'sellAll', value:0.05 },
+    resources:[
+      { id:'silk', name:'Silk', icon:'🧵', yield:60, baseRate:9.13, price:10.00 },
+      { id:'jewels', name:'Jewels', icon:'💍', yield:40, baseRate:6.08, price:10.00 }
+    ],
+    upgrades:{
+      production:{ perLvl:1, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ perLvl:1, label:'Caravan Speed', icon:'🐪', unit:'%' },
+      cargo:{ perLvl:1, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ perLvl:1, label:'Extra Caravan', icon:'🐪+', unit:'', max:4 },
+      sellValue:{ perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+    }
+  },
+  {
+    id:'constantinople', name:'Constantinople', icon:'🕌', bg:'#2a1838', x:85, y:15,
     cost:150000, caravan:'🐪', startState:'hidden', mapLevel:2,
     lore:'Crossroads of East and West, where silk meets jewels in grand bazaars.',
     discoveryMsg:'Minarets pierce the sky — Constantinople, jewel of empires, is found!',
     bonus:{ desc:'+5% caravan speed', type:'speedAll', value:0.05 },
     resources:[
-      { id:'silk', name:'Silk', icon:'🧵', yield:55, baseRate:0.35, price:85 },
-      { id:'jewels', name:'Jewels', icon:'💍', yield:45, baseRate:0.12, price:150 }
+      { id:'incense', name:'Incense', icon:'🕯️', yield:60, baseRate:10.58, price:12.40 },
+      { id:'glass', name:'Glass', icon:'🔮', yield:40, baseRate:7.06, price:12.40 }
     ],
     upgrades:{
-      production:{ base:3000, mult:1.65, perLvl:0.08, label:'Production Rate', icon:'⛏', unit:'/s' },
-      speed:{ base:3500, mult:1.65, perLvl:10, label:'Caravan Speed', icon:'🐪', unit:'%' },
-      cargo:{ base:4000, mult:1.65, perLvl:10, label:'Cargo', icon:'📦', unit:' units' },
-      harvest:{ base:12000, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
-      extraCaravan:{ base:50000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'🐪+', unit:'', max:4 },
-      sellValue:{ base:5000, mult:1.60, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
-      storage:{ base:4500, mult:1.55, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
-      luckyFind:{ base:15000, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+      production:{ perLvl:1, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ perLvl:1, label:'Caravan Speed', icon:'🐪', unit:'%' },
+      cargo:{ perLvl:1, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ perLvl:1, label:'Extra Caravan', icon:'🐪+', unit:'', max:4 },
+      sellValue:{ perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
     }
   },
   {
-    id:'venetia', name:'Venetia', icon:'⛵', bg:'#142838', x:85, y:15,
-    cost:200000, caravan:'⛵', startState:'hidden', mapLevel:2,
+    id:'venetia', name:'Venetia', icon:'⛵', bg:'#142838', x:68, y:65,
+    cost:250000, caravan:'⛵', startState:'hidden', mapLevel:2,
     lore:'A city of canals and glass-blowers, where merchants rule from gilded palaces.',
     discoveryMsg:'Gondolas glide through canals — Venetia opens its ports to your caravans!',
     bonus:{ desc:'-3% craft time', type:'craftSpeed', value:0.03 },
     resources:[
-      { id:'glass', name:'Glass', icon:'🔮', yield:50, baseRate:0.3, price:95 },
-      { id:'salt', name:'Salt', icon:'🧂', yield:50, baseRate:0.4, price:45 }
+      { id:'salt', name:'Salt', icon:'🧂', yield:60, baseRate:12.28, price:15.30 },
+      { id:'vGlass', name:'Venetian Glass', icon:'🔮', yield:40, baseRate:8.18, price:15.30 }
     ],
     upgrades:{
-      production:{ base:4000, mult:1.65, perLvl:0.07, label:'Production Rate', icon:'⛏', unit:'/s' },
-      speed:{ base:4500, mult:1.65, perLvl:10, label:'Caravan Speed', icon:'⛵', unit:'%' },
-      cargo:{ base:5000, mult:1.65, perLvl:10, label:'Cargo', icon:'📦', unit:' units' },
-      harvest:{ base:15000, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
-      extraCaravan:{ base:60000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'⛵+', unit:'', max:4 },
-      sellValue:{ base:6000, mult:1.60, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
-      storage:{ base:5500, mult:1.55, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
-      luckyFind:{ base:18000, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+      production:{ perLvl:1, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ perLvl:1, label:'Caravan Speed', icon:'⛵', unit:'%' },
+      cargo:{ perLvl:1, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ perLvl:1, label:'Extra Caravan', icon:'⛵+', unit:'', max:4 },
+      sellValue:{ perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
     }
   },
+  // === MAP LV3 ZONES (Ring 4) ===
   {
-    id:'carthage', name:'Carthage', icon:'🏺', bg:'#382818', x:50, y:12,
-    cost:250000, caravan:'⛵', startState:'hidden', mapLevel:2,
-    lore:'Once rival to Rome, Carthage now trades in vibrant dyes and rare ivory.',
-    discoveryMsg:'The harbor of Carthage welcomes your fleet with exotic treasures!',
+    id:'cordoba', name:'Cordoba', icon:'🕌', bg:'#302020', x:12, y:80,
+    cost:400000, caravan:'🐪', startState:'hidden', mapLevel:3,
+    lore:'A center of learning and craft, where scholars and artisans create wonders.',
+    discoveryMsg:'The great mosque of Cordoba rises — a city of knowledge and craft awaits!',
     bonus:{ desc:'+5% all production', type:'prodAll', value:0.05 },
     resources:[
-      { id:'dyes', name:'Dyes', icon:'🎨', yield:45, baseRate:0.25, price:110 },
-      { id:'ivory', name:'Ivory', icon:'🦷', yield:55, baseRate:0.18, price:140 }
+      { id:'lapis', name:'Lapis Lazuli', icon:'🔷', yield:60, baseRate:14.24, price:18.80 },
+      { id:'carpets', name:'Carpets', icon:'🧶', yield:40, baseRate:9.49, price:18.80 }
     ],
     upgrades:{
-      production:{ base:5000, mult:1.65, perLvl:0.06, label:'Production Rate', icon:'⛏', unit:'/s' },
-      speed:{ base:5500, mult:1.65, perLvl:10, label:'Caravan Speed', icon:'⛵', unit:'%' },
-      cargo:{ base:6000, mult:1.65, perLvl:10, label:'Cargo', icon:'📦', unit:' units' },
-      harvest:{ base:18000, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
-      extraCaravan:{ base:75000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'⛵+', unit:'', max:4 },
-      sellValue:{ base:8000, mult:1.65, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
-      storage:{ base:7000, mult:1.55, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
-      luckyFind:{ base:22000, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+      production:{ perLvl:1, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ perLvl:1, label:'Caravan Speed', icon:'🐪', unit:'%' },
+      cargo:{ perLvl:1, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ perLvl:1, label:'Extra Caravan', icon:'🐪+', unit:'', max:4 },
+      sellValue:{ perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
     }
   },
-  // === MAP LV3 ZONES (Ring 4 — far) ===
   {
-    id:'samarkand', name:'Samarkand', icon:'🕌', bg:'#302020', x:12, y:80,
-    cost:500000, caravan:'🐪', startState:'hidden', mapLevel:3,
-    lore:'Heart of the Silk Road, where lapis lazuli gleams and carpets tell ancient tales.',
-    discoveryMsg:'Camel bells echo across the desert — Samarkand reveals its treasures!',
+    id:'bruges', name:'Bruges', icon:'🏘️', bg:'#382810', x:88, y:78,
+    cost:800000, caravan:'🐴', startState:'hidden', mapLevel:3,
+    lore:'A market town of Flanders, famous for its cloth trade and banking houses.',
+    discoveryMsg:'The bell tower of Bruges chimes — the cloth market is open for business!',
     bonus:{ desc:'+5% all sell prices', type:'sellAll', value:0.05 },
     resources:[
-      { id:'lapis', name:'Lapis Lazuli', icon:'🔷', yield:40, baseRate:0.15, price:200 },
-      { id:'carpets', name:'Carpets', icon:'🧶', yield:60, baseRate:0.25, price:120 }
+      { id:'cloth', name:'Cloth', icon:'🧣', yield:60, baseRate:16.52, price:23.00 },
+      { id:'tea', name:'Tea', icon:'🍵', yield:40, baseRate:11.01, price:23.00 }
     ],
     upgrades:{
-      production:{ base:12000, mult:1.70, perLvl:0.05, label:'Production Rate', icon:'⛏', unit:'/s' },
-      speed:{ base:14000, mult:1.70, perLvl:10, label:'Caravan Speed', icon:'🐪', unit:'%' },
-      cargo:{ base:15000, mult:1.70, perLvl:10, label:'Cargo', icon:'📦', unit:' units' },
-      harvest:{ base:40000, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
-      extraCaravan:{ base:150000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'🐪+', unit:'', max:4 },
-      sellValue:{ base:18000, mult:1.70, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
-      storage:{ base:16000, mult:1.60, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
-      luckyFind:{ base:50000, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+      production:{ perLvl:1, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ perLvl:1, label:'Caravan Speed', icon:'🐴', unit:'%' },
+      cargo:{ perLvl:1, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ perLvl:1, label:'Extra Caravan', icon:'🐴+', unit:'', max:4 },
+      sellValue:{ perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
     }
   },
   {
-    id:'mumbai', name:'Mumbai', icon:'🛕', bg:'#382810', x:88, y:78,
-    cost:750000, caravan:'⛵', startState:'hidden', mapLevel:3,
-    lore:'A land of fragrant tea gardens and cotton fields, gateway to the Indian Ocean.',
-    discoveryMsg:'Incense and monsoon winds guide your ships to Mumbai\'s bustling docks!',
+    id:'lisbon', name:'Lisbon', icon:'⛵', bg:'#1a2838', x:50, y:75,
+    cost:1500000, caravan:'⛵', startState:'hidden', mapLevel:3,
+    lore:'An oceanic port from which explorers set sail to discover new worlds.',
+    discoveryMsg:'The harbor of Lisbon beckons — ships laden with spices dock at your port!',
     bonus:{ desc:'+5% caravan speed', type:'speedAll', value:0.05 },
     resources:[
-      { id:'tea', name:'Tea', icon:'🍵', yield:50, baseRate:0.2, price:160 },
-      { id:'cotton', name:'Cotton', icon:'☁️', yield:50, baseRate:0.3, price:100 }
+      { id:'cotton', name:'Cotton', icon:'☁️', yield:60, baseRate:19.16, price:28.00 },
+      { id:'porcelain', name:'Porcelain', icon:'🏺', yield:40, baseRate:12.77, price:28.00 }
     ],
     upgrades:{
-      production:{ base:15000, mult:1.70, perLvl:0.05, label:'Production Rate', icon:'⛏', unit:'/s' },
-      speed:{ base:18000, mult:1.70, perLvl:10, label:'Caravan Speed', icon:'⛵', unit:'%' },
-      cargo:{ base:20000, mult:1.70, perLvl:10, label:'Cargo', icon:'📦', unit:' units' },
-      harvest:{ base:50000, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
-      extraCaravan:{ base:200000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'⛵+', unit:'', max:4 },
-      sellValue:{ base:22000, mult:1.70, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
-      storage:{ base:20000, mult:1.60, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
-      luckyFind:{ base:60000, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+      production:{ perLvl:1, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ perLvl:1, label:'Caravan Speed', icon:'⛵', unit:'%' },
+      cargo:{ perLvl:1, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ perLvl:1, label:'Extra Caravan', icon:'⛵+', unit:'', max:4 },
+      sellValue:{ perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
     }
   },
   {
-    id:'xian', name:"Xi'an", icon:'🏯', bg:'#2a1e1e', x:50, y:75,
-    cost:1000000, caravan:'🐪', startState:'hidden', mapLevel:3,
-    lore:'Eastern terminus of the Silk Road, famed for jade carvings and fine porcelain.',
-    discoveryMsg:'Terracotta warriors guard the path to Xi\'an\'s jade markets!',
+    id:'amsterdam', name:'Amsterdam', icon:'🏦', bg:'#1a2a30', x:32, y:72,
+    cost:3000000, caravan:'⛵', startState:'hidden', mapLevel:3,
+    lore:'The financial hub of Europe, where banks and trading companies shape the world.',
+    discoveryMsg:'The stock exchange of Amsterdam opens — fortunes await the bold!',
     bonus:{ desc:'-3% craft time', type:'craftSpeed', value:0.03 },
     resources:[
-      { id:'jade', name:'Jade', icon:'💚', yield:45, baseRate:0.12, price:250 },
-      { id:'porcelain', name:'Porcelain', icon:'🏺', yield:55, baseRate:0.2, price:135 }
+      { id:'tulips', name:'Tulips', icon:'🌷', yield:60, baseRate:22.22, price:34.00 },
+      { id:'jade', name:'Jade', icon:'💚', yield:40, baseRate:14.82, price:34.00 }
     ],
     upgrades:{
-      production:{ base:20000, mult:1.70, perLvl:0.04, label:'Production Rate', icon:'⛏', unit:'/s' },
-      speed:{ base:22000, mult:1.70, perLvl:10, label:'Caravan Speed', icon:'🐪', unit:'%' },
-      cargo:{ base:25000, mult:1.70, perLvl:10, label:'Cargo', icon:'📦', unit:' units' },
-      harvest:{ base:65000, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
-      extraCaravan:{ base:280000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'🐪+', unit:'', max:4 },
-      sellValue:{ base:30000, mult:1.70, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
-      storage:{ base:25000, mult:1.60, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
-      luckyFind:{ base:80000, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+      production:{ perLvl:1, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ perLvl:1, label:'Caravan Speed', icon:'⛵', unit:'%' },
+      cargo:{ perLvl:1, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ perLvl:1, label:'Extra Caravan', icon:'⛵+', unit:'', max:4 },
+      sellValue:{ perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
     }
   },
   // === MAP LV4 ZONES (Ring 5 — edge of the world) ===
   {
-    id:'timbuktu', name:'Timbuktu', icon:'🌍', bg:'#3a2e10', x:15, y:90,
-    cost:2500000, caravan:'🐪', startState:'hidden', mapLevel:4,
-    lore:'Legendary city of gold at the edge of the Sahara, where knowledge and gold dust mingle.',
-    discoveryMsg:'Across endless dunes, Timbuktu emerges like a golden mirage!',
-    bonus:{ desc:'+5% all sell prices', type:'sellAll', value:0.05 },
-    resources:[
-      { id:'goldDust', name:'Gold Dust', icon:'✨', yield:40, baseRate:0.08, price:400 },
-      { id:'exoticWood', name:'Exotic Wood', icon:'🌴', yield:60, baseRate:0.18, price:180 }
-    ],
-    upgrades:{
-      production:{ base:50000, mult:1.75, perLvl:0.03, label:'Production Rate', icon:'⛏', unit:'/s' },
-      speed:{ base:55000, mult:1.75, perLvl:10, label:'Caravan Speed', icon:'🐪', unit:'%' },
-      cargo:{ base:60000, mult:1.75, perLvl:10, label:'Cargo', icon:'📦', unit:' units' },
-      harvest:{ base:150000, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
-      extraCaravan:{ base:600000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'🐪+', unit:'', max:4 },
-      sellValue:{ base:70000, mult:1.75, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
-      storage:{ base:60000, mult:1.65, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
-      luckyFind:{ base:180000, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
-    }
-  },
-  {
-    id:'vinland', name:'Vinland', icon:'🛡️', bg:'#1a2830', x:85, y:88,
-    cost:4000000, caravan:'⛵', startState:'hidden', mapLevel:4,
-    lore:'Norse explorers tell of a frozen land rich in amber and furs beyond the western seas.',
-    discoveryMsg:'Viking longships report a land of amber shores and dense fur-bearing forests!',
+    id:'london', name:'London', icon:'🏭', bg:'#2a2a32', x:15, y:90,
+    cost:6000000, caravan:'🐴', startState:'hidden', mapLevel:4,
+    lore:'The industrial heart of the world, where factories and innovation drive progress.',
+    discoveryMsg:'Smokestacks and grand bridges — London industrializes before your eyes!',
     bonus:{ desc:'+5% all production', type:'prodAll', value:0.05 },
     resources:[
-      { id:'amber', name:'Amber', icon:'🟠', yield:50, baseRate:0.1, price:320 },
-      { id:'furs', name:'Furs', icon:'🦊', yield:50, baseRate:0.15, price:220 }
+      { id:'coal', name:'Coal', icon:'⚫', yield:60, baseRate:25.78, price:41.00 },
+      { id:'steel', name:'Steel', icon:'⚙️', yield:40, baseRate:17.19, price:41.00 }
     ],
     upgrades:{
-      production:{ base:70000, mult:1.75, perLvl:0.03, label:'Production Rate', icon:'⛏', unit:'/s' },
-      speed:{ base:75000, mult:1.75, perLvl:10, label:'Caravan Speed', icon:'⛵', unit:'%' },
-      cargo:{ base:80000, mult:1.75, perLvl:10, label:'Cargo', icon:'📦', unit:' units' },
-      harvest:{ base:200000, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
-      extraCaravan:{ base:800000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'⛵+', unit:'', max:4 },
-      sellValue:{ base:90000, mult:1.75, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
-      storage:{ base:80000, mult:1.65, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
-      luckyFind:{ base:250000, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+      production:{ perLvl:1, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ perLvl:1, label:'Caravan Speed', icon:'🐴', unit:'%' },
+      cargo:{ perLvl:1, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ perLvl:1, label:'Extra Caravan', icon:'🐴+', unit:'', max:4 },
+      sellValue:{ perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
     }
   },
   {
-    id:'zhangye', name:'Zhangye', icon:'🐉', bg:'#2a1020', x:50, y:95,
-    cost:6000000, caravan:'🐪', startState:'hidden', mapLevel:4,
-    lore:'At the edge of the known world, dragon scales shimmer in hidden mountain caves.',
-    discoveryMsg:'Legends spoke true — dragon scales glitter in the caves of Zhangye!',
-    bonus:{ desc:'+5% caravan speed', type:'speedAll', value:0.05 },
+    id:'manchester', name:'Manchester', icon:'🏭', bg:'#2e2828', x:85, y:88,
+    cost:12000000, caravan:'🐴', startState:'hidden', mapLevel:4,
+    lore:'The workshop of the world, where cotton mills and railroads revolutionize trade.',
+    discoveryMsg:'Steam engines roar — Manchester offers untold manufacturing power!',
+    bonus:{ desc:'+5% all sell prices', type:'sellAll', value:0.05 },
     resources:[
-      { id:'dragonScale', name:'Dragon Scales', icon:'🐉', yield:35, baseRate:0.06, price:600 },
-      { id:'silkRoad', name:'Silk Road Goods', icon:'🎭', yield:65, baseRate:0.15, price:280 }
+      { id:'textiles', name:'Textiles', icon:'🧵', yield:60, baseRate:29.91, price:49.00 },
+      { id:'machinery', name:'Machinery', icon:'🔧', yield:40, baseRate:19.94, price:49.00 }
     ],
     upgrades:{
-      production:{ base:100000, mult:1.80, perLvl:0.025, label:'Production Rate', icon:'⛏', unit:'/s' },
-      speed:{ base:110000, mult:1.80, perLvl:10, label:'Caravan Speed', icon:'🐪', unit:'%' },
-      cargo:{ base:120000, mult:1.80, perLvl:10, label:'Cargo', icon:'📦', unit:' units' },
-      harvest:{ base:300000, mult:1.55, perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
-      extraCaravan:{ base:1200000, mult:2.2, perLvl:1, label:'Extra Caravan', icon:'🐪+', unit:'', max:4 },
-      sellValue:{ base:130000, mult:1.80, perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
-      storage:{ base:110000, mult:1.70, perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
-      luckyFind:{ base:400000, mult:1.60, perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+      production:{ perLvl:1, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ perLvl:1, label:'Caravan Speed', icon:'🐴', unit:'%' },
+      cargo:{ perLvl:1, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ perLvl:1, label:'Extra Caravan', icon:'🐴+', unit:'', max:4 },
+      sellValue:{ perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+    }
+  },
+  {
+    id:'newyork', name:'New York Harbor', icon:'🗽', bg:'#1a2030', x:50, y:95,
+    cost:25000000, caravan:'⛵', startState:'hidden', mapLevel:4,
+    lore:'The golden door to a new world, where fortunes are made in a single day.',
+    discoveryMsg:'The Statue of Liberty rises from the harbor — New York welcomes you!',
+    bonus:{ desc:'+5% caravan speed', type:'speedAll', value:0.05 },
+    resources:[
+      { id:'oil', name:'Oil', icon:'🛢️', yield:60, baseRate:34.70, price:58.00 },
+      { id:'diamonds', name:'Diamonds', icon:'💎', yield:40, baseRate:23.13, price:58.00 }
+    ],
+    upgrades:{
+      production:{ perLvl:1, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ perLvl:1, label:'Caravan Speed', icon:'⛵', unit:'%' },
+      cargo:{ perLvl:1, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ perLvl:1, label:'Extra Caravan', icon:'⛵+', unit:'', max:4 },
+      sellValue:{ perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
+    }
+  },
+  {
+    id:'worldcrown', name:'World Crown', icon:'👑', bg:'#2a1020', x:50, y:40,
+    cost:50000000, caravan:'🐪', startState:'hidden', mapLevel:4,
+    lore:'The ultimate marketplace — where all the riches of the world converge.',
+    discoveryMsg:'The World Crown gleams with the wealth of nations — the ultimate prize!',
+    bonus:{ desc:'+5% all production', type:'prodAll', value:0.05 },
+    resources:[
+      { id:'goldDust', name:'Gold Dust', icon:'✨', yield:60, baseRate:40.25, price:68.00 },
+      { id:'dragonScale', name:'Dragon Scales', icon:'🐉', yield:40, baseRate:26.83, price:68.00 }
+    ],
+    upgrades:{
+      production:{ perLvl:1, label:'Production Rate', icon:'⛏', unit:'/s' },
+      speed:{ perLvl:1, label:'Caravan Speed', icon:'🐪', unit:'%' },
+      cargo:{ perLvl:1, label:'Cargo', icon:'📦', unit:' units' },
+      harvest:{ perLvl:1, label:'Multi-Harvest', icon:'✨', unit:'%', max:25 },
+      extraCaravan:{ perLvl:1, label:'Extra Caravan', icon:'🐪+', unit:'', max:4 },
+      sellValue:{ perLvl:5, label:'Sell Value', icon:'💰', unit:'%' },
+      storage:{ perLvl:50, label:'Storage', icon:'🏪', unit:' cap' },
+      luckyFind:{ perLvl:0.5, label:'Lucky Find', icon:'🍀', unit:'%', max:10 }
     }
   }
 ];
 
 var SCOUTING_MAPS = [
-  { id:'mapLv1', name:'Map Lv1', icon:'🗺️', discovers:['athenai','roma','alexandria'] },
-  { id:'mapLv2', name:'Map Lv2', icon:'🗺️', discovers:['constantinople','venetia','carthage'] },
-  { id:'mapLv3', name:'Map Lv3', icon:'🗺️', discovers:['samarkand','mumbai','xian'] },
-  { id:'mapLv4', name:'Map Lv4', icon:'🗺️', discovers:['timbuktu','vinland','zhangye'] },
+  { id:'mapLv1', name:'Map Lv1', icon:'🗺️', discovers:['athenai','sparta','roma','alexandria'] },
+  { id:'mapLv2', name:'Map Lv2', icon:'🗺️', discovers:['carthage','byzantium','constantinople','venetia'] },
+  { id:'mapLv3', name:'Map Lv3', icon:'🗺️', discovers:['cordoba','bruges','lisbon','amsterdam'] },
+  { id:'mapLv4', name:'Map Lv4', icon:'🗺️', discovers:['london','manchester','newyork','worldcrown'] },
 ];
 
 var CRAFT_RECIPES = [
-  // Basic
+  // Basic (from starter zones 1-4)
   { id:'planks',     name:'Planks',      icon:'🪵',  time:5,   sellPrice:8,   cost:{ wood:5 } },
-  { id:'bricks',     name:'Bricks',      icon:'🧱',  time:8,   sellPrice:18,  cost:{ stone:8, wood:2 } },
+  { id:'bricks',     name:'Bricks',      icon:'🧱',  time:8,   sellPrice:18,  cost:{ stone:8, clay:4 } },
   { id:'tools',      name:'Tools',       icon:'🔧',  time:15,  sellPrice:35,  cost:{ planks:3, iron:5 } },
-  { id:'provisions', name:'Provisions',  icon:'🎒',  time:12,  sellPrice:25,  cost:{ food:10, wood:3 } },
+  { id:'provisions', name:'Provisions',  icon:'🎒',  time:12,  sellPrice:25,  cost:{ food:10, grain:5 } },
   { id:'scoutKit',   name:'Scout Kit',   icon:'🧭',  time:30,  sellPrice:80,  cost:{ tools:2, provisions:5 } },
   { id:'steelBar',   name:'Steel Bar',   icon:'⚔️',  time:20,  sellPrice:50,  cost:{ iron:8, stone:3 } },
   // Maps (not sellable)
-  { id:'mapLv1', name:'Map Lv1', icon:'🗺️', time:60, sellPrice:0, cost:{ tools:5, provisions:10, scoutKit:3 }, type:'map' },
+  { id:'mapLv1', name:'Map Lv1', icon:'🗺️', time:60,  sellPrice:0, cost:{ tools:5, provisions:10, scoutKit:3 }, type:'map' },
   { id:'mapLv2', name:'Map Lv2', icon:'🗺️', time:120, sellPrice:0, cost:{ tradeContract:5, luxuryGoods:3, scoutKit:10 }, type:'map' },
   { id:'mapLv3', name:'Map Lv3', icon:'🗺️', time:240, sellPrice:0, cost:{ merchantFleet:2, royalArmor:3, tradeContract:10 }, type:'map' },
   { id:'mapLv4', name:'Map Lv4', icon:'🗺️', time:480, sellPrice:0, cost:{ merchantFleet:5, royalArmor:5, luxuryGoods:10 }, type:'map' },
-  // Advanced (from new zones)
+  // Advanced (from Map Lv1 zones 5-8)
   { id:'olivePress', name:'Olive Press',  icon:'🫒',  time:18,  sellPrice:45,  cost:{ oliveOil:5, planks:3 } },
   { id:'scrolls',    name:'Scrolls',      icon:'📖',  time:25,  sellPrice:65,  cost:{ papyrus:8, tools:2 } },
   { id:'spicedWine', name:'Spiced Wine',  icon:'🍷',  time:22,  sellPrice:75,  cost:{ wine:5, spices:3 } },
@@ -1615,7 +1720,7 @@ var CRAFT_RECIPES = [
   { id:'tradeContract', name:'Trade Contract', icon:'📋', time:40, sellPrice:180, cost:{ scrolls:3, tools:5 } },
   { id:'royalArmor', name:'Royal Armor',   icon:'👑', time:50, sellPrice:280, cost:{ warGear:3, steelBar:8, olivePress:2 } },
   { id:'merchantFleet', name:'Merchant Fleet', icon:'🚢', time:60, sellPrice:350, cost:{ tradeContract:2, luxuryGoods:2, planks:20 } },
-  // Tier 4 crafts (from Lv2+ zone resources)
+  // Tier 4 crafts (from Map Lv2+ zone resources)
   { id:'silkRobe', name:'Silk Robe', icon:'👘', time:30, sellPrice:250, cost:{ silk:5, dyes:3 } },
   { id:'crystalLens', name:'Crystal Lens', icon:'🔭', time:35, sellPrice:280, cost:{ glass:8, jewels:2 } },
   { id:'ivoryStatue', name:'Ivory Statue', icon:'🗿', time:40, sellPrice:320, cost:{ ivory:5, jade:2, goldDust:1 } },
@@ -1638,18 +1743,19 @@ var GLOBAL_UPGRADES = [
 ];
 
 var PRESTIGE_MILESTONES = [
-  { crowns: 25000,   seals: 1,  label: '25K',  title: 'Novice Trader' },
-  { crowns: 50000,   seals: 2,  label: '50K',  title: 'Apprentice Merchant' },
-  { crowns: 100000,  seals: 3,  label: '100K', title: 'Merchant' },
-  { crowns: 250000,  seals: 5,  label: '250K', title: 'Trade Baron' },
-  { crowns: 500000,  seals: 8,  label: '500K', title: 'Guild Master' },
-  { crowns: 1000000, seals: 12, label: '1M',   title: 'Trade Prince' },
-  { crowns: 2500000, seals: 18, label: '2.5M', title: 'Commerce Lord' },
-  { crowns: 5000000, seals: 25, label: '5M',   title: 'Trade Emperor' },
-  { crowns: 10000000, seals: 35, label: '10M', title: 'Golden Sovereign' },
-  { crowns: 25000000, seals: 50, label: '25M', title: 'Eternal Merchant' },
-  { crowns: 50000000, seals: 70, label: '50M', title: 'Mythic Trader' },
-  { crowns: 100000000, seals: 100, label: '100M', title: 'Legend of the Bazaar' },
+  { crowns: 25000,     seals: 1,   label: '25K',  title: 'Novice Trader' },
+  { crowns: 100000,    seals: 2,   label: '100K', title: 'Apprentice Merchant' },
+  { crowns: 250000,    seals: 3,   label: '250K', title: 'Merchant' },
+  { crowns: 500000,    seals: 5,   label: '500K', title: 'Trade Baron' },
+  { crowns: 1000000,   seals: 8,   label: '1M',   title: 'Guild Master' },
+  { crowns: 2500000,   seals: 12,  label: '2.5M', title: 'Trade Prince' },
+  { crowns: 5000000,   seals: 18,  label: '5M',   title: 'Commerce Lord' },
+  { crowns: 10000000,  seals: 25,  label: '10M',  title: 'Trade Emperor' },
+  { crowns: 25000000,  seals: 35,  label: '25M',  title: 'Golden Sovereign' },
+  { crowns: 50000000,  seals: 50,  label: '50M',  title: 'Eternal Merchant' },
+  { crowns: 100000000, seals: 70,  label: '100M', title: 'Mythic Trader' },
+  { crowns: 500000000, seals: 100, label: '500M', title: 'Legend of the Bazaar' },
+  { crowns: 1000000000, seals: 150, label: '1B',  title: 'World Crown Bearer' },
 ];
 
 /* ===== #1 ACHIEVEMENTS ===== */
@@ -1658,7 +1764,7 @@ var ACHIEVEMENTS = [
   { id:'zone3', name:'Triple Threat', desc:'Unlock 3 zones', icon:'🗺️', reward:1, check:function(){ var c=0; ZONES.forEach(function(z){ if(G.zones[z.id].state==='unlocked') c++; }); return c>=3; } },
   { id:'zone5', name:'Trade Network', desc:'Unlock 5 zones', icon:'🌐', reward:2, check:function(){ var c=0; ZONES.forEach(function(z){ if(G.zones[z.id].state==='unlocked') c++; }); return c>=5; } },
   { id:'zone10', name:'Empire Builder', desc:'Unlock 10 zones', icon:'👑', reward:5, check:function(){ var c=0; ZONES.forEach(function(z){ if(G.zones[z.id].state==='unlocked') c++; }); return c>=10; } },
-  { id:'zoneAll', name:'World Domination', desc:'Unlock all 15 zones', icon:'🌍', reward:10, check:function(){ var c=0; ZONES.forEach(function(z){ if(G.zones[z.id].state==='unlocked') c++; }); return c>=15; } },
+  { id:'zoneAll', name:'World Domination', desc:'Unlock all 20 zones', icon:'🌍', reward:10, check:function(){ var c=0; ZONES.forEach(function(z){ if(G.zones[z.id].state==='unlocked') c++; }); return c>=20; } },
   { id:'crowns10k', name:'Getting Started', desc:'Earn 10K total Crowns', icon:'🪙', reward:1, check:function(){ return G.totalCrownsEarned >= 10000; } },
   { id:'crowns100k', name:'Moneybags', desc:'Earn 100K total Crowns', icon:'💎', reward:2, check:function(){ return G.totalCrownsEarned >= 100000; } },
   { id:'crowns1m', name:'Millionaire', desc:'Earn 1M total Crowns', icon:'🏆', reward:3, check:function(){ return G.totalCrownsEarned >= 1000000; } },
@@ -1912,8 +2018,8 @@ function wipeSave() {
 /* ============================================================
    CALCULATIONS
    ============================================================ */
-function upgradeCost(baseC, mult, level) {
-  return Math.floor(baseC * Math.pow(mult, level));
+function upgradeCost(unlockCost, ignored, level) {
+  return Math.floor((unlockCost / 20) * Math.pow(1.3, level));
 }
 
 /* #2 Zone Specialization bonus calculator */
@@ -1929,7 +2035,10 @@ function getZoneBonusMultiplier(type) {
 
 function getZoneProductionRate(zone) {
   var zs = G.zones[zone.id];
-  var base = 1 + zs.upgrades.production * zone.upgrades.production.perLvl;
+  var L = zs.upgrades.production; // upgrade level (0-based)
+  // Idle Planet Miner quadratic: baseOutput * [0.25 + 0.1*(L) + 0.017*(L)^2]
+  // Normalized so L=0 gives 1.0x: divide by 0.25
+  var base = 1 + 0.4 * L + 0.068 * L * L;
   var prestigeMult = 1;
   if (G.ownedPrestige.prodBoost) prestigeMult *= 1.25;
   // #2 Zone specialization: prodAll bonus
@@ -1968,14 +2077,18 @@ function getZoneUnlockCost(zone) {
 
 function getCargoCapacity(zone) {
   var zs = G.zones[zone.id];
-  var base = 10;
-  return base + zs.upgrades.cargo * zone.upgrades.cargo.perLvl;
+  var L = zs.upgrades.cargo; // upgrade level (0-based)
+  // Idle Planet Miner: baseCargo * [5 + 2*(L) + 0.1*(L)^2]
+  // baseCargo = 2, so at L=0: 2*5 = 10 units
+  return Math.floor(2 * (5 + 2 * L + 0.1 * L * L));
 }
 
 function getCaravanSpeed(zone) {
   var zs = G.zones[zone.id];
   var base = 0.02;
-  var speed = base * (1 + zs.upgrades.speed * 0.10);
+  var L = zs.upgrades.speed; // upgrade level (0-based)
+  // Idle Planet Miner: baseSpeed * [1 + 0.2*(L) + (1/75)*(L)^2]
+  var speed = base * (1 + 0.2 * L + (1/75) * L * L);
   // Global: Trade Routes
   speed *= 1 + (G.globalUpgrades.tradeRoutes || 0) * 0.10;
   // #2 Zone specialization: speedAll bonus
@@ -2544,10 +2657,9 @@ function getUpgradeLevel(zoneId, upKey) {
 }
 
 function getSpecialSealCost(zone, upKey) {
-  var up = zone.upgrades[upKey];
   var lvl = getSpecialUpgradeLevel(zone.id, upKey);
-  // Cost in Legacy Seals — much smaller numbers
-  var baseSeal = Math.max(1, Math.floor(up.base / 200));
+  // Cost in Legacy Seals — derived from zone unlock cost
+  var baseSeal = Math.max(1, Math.floor(zone.cost / 500));
   return Math.floor(baseSeal * Math.pow(1.5, lvl));
 }
 
@@ -2571,7 +2683,7 @@ function buyUpgrade(zoneId, upKey) {
     var zs = G.zones[zoneId];
     var lvl2 = zs.upgrades[upKey];
     if (up.max && lvl2 >= up.max) return;
-    var cost = upgradeCost(up.base, up.mult, lvl2);
+    var cost = upgradeCost(zone.cost, null, lvl2);
     if (G.crowns >= cost) {
       G.crowns -= cost;
       zs.upgrades[upKey]++;
@@ -3097,7 +3209,7 @@ function renderZoneDetail() {
   ['production','speed','cargo'].forEach(function(key){
     var up = zone.upgrades[key];
     for (var i = 0; i < zs.upgrades[key]; i++) {
-      totalUpgCost += upgradeCost(up.base, up.mult, i);
+      totalUpgCost += upgradeCost(zone.cost, null, i);
     }
   });
   var zoneIncome = 0;
@@ -3136,15 +3248,15 @@ function renderZoneDetail() {
       canAfford = G.legacySeals >= cost && !isMaxed;
       costText = isMaxed ? 'MAX' : cost + ' \u{1F396}';
     } else {
-      cost = isMaxed ? 0 : upgradeCost(up.base, up.mult, lvl);
+      cost = isMaxed ? 0 : upgradeCost(zone.cost, null, lvl);
       canAfford = G.crowns >= cost && !isMaxed;
       costText = isMaxed ? 'MAX' : '\u{1FA99} ' + formatNum(cost);
     }
 
     var statText = '';
-    if (key === 'production') statText = 'Lv.' + lvl + ' \u2022 ' + (1 + lvl * up.perLvl).toFixed(2) + 'x';
-    else if (key === 'speed') statText = 'Lv.' + lvl + ' \u2022 +' + (lvl * up.perLvl) + '%';
-    else if (key === 'cargo') statText = 'Lv.' + lvl + ' \u2022 +' + (lvl * up.perLvl) + ' units';
+    if (key === 'production') statText = 'Lv.' + lvl + ' \u2022 ' + (1 + 0.4 * lvl + 0.068 * lvl * lvl).toFixed(2) + 'x';
+    else if (key === 'speed') statText = 'Lv.' + lvl + ' \u2022 ' + (1 + 0.2 * lvl + (1/75) * lvl * lvl).toFixed(2) + 'x';
+    else if (key === 'cargo') statText = 'Lv.' + lvl + ' \u2022 ' + Math.floor(2 * (5 + 2 * lvl + 0.1 * lvl * lvl)) + ' units';
     else if (key === 'harvest') statText = 'Lv.' + lvl + '/' + (up.max||25) + ' \u2022 ' + lvl + '% chance';
     else if (key === 'extraCaravan') statText = 'Lv.' + lvl + '/' + (up.max||4) + ' \u2022 ' + (1 + lvl) + ' caravans';
     else if (key === 'sellValue') statText = 'Lv.' + lvl + ' \u2022 +' + (lvl * 5) + '% sell price';
