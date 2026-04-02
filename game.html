@@ -945,7 +945,7 @@
       <button class="bz-sell-all-fab" id="sellAllFab"
         onmousedown="startLongPress()" onmouseup="endLongPress()" onmouseleave="endLongPress()"
         ontouchstart="startLongPress()" ontouchend="endLongPress()" ontouchcancel="endLongPress()"
-        onclick="if(!longPressTriggered)sellAll()">💰</button>
+        onclick="fabClick()">💰</button>
     </div>
     <div class="mini-tabs" id="bzTabs">
       <button class="mini-tab active" onclick="switchBzTab('raw')">Raw</button>
@@ -2088,30 +2088,40 @@ function sellSelected() {
   showFlash('+' + formatNum(value) + ' 🪙');
 }
 
-function sellAll() {
+function sellFiltered() {
+  // Sell only what matches the current bazaar tab filter
   var total = 0;
   var sellMult = getSellMultiplier();
   var resData = getResData();
 
-  // Sell raw resources
-  Object.keys(G.bazaar).forEach(function(rid){
-    var qty = G.bazaar[rid];
-    if (qty >= 1 && resData[rid]) {
-      var toSell = Math.floor(qty);
-      total += toSell * resData[rid].price * sellMult;
-      G.bazaar[rid] -= toSell;
-      if (G.bazaar[rid] < 0.01) G.bazaar[rid] = 0;
-    }
-  });
+  if (bzTabFilter === 'raw' || bzTabFilter === 'all') {
+    Object.keys(G.bazaar).forEach(function(rid){
+      var qty = G.bazaar[rid];
+      if (qty >= 1 && resData[rid]) {
+        var toSell = Math.floor(qty);
+        total += toSell * resData[rid].price * sellMult;
+        G.bazaar[rid] -= toSell;
+        if (G.bazaar[rid] < 0.01) G.bazaar[rid] = 0;
+      }
+    });
+  }
 
-  // Sell crafted items
-  Object.keys(G.craftInventory).forEach(function(rid){
-    var qty = G.craftInventory[rid];
-    if (qty >= 1 && resData[rid]) {
-      total += qty * resData[rid].price * sellMult;
-      G.craftInventory[rid] = 0;
-    }
-  });
+  if (bzTabFilter === 'crafted' || bzTabFilter === 'all') {
+    Object.keys(G.craftInventory).forEach(function(rid){
+      var qty = G.craftInventory[rid];
+      var r = resData[rid];
+      if (qty >= 1 && r && r.price > 0) {
+        total += qty * r.price * sellMult;
+        G.craftInventory[rid] = 0;
+      }
+    });
+  }
+
+  return total;
+}
+
+function sellAll() {
+  var total = Math.floor(sellFiltered());
 
   total = Math.floor(total);
   if (total > 0) {
@@ -3254,30 +3264,16 @@ function endLongPress() {
   clearTimeout(longPressTimer);
 }
 
+function fabClick() {
+  if (longPressTriggered) return; // long press already handled toggle
+  sellAll(); // tap always sells
+}
+window.fabClick = fabClick;
+
 function tickContinuousSell() {
   if (!continuousSell) return;
-  var resData = getResData();
-  var sellMult = getSellMultiplier();
-  var total = 0;
-  Object.keys(G.bazaar).forEach(function(rid){
-    var qty = G.bazaar[rid];
-    if (qty >= 1 && resData[rid]) {
-      var toSell = Math.floor(qty);
-      total += toSell * resData[rid].price * sellMult;
-      G.bazaar[rid] -= toSell;
-      if (G.bazaar[rid] < 0.01) G.bazaar[rid] = 0;
-    }
-  });
-  Object.keys(G.craftInventory).forEach(function(rid){
-    var qty = G.craftInventory[rid];
-    var r = resData[rid];
-    if (qty >= 1 && r && r.price > 0) {
-      total += qty * r.price * sellMult;
-      G.craftInventory[rid] = 0;
-    }
-  });
+  var total = Math.floor(sellFiltered());
   if (total > 0) {
-    total = Math.floor(total);
     G.crowns += total;
     G.totalCrownsEarned += total;
   }
